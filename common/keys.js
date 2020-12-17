@@ -1,0 +1,26 @@
+
+export const VK_BACK = 0x08; // BACKSPACE key
+export const VK_TAB = 0x09; //TAB key
+export const VK_CLEAR = 0x0C; //CLEAR key
+export const VK_RETURN = 0x0D; //ENTER key
+export const VK_SHIFT = 0x10; //SHIFT key
+export const VK_CONTROL = 0x11; //CTRL key
+export const VK_MENU = 0x12; //ALT key
+export const VK_PAUSE = 0x13; //PAUSE key
+export const VK_CAPITAL = 0x14; //CAPS LOCK key
+export const VK_ESCAPE = 0x1B; //ESC key
+export const VK_SPACE = 0x20; //SPACEBAR
+export const VK_PRIOR = 0x21; //PAGE UP key
+export const VK_NEXT = 0x22; //PAGE DOWN key
+export const VK_END = 0x23; //END key
+export const VK_HOME = 0x24; //HOME key
+export const VK_LEFT = 0x25; //LEFT ARROW key
+export const VK_UP = 0x26; //UP ARROW key
+export const VK_RIGHT = 0x27; //RIGHT ARROW key
+export const VK_DOWN = 0x28; //DOWN ARROW key
+export const VK_SELECT = 0x29; //SELECT key
+export const VK_PRINT = 0x2A; //PRINT key
+export const VK_EXECUTE = 0x2B; //EXECUTE key
+export const VK_SNAPSHOT = 0x2C; //PRINT SCREEN key
+export const VK_INSERT = 0x2D; //INS key
+export const VK_DELETE = 0x2E; //DEL key
