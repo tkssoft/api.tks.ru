@@ -75,7 +75,6 @@ class BaseContractEdit extends React.Component {
             </div>
         )
     }
-
 }
 
 /* Базовый input с указанием ошибок */

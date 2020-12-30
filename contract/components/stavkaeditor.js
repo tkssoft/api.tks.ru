@@ -3,10 +3,11 @@
 import React from "react"
 import { ShowSt } from '../../tnved/showst'
 import { get_stavka } from "../../tnved/stavka"
+import { isError } from "../../common/utils"
 
 const StavkaEditor = (props) => {
     const { manager, kontdop, skipName, skipIfEmpty } = props
-    if (kontdop !== undefined) {
+    if ((kontdop !== undefined) && !isError(kontdop.state.errors.G33)) {
         return <ShowSt
             typ={manager.kontrakt.TYPE}
             data={kontdop.state.data}

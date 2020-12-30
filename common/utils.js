@@ -11,7 +11,17 @@ class FetchError extends Error {
     }
 }
 
+const isEmpty = function(obj) {
+    return Object.getOwnPropertyNames(obj).length === 0
+}
+
+const isError = (error) => {
+    return ![undefined, null].includes(error) && (error.length > 0)
+}
+
 export {
     isFunction,
-    FetchError
+    FetchError,
+    isEmpty,
+    isError
 }

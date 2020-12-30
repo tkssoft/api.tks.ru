@@ -1,21 +1,29 @@
 
+import { DelayManager } from './delayprocessing'
+
+const DELAY_MODIFIED = 'MODIFIED'
+const DELAY_STATE = 'STATE'
+const DELAY_CHANGE = 'CHANGE'
+const DELAY_LOAD = 'LOAD'
+
 class stateobject {
 
     constructor (props) {
         this.props = {
             ...props
         };
-        this.state = this.get_init_state();
-        this.timeout = null;
+        this.state = this.get_init_state()
+        this.deman = new DelayManager()
+        this.register_delay(this.deman)
+    }
+
+    register_delay(deman) {
+        // nothing
     }
 
     get_init_state () {
         return {
-            delayed: false,
-            pending: false,
-            loading: false,
-            loadpending: false,
-            modified: false,
+            modified: false
         }
     }
 
@@ -25,29 +33,43 @@ class stateobject {
             ...this.state,
             ...state
         }
-        this.stateUpdated(this.props, prevState);
+        this.stateUpdated(prevState, state);
         if (callback !== undefined) {
             callback();
         }
     };
 
-    stateUpdated(prevProps, prevState, source) {
-        if (this.props.onChange !== undefined) {
-            this.props.onChange(this)
+    doStateUpdated(prevState, delta) {
+
+    }
+
+    stateUpdated(prevState, delta) {
+        if (this.state.modified) {
+            this.state = {
+                ...this.state,
+                modified: false,
+            }
+            this.doStateUpdated(prevState, delta)
+            if (this.props.onChange !== undefined) {
+                this.props.onChange(this)
+            }
         }
     }
 
-    setDelayedState(state, cb) {
-        // ToDo: реализация работы с timeout есть в contract_manager.
-        // Посмотреть и перенести сюда.
-        // Здесь устанавливается только флаг delayed
-        this.setState({
-            ...state,
-            delayed: true
-        }, cb)
+    setDelayedState(state, delayname) {
+        let that = this
+        this.setState(state, () => {
+            if (delayname) {
+                that.deman.run(delayname)
+            }
+        })
     }
 }
 
 export {
-    stateobject
+    stateobject,
+    DELAY_MODIFIED,
+    DELAY_STATE,
+    DELAY_CHANGE,
+    DELAY_LOAD
 }

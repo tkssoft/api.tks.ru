@@ -1,9 +1,14 @@
 // менеджер расчета контракта
 
 import { debug } from "../../common/debug"
+import { isEmpty } from "../../common/utils"
+import { stateobject } from "../../common/stateobject"
+import { FetchError, isError } from '../../common/utils'
+import { tnved_manager } from "../../tnved/tnved_manager"
+import { validate_code_error } from "../../tnved/tnved_utils"
+
 import { get_stavka, get_tnvedcc_rec, updatestavka, get_prim_values } from "../../tnved/stavka"
 import { calc_get5, has_pr, is_pr, get_edizm_list } from "../../tnved/tnved_utils"
-import { tnved_manager } from "../../tnved/tnved_manager"
 import {
     LETTER_B,
     LETTER_C,
@@ -11,10 +16,12 @@ import {
     PRIZNAK_IMPORTDUTY,
     PRIZNAK_VAT,
     PRIZNAK_EXCISEDUTY } from '../../tnved/tnv_const'
-import { stateobject } from "../../common/stateobject"
-import { FetchError } from '../../common/utils'
+
 const nsi = require( '../../common/nsi' )
 const edizm = nsi.edizm()
+
+const DELAY_TNVED = 'TNVED'
+const DELAY_CALC = 'CALC'
 
 const get_edizm_displayLabel = (edi, index) => {
     switch (edi) {
@@ -28,10 +35,6 @@ const get_edizm_displayLabel = (edi, index) => {
     }
 };
 
-const is_error = (value) => {
-    return [undefined, null].includes(value) || (value.length > 0)
-}
-
 /* Товарная часть контракта */
 class kontdop extends stateobject {
 
@@ -42,12 +45,11 @@ class kontdop extends stateobject {
         this.tn = tn;
         this.update_count = 0;
         /* дополнительные количества, единицы измерения и их поля */
-        this.addedizm = {...addedizm}
+        this.addedizm = {
+            ...addedizm
+        }
         this.state = {
             debug: false,
-            loadpending: false,
-            loading: false,
-            modified: false,
             data: {
                 ...data,
                 ...this.get_additional_values(data)
@@ -60,17 +62,31 @@ class kontdop extends stateobject {
         };
     }
 
-    begin_update = () => {
-        this.update_count = this.update_count + 1
-        return this.update_count
+    register_delay (deman) {
+        super.register_delay(deman)
+        deman.add({
+            name: DELAY_TNVED,
+            action: this.loadTnvedData.bind(this),
+            params: this.loadTnvedDataParams.bind(this),
+            delay: 1000
+        })
     }
 
-    end_update = () => {
-        this.update_count = this.update_count - 1
-        if (this.update_count === 0) {
-            this.stateUpdated(this.props, this.state)
+    doStateUpdated(prevState, delta) {
+        super.doStateUpdated(prevState, delta)
+        let updated = this.updatestavka()
+        if (!isEmpty(updated)) {
+            this.state = {
+                ...this.state,
+                updated
+            }
         }
-        return this.update_count
+        // ToDo: переделать
+        // Передача в kontrakt части по ставкам из TNVEDCC в зависимости от страны G34
+        // let cc = {};
+        // if (this.state.tnved) {
+        //     cc = get_tnvedcc_rec(this.state.data.G34, this.state.tnved.TNVEDCC);
+        // }
     }
 
     setStavka = (value) => {
@@ -86,7 +102,6 @@ class kontdop extends stateobject {
     }
 
     setAttr = (attr, value) => {
-        // debug('kondop attribute changed', attr, value);
         switch (attr) {
             case 'G33':
                 this.setG33(value);
@@ -224,61 +239,6 @@ class kontdop extends stateobject {
         return {}
     }
 
-    kondopchange = () => {
-        let cc = {};
-        if (this.state.tnved) {
-            cc = get_tnvedcc_rec(this.state.data.G34, this.state.tnved.TNVEDCC);
-        }
-        this.props.onChange(this.state.data, cc);
-        this.setState({modified: false})
-    };
-
-    stateUpdated(prevProps, prevState, source) {
-        const { modified, loading, loadpending } = this.state;
-        if (prevState.data.G33 !== this.state.data.G33 && this.state.errors.G33 === '') {
-            //console.trace('1');
-            // Изменился код ТН ВЭД
-            this.begin_update()
-            this.loadTnvedData(this.state.data.G33, true).then(() => {
-                this.end_update()
-            });
-        } else if (loadpending) {
-            //console.trace('2');
-            if (this.state.data.G33 !== undefined) {
-                // загрузка данных по коду ТН ВЭД , определение кода доп. единицы измерения
-                this.setState({loading: true, loadpending: false});
-                this.loadTnvedData(this.state.data.G33).then(() => {
-                    this.setState({loading: false})
-                });
-            } else {
-                this.setState({loadpending: false});
-            }
-        }
-        if (modified && (this.update_count === 0)) {
-            /*Передача данных в kontrakt*/
-            let updated = this.updatestavka();
-            if (Object.getOwnPropertyNames(updated).length === 0) {
-                this.setState({
-                    modified: false
-                }, () => {
-                    this.kondopchange();
-                })
-            } else {
-                this.setState({
-                    data: {
-                        ...this.state.data,
-                        ...updated
-                    },
-                    modified: false
-                }, () => {
-                    this.kondopchange();
-                })
-            }
-
-        }
-        // super.stateUpdated(prevProps, prevState, source);
-    }
-
     get_tnved_error_message(e) {
         if (e) {
             if (e instanceof TypeError) {
@@ -296,29 +256,38 @@ class kontdop extends stateobject {
         return 'Неизвестная ошибка'
     }
 
-    loadTnvedData(code, setmodified) {
+    loadTnvedDataParams() {
+        return {
+            code: this.state.data.G33,
+        }
+    }
+
+    loadTnvedData(procinfo, params) {
+        const { code } = params
         let tn = this.tn || new tnved_manager();
         let that = this
-        if (code) {
+        if (code && (code.length === 10)) {
             return tn.getData(code)
                 .then(data => {
-                    this.updateStateWithTnved(data, setmodified)
+                    this.updateStateWithTnved(data)
                 })
                 .catch(error => {
+                    const error_msg = that.get_tnved_error_message(error)
                     this.setState({
+                        modified: true,
                         errors: {
                             ...this.state.errors,
-                            G33: that.get_tnved_error_message(error)
+                            G33: error_msg
                         }
-                    }, () => {
                     })
                 })
         } else {
             return new Promise((resolve, reject) => {
                 this.setState({
+                    modified: true,
                     errors: {
                         ...this.state.errors,
-                        G33: null
+                        G33: 'Введите код товара'
                     }
                 }, () => {
                     resolve()
@@ -327,61 +296,57 @@ class kontdop extends stateobject {
         }
     }
 
-    updateStateWithTnved(data, setmodified) {
+    updateStateWithTnved(data) {
         const not_allowed = ['CODE', 'EDI2', 'EDI3', 'IMPFEES', 'EXPFEES', 'AKCCODE', 'EXPCODE', 'STUFF1'];
         var state = {
             tnved: {...data}
         };
-        if (setmodified) {
-            state.modified = true;
-            /*Переписываем поля из таблицы TNVED в нашу data, за исключением некоторых, которых нет в kontdop*/
-            state.data = {
-                ...Object.keys(data.TNVED).filter(key => {
-                    return !not_allowed.includes(key) && key.indexOf('_PR') === -1
-                },
-                ).reduce((obj, key) => {
-                    obj[key] = data.TNVED[key];
-                    return obj
-                }, {...this.state.data}),
-                G312: data.KR_NAIM
-            };
-        }
+        /*Переписываем поля из таблицы TNVED в нашу data, за исключением некоторых, которых нет в kontdop*/
+        state.data = {
+            ...Object.keys(data.TNVED).filter(key => {
+                return !not_allowed.includes(key) && key.indexOf('_PR') === -1
+            },
+            ).reduce((obj, key) => {
+                obj[key] = data.TNVED[key];
+                return obj
+            }, {...this.state.data}),
+            G312: data.KR_NAIM
+        };
         this.setState(state, () => {
             this.setState(
                 {
-                    modified: true,
                     data: {
                         ...this.state.data,
                         ...this.get_additional_values(this.state.data, this.state.tnved)
                     },
                     errors: {
                         ...this.state.errors,
-                        ...this.validateEdizmAll(this.state.data, this.state.tnved)
-                    }
+                        ...this.validateEdizmAll(this.state.data, this.state.tnved),
+                        G33: null
+                    },
+                    modified: true
                 }
             )
         })
     }
 
-    setFieldData = (fieldname, fieldvalue, error) => {
-        this.setState({
+    setFieldData = (fieldname, fieldvalue, error, delayname, cb) => {
+        this.setDelayedState({
             data: {
                 ...this.state.data,
                 [fieldname]: fieldvalue
             },
-            modified: error === '',
+            modified: ['', undefined].includes(error || delayname),
             errors: {
                 ...this.state.errors,
-                [fieldname]: error
+                [fieldname]: error || delayname
             }
-        });
+        }, delayname, cb)
     }
 
     setG33 = (code) => {
-        if (code.length < 11) {
-            this.setFieldData('G33', code, '')
-        }
-    };
+        this.setFieldData('G33', code, validate_code_error(code), DELAY_TNVED)
+    }
 
     parseFloat(value, def='') {
         let r = parseFloat(value)
@@ -395,26 +360,6 @@ class kontdop extends stateobject {
         // Проверка ввода таможенной стоимости
         const error = this.validateNotEmptyNumber(value);
         return this.setFieldData('G45', this.parseFloat(value), error)
-    };
-
-    doG34Change = (e) => {
-        this.setState({
-            modified: true,
-            data: {
-                ...this.state.data,
-                [e.target.name]: e.target.value
-            }
-        })
-    };
-
-    doG45VChange = (e) => {
-        this.setState({
-            modified: true,
-            data: {
-                ...this.state.data,
-                [e.target.name]: e.target.value
-            }
-        })
     };
 
     validateNotEmptyNumber = (number) => {
@@ -501,38 +446,22 @@ class kontdop extends stateobject {
         if (stavka === undefined) {
             stavka = get_stavka(prz, this.state.tnved.TNVED, base ? undefined : tnvedall);
         }
+        const data = {
+            ...this.state.data,
+            ...stavka
+        }
         this.setState({
             data: {
-                ...this.state.data,
-                ...stavka
+                ...data,
+                ...this.get_additional_values(data, this.state.tnved)
+            },
+            errors: {
+                ...this.state.errors,
+                ...this.validateEdizmAll(data, this.state.tnved)
             },
             modified: true
-        }, () => {
-            this.setState(
-                {
-                    modified: true,
-                    data: {
-                        ...this.state.data,
-                        ...this.get_additional_values(this.state.data, this.state.tnved)
-                    },
-                    errors: {
-                        ...this.state.errors,
-                        ...this.validateEdizmAll(this.state.data, this.state.tnved)
-                    }
-                }
-            )
-        });
-    };
-
-    doPREFChange (fieldname, e) {
-        this.setState({
-            data: {
-                ...this.state.data,
-                [fieldname]: e.target.checked
-            },
-            modified: true
-        });
-    };
+        })
+    }
 
 }
 
@@ -585,7 +514,15 @@ class contract_manager extends stateobject {
         ]
         // ToDo - сделать. Непонятно как редактировать такие ставки
         this.kontdopcc = []
-        this.calcdelay = 1000
+    }
+
+    register_delay(deman) {
+        super.register_delay(deman)
+        deman.add({
+            name: DELAY_CALC,
+            action: this.loadCalcResults.bind(this),
+            delay: 1000,
+        })
     }
 
     get_default_values (tblname) {
@@ -636,7 +573,7 @@ class contract_manager extends stateobject {
         return this.kontdop.reduce((errors, k) => {
             for (let fieldname of Object.keys(k.state.errors)) {
                 let error = k.state.errors[fieldname]
-                if (is_error(error)) {
+                if (isError(error)) {
                     errors[fieldname] = error
                     break
                 }
@@ -651,13 +588,14 @@ class contract_manager extends stateobject {
         const errors = this.all_errors()
         // Должно вызвать onchange
         this.setDelayedState({
-            errors: errors,
+            errors: {
+                ...errors
+            },
             modified: true
-        });
+        }, DELAY_CALC);
     }
 
     setFieldData = (fieldname, newvalue, g32) => {
-        debug('setFieldData', fieldname, newvalue, g32)
         if (g32 === undefined) {
             return this.setKontraktData({[fieldname]: newvalue})
         }
@@ -681,15 +619,14 @@ class contract_manager extends stateobject {
         return undefined
     }
 
-    setKontraktData = (data, cb) => {
-        this.kontrakt = {...this.kontrakt, ...data}
+    setKontraktData = (data) => {
+        this.kontrakt = {
+            ...this.kontrakt,
+            ...data
+        }
         this.setDelayedState({
             modified: true
-        }, () => {
-            if (cb !== undefined) {
-                cb()
-            }
-        });
+        }, DELAY_CALC)
     }
 
     getKontraktData = (fieldname) => {
@@ -815,47 +752,6 @@ class contract_manager extends stateobject {
         })
     }
 
-    stateUpdated(prevProps, prevState, source) {
-        const { timeout } = this;
-        const { pending, delayed, loadpending } = this.state;
-        if ( loadpending ) {
-            this.setState({
-                loading: true,
-                loadpending: false
-            });
-            // ToDo: реализовать
-            // this.loadData().then(() => {
-            //     this.setState({
-            //         loading: false,
-            //         // Поставить true, если требуется первоначальный расчет
-            //         calcdelayed: false,
-            //         errors: {
-            //             ...this.state.errors,
-            //             calc: ''
-            //         }
-            //     })
-            // });
-        }
-        // отложенный расчет
-        if ( delayed ) {
-            if ( timeout ) {
-                clearTimeout(timeout);
-            }
-            this.timeout = setTimeout(() => {
-                this.setState({
-                    delayed: false,
-                    pending: true
-                })
-            }, this.calcdelay)
-        }
-        //
-        if ( pending ) {
-            this.loadCalcResults();
-        } else {
-            super.stateUpdated(source)
-        }
-    }
-
     get_calc_url() {
         return `${this.get_api_calc_tks_ru()}${this.get_calc_method()}/${encodeURIComponent(calc_tks_ru_license.split('\n').join(''))}`
     }
@@ -883,19 +779,19 @@ class contract_manager extends stateobject {
     any_errors() {
         for (var fieldname of Object.keys(this.state.errors)) {
             if (fieldname !== 'calc') {
-                if (is_error(this.state.errors[fieldname])) {
-                    return true
+                const error = this.state.errors[fieldname]
+                if (isError(error)) {
+                    return error
                 }
             }
         }
-        return false
+        return ''
     }
 
-    loadCalcResults() {
-        if (this.any_errors()) {
-            debug('any error', this.state.errors)
+    loadCalcResults(procinfo) {
+        const error = this.any_errors()
+        if (error) {
             this.setState({
-                pending: false,
                 errors: {
                     ...this.state.errors,
                     calc: null
@@ -921,7 +817,6 @@ class contract_manager extends stateobject {
             this.updateStateWithResults(data);
         }).catch(error => {
             this.setState({
-                pending: false,
                 errors: {
                     ...this.state.errors,
                     calc: `Ошибка расчета. ${this.get_calc_error_msg(error)}`

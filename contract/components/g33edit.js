@@ -10,46 +10,53 @@ const { GoodsSelect } = require('../../tnved/goods')
 const { ccs_contract } = require('../../common/ccs')
 
 
+const is_show_window = (b) => {
+    return [true, undefined].includes(b)
+}
+
+
 const G33EditButtons = (props) => {
     const g33ref = React.createRef()
     const goodsref = React.createRef()
-    const { isclasses } = props
+    const { isclasses, show_tnved_button, show_goods_button } = props
     return (<>
-        <ModalButton
-            buttonLabel={"Выбрать"}
-            ref={g33ref}
-            className={classNames({
-                "col-sm-2 pt-1" : false && isclasses,
-                [ccs_contract('tnved-button')]: true
-            })}
-            title={"Товарная номенклатура ВЭД"}
-            isclasses={isclasses}
-        >
-            <TnvTree
-                onSelect={props.onSelect}
-                onAfterSelect={() => {
-                    g33ref.current.handleToggleModal()
-                }}
-                code={props.value}
-            />
-        </ModalButton>
-        <ModalButton
-            buttonLabel={"Подобрать по наименованию"}
-            ref={goodsref}
-            className={classNames({
-                "col-sm-2 pt-1" : false && isclasses,
-                [ccs_contract('goods-button')]: true
-            })}
-            title={"Подбор кода ТН ВЭД по наименованию. Примеры декларирования"}
-            isclasses={isclasses}
-        >
-            <GoodsSelect
-                onSelect={props.onSelect}
-                onAfterSelect={() => {
-                    goodsref.current.handleToggleModal()
-                }}
-            />
-        </ModalButton>
+        {is_show_window(show_tnved_button) && (
+            <ModalButton
+                buttonLabel={"Выбрать"}
+                ref={g33ref}
+                className={classNames({
+                    [ccs_contract('tnved-button')]: true
+                })}
+                title={"Товарная номенклатура ВЭД"}
+                isclasses={isclasses}
+            >
+                <TnvTree
+                    onSelect={props.onSelect}
+                    onAfterSelect={() => {
+                        g33ref.current.handleToggleModal()
+                    }}
+                    code={props.value}
+                />
+            </ModalButton>
+        )}
+        {is_show_window(show_goods_button) && (
+            <ModalButton
+                buttonLabel={"Подобрать по наименованию"}
+                ref={goodsref}
+                className={classNames({
+                    [ccs_contract('goods-button')]: true
+                })}
+                title={"Подбор кода ТН ВЭД по наименованию. Примеры декларирования"}
+                isclasses={isclasses}
+            >
+                <GoodsSelect
+                    onSelect={props.onSelect}
+                    onAfterSelect={() => {
+                        goodsref.current.handleToggleModal()
+                    }}
+                />
+            </ModalButton>
+        )}
     </>)
 }
 

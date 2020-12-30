@@ -490,6 +490,16 @@ const get_edizm_list = (data, type=TYPE_IM, addedizm=[]) => {
     }, init)
 };
 
+const validate_code = (code) => {
+    return !([undefined, null, ''].includes(code) || code.length < 10)
+}
+
+const validate_code_error = (code) => {
+    if (!validate_code(code)) {
+        return 'Введите код товара'
+    }
+    return ''
+}
 
 export  {
     calctxt,
@@ -498,5 +508,7 @@ export  {
     calc_get5,
     get5,
     get_type_priznak,
-    get_edizm_list
+    get_edizm_list,
+    validate_code,
+    validate_code_error
 };

@@ -17,16 +17,20 @@ class SimpleContractApp extends BaseContractApp {
                 <Errors errors={this.state.errors} toshow="calc" {...props}/>
                 <ContractData manager={manager} {...props} />
                 <ContractDopData manager={manager} g32={1} {...props} />
-                <SimpleResults
-                    data={this.state.result && this.state.result.kont47}
-                    manager={manager}
-                    {...props}
-                />
-                <SimpleResultTotals
-                    data={this.state.result && this.state.result.totals}
-                    manager={manager}
-                    {...props}
-                />
+                {!manager.any_errors() && (
+                    <>
+                        <SimpleResults
+                            data={this.state.result && this.state.result.kont47}
+                            manager={manager}
+                            {...props}
+                        />
+                        <SimpleResultTotals
+                            data={this.state.result && this.state.result.totals}
+                            manager={manager}
+                            {...props}
+                        />
+                    </>
+                )}
             </>
         )
     }

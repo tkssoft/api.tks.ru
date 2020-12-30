@@ -22,7 +22,9 @@ class BaseContractApp extends React.Component {
                 g32: {},
                 letter: {}
             },
-            errors : {...this.contract_manager.state.errors}
+            errors : {
+                ...this.contract_manager.state.errors
+            }
         }
 
     }

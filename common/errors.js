@@ -2,6 +2,7 @@
 const React  = require('react')
 const classNames = require('classnames')
 const { ccs_class } = require('./ccs')
+const { isError } = require('../common/utils')
 
 const Errors = ({ errors, isclasses, toshow }) => {
     const show = toshow ? toshow.split(' ') : undefined
@@ -24,9 +25,8 @@ const Errors = ({ errors, isclasses, toshow }) => {
     )
 }
 
-
 const errorClass = (error) => {
-    return (error.length === 0 ? '' : 'is-invalid')
+    return (isError(error) ? 'is-invalid' : '')
 };
 
 export {

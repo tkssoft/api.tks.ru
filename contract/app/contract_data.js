@@ -26,7 +26,6 @@ const ContractData = (props) => {
 /* Данные по товару */
 const ContractDopData = (props) => {
     let kontdop = props.manager.getSourceData((props.g32 || 1) - 1)
-    const { isclasses } = props
     return (
         <div
             className={classNames({
