@@ -19,13 +19,13 @@ const ResultTitle = (props) => {
 
 
 const ResultValue = (props) => {
-    const { value, title, className, keyvalue } = props
+    const { value, title, className } = props
     let clsname = classNames({
         "ccs-contract-ResultValue": true,
         [className]: !!className
     })
     return (
-        <div className={clsname} key={keyvalue}>
+        <div className={clsname}>
             <div className={classNames({
                 "ccs-contract-ResultValue-title": true
                 })}>{title}</div>
@@ -56,7 +56,7 @@ const ConfigResult = (props) => {
                     let value = VALUES[valuename]
                     return (
                         <ResultValue
-                            keyvalue={index}
+                            key={index}
                             className={clsname}
                             title={value.NAME}
                             value={value.VALUE}
@@ -77,7 +77,7 @@ const ConfigResults = (props) => {
                 {
                     Object.keys(totals).map((typ, index) => {
                         return (
-                            <ConfigResult total={totals[typ]} isclasses={isclasses}/>
+                            <ConfigResult key={index} total={totals[typ]} isclasses={isclasses}/>
                         )
                     })
                 }

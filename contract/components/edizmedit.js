@@ -54,5 +54,6 @@ const EdizmEdit = (props) => {
 }
 
 export {
-    EdizmEdit
+    EdizmEdit,
+    ContractEdizmInput
 }

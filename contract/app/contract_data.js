@@ -10,6 +10,7 @@ const { G33Edit } = require('../components/g33edit')
 const { G45Edit } = require('../components/g45edit')
 const { EdizmEdit } = require('../components/edizmedit')
 const { StavkaEditor } = require('../components/stavkaeditor')
+import { isError } from "../../common/utils"
 
 
 /* Данные по заголовку контракта */
@@ -33,9 +34,16 @@ const ContractDopData = (props) => {
             })}
         >
             <G33Edit kontdop={kontdop} { ...props } />
-            <G45Edit kontdop={kontdop} { ...props } />
-            <EdizmEdit kontdop={kontdop} { ...props } />
-            <StavkaEditor kontdop={kontdop} {...props} />
+            {!isError(kontdop.state.errors.G33) && (
+                <>
+                    <G45Edit kontdop={kontdop} { ...props } />
+                    <EdizmEdit kontdop={kontdop} { ...props } />
+                    {props.onDisplayCalcFields && (
+                        props.onDisplayCalcFields(props)
+                    )}
+                    <StavkaEditor kontdop={kontdop} {...props} />
+                </>
+            )}
         </div>
     )
 }

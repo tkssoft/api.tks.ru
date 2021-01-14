@@ -24,16 +24,22 @@ class BaseContractEdit extends React.Component {
         return props.manager.getFieldData(props.fieldname, props.g32)
     }
 
+    is_readOnly() {
+        return ![undefined, false].includes(this.props.readOnly)
+    }
+
     set_field_value(value, cb) {
-        if (!this.props.onValidate || this.props.onValidate(value)) {
-            this.setState({value: value}, ()=>{
-                this.props.manager.setFieldData(this.props.fieldname, value, this.props.g32)
-                if (cb) {
-                    cb(value)
-                }
-            })
-        } else {
-            debug('set_field_value', this.props.fieldname, value, 'not valid')
+        if (!this.is_readOnly()) {
+            if (!this.props.onValidate || this.props.onValidate(value)) {
+                this.setState({value: value}, ()=>{
+                    this.props.manager.setFieldData(this.props.fieldname, value, this.props.g32)
+                    if (cb) {
+                        cb(value)
+                    }
+                })
+            } else {
+                debug('set_field_value', this.props.fieldname, value, 'not valid')
+            }
         }
     }
 
@@ -57,6 +63,12 @@ class BaseContractEdit extends React.Component {
             [this.props.className]: !!this.props.className,
             [ccs_class('form-group')]: true
         })
+        let _value;
+        if (this.is_readOnly()) {
+            _value = BaseContractEdit.get_field_value(this.props)
+        } else {
+            _value = this.state.value
+        }
         return (
             <div className={cls}>
                 <div
@@ -70,7 +82,7 @@ class BaseContractEdit extends React.Component {
                     ...this.props,
                     onChange: this.onchange.bind(this),
                     onSelect: this.onselect.bind(this),
-                    value: this.state.value
+                    value: _value
                 }) : this.props.children }
             </div>
         )

@@ -55,7 +55,7 @@ class kontdop extends stateobject {
                 ...this.get_additional_values(data)
             },
             errors: {
-                G33: '',
+                G33: validate_code_error(data.G33),
                 G45: this.validateNotEmptyNumber(data.G45),
                 ...this.validateEdizmAll(data)
             }
@@ -76,9 +76,9 @@ class kontdop extends stateobject {
         super.doStateUpdated(prevState, delta)
         let updated = this.updatestavka()
         if (!isEmpty(updated)) {
-            this.state = {
-                ...this.state,
-                updated
+            this.state.data = {
+                ...this.state.data,
+                ...updated
             }
         }
         // ToDo: переделать
@@ -608,7 +608,7 @@ class contract_manager extends stateobject {
     }
 
     getFieldData = (fieldname, g32) => {
-        if (index === undefined) {
+        if (g32 === undefined) {
             return this.getKontraktData(fieldname)
         }
         const index = g32 - 1
