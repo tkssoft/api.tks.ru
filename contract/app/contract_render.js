@@ -1,14 +1,14 @@
 /* Структура html элементов */
 
 import React from 'react'
+import classNames from 'classnames'
 
 const ContractAppRender = (props) => {
     const { isclasses, onTitle, onContent, onBottom } = props
     return (
         <div
             className={classNames({
-                "contractapp": true,
-                "h-100": isclasses
+                "ccs-contract": true
             })}
         >
             {/* Данные в заголовке */}
