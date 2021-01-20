@@ -210,7 +210,7 @@ class TnvTree extends React.Component {
                 }
             })
             .then((data)=>{
-                debug(`fetch time is: ${(Date.now() - starttime) / 1000} sec`)
+                //debug(`fetch time is: ${(Date.now() - starttime) / 1000} sec`)
                 return data
             })
     };

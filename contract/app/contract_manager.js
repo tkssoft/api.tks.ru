@@ -16,6 +16,7 @@ import {
     PRIZNAK_IMPORTDUTY,
     PRIZNAK_VAT,
     PRIZNAK_EXCISEDUTY } from '../../tnved/tnv_const'
+import { Console } from "console"
 
 const nsi = require( '../../common/nsi' )
 const edizm = nsi.edizm()
@@ -463,6 +464,10 @@ class kontdop extends stateobject {
         })
     }
 
+    get_field_value_def(fieldname, def) {
+        return ['', undefined, null].includes(this.state.data[fieldname])? def: this.state.data[fieldname]
+    }
+
 }
 
 
@@ -743,6 +748,7 @@ class contract_manager extends stateobject {
             sums: this.calcsums(data),
             pending: false
         }, () => {
+            console.log('updateStateWithResults')
             if (this.props.onResultsChange !== undefined) {
                 this.props.onResultsChange({
                     result: this.state.result,
@@ -848,7 +854,15 @@ class contract_manager extends stateobject {
             G34: this.kontrakt.G34,
             G45V: this.kontrakt.G221
         })
-    };
+    }
+
+    /* Чтение настроек показа полей */
+    get_field_config (props) {
+        if (this.props.onGetFieldConfig) {
+            return this.props.onGetFieldConfig(props)
+        }
+        return {}
+    }
 
 }
 

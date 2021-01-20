@@ -31,7 +31,7 @@ class BaseContractApp extends React.Component {
 
     get_manager_params () {
         return {
-            NUM: this.props.NUM || this.props.num,
+            NUM: this.props.NUM || this.props.num || 1,
             onChange: this.contractmanagerchanged.bind(this),
             onResultsChange: this.calcresultschange.bind(this),
             onGetDefaultValues: this.get_default_values.bind(this),
@@ -42,8 +42,38 @@ class BaseContractApp extends React.Component {
         }
     }
 
-    get_default_values (tblname) {
+    get_table_config (tblname) {
+        const { fieldconfig } = this.props
+        if (fieldconfig) {
+            if (tblname in fieldconfig) {
+                return fieldconfig[tblname]
+            }
+        }
+        return null
+    }
+
+    get_field_config (tblname) {
+        const tableconfig = this.get_table_config(tblname)
+        if (tableconfig && tableconfig.fields) {
+            return tableconfig.fields
+        }
         return {}
+    }
+
+    get_default_values (tblname) {
+        let r = {}
+        const tableconfig = this.get_table_config(tblname)
+        if (tableconfig) {
+            const fieldconfig = tableconfig.fields || {}
+            r = Object.keys(fieldconfig).reduce((arr, fieldname) => {
+                    const cfg = fieldconfig[fieldname]
+                    if (cfg) {
+                        arr[fieldname] = cfg.value
+                    }
+                    return arr
+                }, r)
+        }
+        return r
     }
 
     contractmanagerchanged (cm) {

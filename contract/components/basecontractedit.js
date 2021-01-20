@@ -59,6 +59,11 @@ class BaseContractEdit extends React.Component {
     }
 
     render () {
+        let fieldconfig = this.props.manager.get_field_config(this.props)
+        /* Возможность не показывать поле  */
+        if (![undefined, true].includes(fieldconfig.visible)) {
+            return <></>
+        }
         let cls = classNames({
             [this.props.className]: !!this.props.className,
             [ccs_class('form-group')]: true
