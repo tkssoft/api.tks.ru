@@ -16,7 +16,6 @@ import {
     PRIZNAK_IMPORTDUTY,
     PRIZNAK_VAT,
     PRIZNAK_EXCISEDUTY } from '../../tnved/tnv_const'
-import { Console } from "console"
 
 const nsi = require( '../../common/nsi' )
 const edizm = nsi.edizm()

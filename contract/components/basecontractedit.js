@@ -8,6 +8,20 @@ const { debug } = require('../../common/debug')
 const { ccs_contract, ccs_class } = require('../../common/ccs')
 const { isFunction } = require('../../common/utils')
 
+
+const FormLabel = (props) => {
+    return (
+        <div
+            className={classNames({
+                [ccs_contract("label")]: true
+            })}
+        >
+            <label>{props.displayLabel}</label>
+        </div>
+    )
+}
+
+
 /* Базовая конструкция с label и внутренним содержимым, куда передается onChange
    !!! children нужна функция !!!!
 */
@@ -44,7 +58,7 @@ class BaseContractEdit extends React.Component {
     }
 
     onchange(e) {
-        this.set_field_value(e.target.value, (value) => {
+        this.set_field_value(this.props.type === 'checkbox' ? e.target.checked : e.target.value, (value) => {
             if (this.props.onChange) {
                 this.props.onChange(e)
             }
@@ -59,6 +73,7 @@ class BaseContractEdit extends React.Component {
     }
 
     render () {
+        const { formgroup, labelback } = this.props
         let fieldconfig = this.props.manager.get_field_config(this.props)
         /* Возможность не показывать поле  */
         if (![undefined, true].includes(fieldconfig.visible)) {
@@ -66,7 +81,7 @@ class BaseContractEdit extends React.Component {
         }
         let cls = classNames({
             [this.props.className]: !!this.props.className,
-            [ccs_class('form-group')]: true
+            [ccs_class('form-group')]: [undefined, true].includes(formgroup)
         })
         let _value;
         if (this.is_readOnly()) {
@@ -76,19 +91,14 @@ class BaseContractEdit extends React.Component {
         }
         return (
             <div className={cls}>
-                <div
-                    className={classNames({
-                        [ccs_contract("label")]: true
-                    })}
-                >
-                    <label className={'strong text-nowrap'}>{this.props.displayLabel}</label>
-                </div>
+                { !labelback && (<FormLabel {...this.props}/>) }
                 { isFunction(this.props.children) ? this.props.children({
                     ...this.props,
                     onChange: this.onchange.bind(this),
                     onSelect: this.onselect.bind(this),
                     value: _value
                 }) : this.props.children }
+                { labelback && (<FormLabel {...this.props}/>) }
             </div>
         )
     }
@@ -96,7 +106,7 @@ class BaseContractEdit extends React.Component {
 
 /* Базовый input с указанием ошибок */
 const BaseContractInput = (props) => {
-    const { isclasses, fieldname, errors, onError, value, type } = props
+    const { isclasses, fieldname, errors, onError, value, type, status } = props
     const errormsg = errors ? errors[fieldname] : ''
     const error = errormsg || (onError ? onError(value) : '')
     return (
@@ -115,20 +125,22 @@ const BaseContractInput = (props) => {
                     onChange={props.onChange}
                 />
             </div>
-            <div
-                className={classNames({
-                    [ccs_class("error")]: !!error,
-                    [ccs_contract("status")]: true,
-                })}
-            >
-                <small
+            {[undefined, true].includes(status) && (
+                <div
                     className={classNames({
-                        'text-danger' : isclasses && error,
+                        [ccs_class("error")]: !!error,
+                        [ccs_contract("status")]: true,
                     })}
                 >
-                    {error || '\u00A0'}
-                </small>
-            </div>
+                    <small
+                        className={classNames({
+                            'text-danger' : isclasses && error,
+                        })}
+                    >
+                        {error || '\u00A0'}
+                    </small>
+                </div>
+            )}
         </>
     )
 }
