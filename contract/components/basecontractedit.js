@@ -109,6 +109,15 @@ const BaseContractInput = (props) => {
     const { isclasses, fieldname, errors, onError, value, type, status } = props
     const errormsg = errors ? errors[fieldname] : ''
     const error = errormsg || (onError ? onError(value) : '')
+    var p = {}
+    switch (type) {
+        case 'checkbox':
+            p.checked = value === true
+            break;
+        default:
+            p.value = value || ''
+            break;
+    }
     return (
         <>
             <div className={
@@ -121,8 +130,8 @@ const BaseContractInput = (props) => {
                         "form-control": isclasses,
                         [errorClass(error)]: isclasses}
                         )}
-                    value={props.value || ""}
                     onChange={props.onChange}
+                    {...p}
                 />
             </div>
             {[undefined, true].includes(status) && (
