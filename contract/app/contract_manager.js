@@ -742,17 +742,23 @@ class contract_manager extends stateobject {
     }
 
     // Данные расчета получены с сервера - сниманием флажок calcpending
-    updateStateWithResults(data) {
+    updateStateWithResults(data, calcdata) {
         this.setState({
             result: data,
             sums: this.calcsums(data),
             pending: false
         }, () => {
-            console.log('updateStateWithResults')
             if (this.props.onResultsChange !== undefined) {
                 this.props.onResultsChange({
-                    result: this.state.result,
-                    sums: this.state.sums,
+                    result: {
+                        ...this.state.result
+                    },
+                    sums: {
+                        ...this.state.sums
+                    },
+                    calcdata: {
+                        ...calcdata
+                    },
                 })
             }
         })
@@ -820,7 +826,7 @@ class contract_manager extends stateobject {
                 throw new FetchError(response)
             }
         }).then(data => {
-            this.updateStateWithResults(data);
+            this.updateStateWithResults(data, calcdata);
         }).catch(error => {
             this.setState({
                 errors: {
