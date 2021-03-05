@@ -34,8 +34,16 @@ class BaseContractEdit extends React.Component {
         }
     }
 
+    static getDerivedStateFromProps(props, state) {
+        return {
+            value: BaseContractEdit.get_field_value(props)
+        }
+    }
+
     static get_field_value(props) {
-        return props.manager.getFieldData(props.fieldname, props.g32)
+        return props.value === undefined ?
+            props.manager.getFieldData(props.fieldname, props.g32) :
+            props.value
     }
 
     is_readOnly() {
@@ -83,12 +91,6 @@ class BaseContractEdit extends React.Component {
             [this.props.className]: !!this.props.className,
             [ccs_class('form-group')]: [undefined, true].includes(formgroup)
         })
-        let _value;
-        if (this.is_readOnly()) {
-            _value = BaseContractEdit.get_field_value(this.props)
-        } else {
-            _value = this.state.value
-        }
         return (
             <div className={cls}>
                 { !labelback && (<FormLabel {...this.props}/>) }
@@ -96,7 +98,7 @@ class BaseContractEdit extends React.Component {
                     ...this.props,
                     onChange: this.onchange.bind(this),
                     onSelect: this.onselect.bind(this),
-                    value: _value
+                    value: this.state.value
                 }) : this.props.children }
                 { labelback && (<FormLabel {...this.props}/>) }
             </div>
@@ -110,9 +112,11 @@ const BaseContractInput = (props) => {
     const errormsg = errors ? errors[fieldname] : ''
     const error = errormsg || (onError ? onError(value) : '')
     var p = {}
+    var fcontrol = true
     switch (type) {
         case 'checkbox':
             p.checked = value === true
+            fcontrol = false
             break;
         default:
             p.value = value || ''
@@ -127,7 +131,7 @@ const BaseContractInput = (props) => {
             }>
                 <input type={type || "text"}
                     className={classNames({
-                        "form-control": isclasses,
+                        "form-control": isclasses && fcontrol,
                         [errorClass(error)]: isclasses}
                         )}
                     onChange={props.onChange}
