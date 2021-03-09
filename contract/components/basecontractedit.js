@@ -8,16 +8,16 @@ const { debug } = require('../../common/debug')
 const { ccs_contract, ccs_class } = require('../../common/ccs')
 const { isFunction } = require('../../common/utils')
 
-
 const FormLabel = (props) => {
+    const { type, isclasses } = props
+    const checkbox = type === 'checkbox'
     return (
-        <div
-            className={classNames({
-                [ccs_contract("label")]: true
-            })}
-        >
-            <label>{props.displayLabel}</label>
-        </div>
+        <label className={classNames({
+            [ccs_contract("label")]: true,
+            ['form-check-label']: checkbox && isclasses
+        })}>
+            {props.displayLabel}
+        </label>
     )
 }
 
@@ -81,26 +81,28 @@ class BaseContractEdit extends React.Component {
     }
 
     render () {
-        const { formgroup, labelback } = this.props
+        const { formgroup, isclasses, type } = this.props
         let fieldconfig = this.props.manager.get_field_config(this.props)
+        const checkbox = type === 'checkbox'
         /* Возможность не показывать поле  */
         if (![undefined, true].includes(fieldconfig.visible)) {
             return <></>
         }
         let cls = classNames({
             [this.props.className]: !!this.props.className,
-            [ccs_class('form-group')]: [undefined, true].includes(formgroup)
+            [ccs_class('form-group')]: [undefined, true].includes(formgroup),
+            ['form-group']: isclasses && [undefined, true].includes(formgroup),
+            ['form-check']: isclasses && checkbox
         })
         return (
             <div className={cls}>
-                { !labelback && (<FormLabel {...this.props}/>) }
+                { !checkbox && (<FormLabel {...this.props}/>) }
                 { isFunction(this.props.children) ? this.props.children({
                     ...this.props,
                     onChange: this.onchange.bind(this),
                     onSelect: this.onselect.bind(this),
                     value: this.state.value
                 }) : this.props.children }
-                { labelback && (<FormLabel {...this.props}/>) }
             </div>
         )
     }
@@ -124,35 +126,25 @@ const BaseContractInput = (props) => {
     }
     return (
         <>
-            <div className={
-                classNames({
+            <input type={type || "text"}
+                className={classNames({
                     [ccs_contract('input')]: true,
-                })
-            }>
-                <input type={type || "text"}
-                    className={classNames({
-                        "form-control": isclasses && fcontrol,
-                        [errorClass(error)]: isclasses}
-                        )}
-                    onChange={props.onChange}
-                    {...p}
-                />
-            </div>
+                    ["form-control"]: fcontrol && isclasses,
+                    ["form-check-input"]: !fcontrol && isclasses,
+                    [errorClass(error)]: isclasses}
+                    )}
+                onChange={props.onChange}
+                {...p}
+            />
+            { type === 'checkbox' && (<FormLabel {...props} />) }
             {[undefined, true].includes(status) && (
-                <div
+                <small
                     className={classNames({
-                        [ccs_class("error")]: !!error,
-                        [ccs_contract("status")]: true,
+                        'text-danger' : isclasses && error,
                     })}
                 >
-                    <small
-                        className={classNames({
-                            'text-danger' : isclasses && error,
-                        })}
-                    >
-                        {error || '\u00A0'}
-                    </small>
-                </div>
+                    {error || '\u00A0'}
+                </small>
             )}
         </>
     )
