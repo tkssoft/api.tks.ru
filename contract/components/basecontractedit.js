@@ -7,6 +7,7 @@ const { errorClass } = require('../../common/errors')
 const { debug } = require('../../common/debug')
 const { ccs_contract, ccs_class } = require('../../common/ccs')
 const { isFunction } = require('../../common/utils')
+const { HorzRow, Column, getcold, is_horz, IifRow } = require('../../common/bs')
 
 const FormLabel = (props) => {
     const { type, isclasses } = props
@@ -14,7 +15,9 @@ const FormLabel = (props) => {
     return (
         <label className={classNames({
             [ccs_contract("label")]: true,
-            ['form-check-label']: checkbox && isclasses
+            'form-check-label form-check-label-sm': checkbox && isclasses,
+            'col-form-label col-form-label-sm': !checkbox && isclasses,
+            ...getcold(props, is_horz(props) && !checkbox, 'label')
         })}>
             {props.displayLabel}
         </label>
@@ -91,18 +94,21 @@ class BaseContractEdit extends React.Component {
         let cls = classNames({
             [this.props.className]: !!this.props.className,
             [ccs_class('form-group')]: [undefined, true].includes(formgroup),
-            ['form-group']: isclasses && [undefined, true].includes(formgroup),
-            ['form-check']: isclasses && checkbox
+            'form-group': isclasses && [undefined, true].includes(formgroup),
+            'form-check': isclasses && checkbox,
+            ...getcold(this.props, !checkbox, 'group')
         })
         return (
             <div className={cls}>
-                { !checkbox && (<FormLabel {...this.props}/>) }
-                { isFunction(this.props.children) ? this.props.children({
-                    ...this.props,
-                    onChange: this.onchange.bind(this),
-                    onSelect: this.onselect.bind(this),
-                    value: this.state.value
-                }) : this.props.children }
+                <IifRow iif={is_horz(this.props) && !checkbox} {...this.props}>
+                    { !checkbox && (<FormLabel {...this.props}/>) }
+                    { isFunction(this.props.children) ? this.props.children({
+                        ...this.props,
+                        onChange: this.onchange.bind(this),
+                        onSelect: this.onselect.bind(this),
+                        value: this.state.value
+                    }) : this.props.children }
+                </IifRow>
             </div>
         )
     }
@@ -115,6 +121,7 @@ const BaseContractInput = (props) => {
     const error = errormsg || (onError ? onError(value) : '')
     var p = {}
     var fcontrol = true
+    const checkbox = type === 'checkbox'
     switch (type) {
         case 'checkbox':
             p.checked = value === true
@@ -124,12 +131,16 @@ const BaseContractInput = (props) => {
             p.value = value || ''
             break;
     }
+    const cls = classNames({
+        [ccs_class('input')]: true,
+        'w-100': isclasses,
+        ...getcold(props, is_horz(props) && !checkbox, 'input')
+    })
     return (
-        <>
+        <div className={cls}>
             <input type={type || "text"}
                 className={classNames({
-                    [ccs_contract('input')]: true,
-                    ["form-control"]: fcontrol && isclasses,
+                    ["form-control form-control-sm"]: fcontrol && isclasses,
                     ["form-check-input"]: !fcontrol && isclasses,
                     [errorClass(error)]: isclasses}
                     )}
@@ -146,7 +157,7 @@ const BaseContractInput = (props) => {
                     {error || '\u00A0'}
                 </small>
             )}
-        </>
+        </div>
     )
 }
 
@@ -156,16 +167,19 @@ const ContractInput = (props) => {
         {(prs) => {
             return (
                 <>
-                <BaseContractInput {...prs} />
-                {children && (
-                    <div
-                        className={classNames({
-                            [ccs_contract("button")]: true,
-                        })}
-                    >
-                        { isFunction(children) ? children(prs) : children }
-                    </div>
-                )}
+                    <BaseContractInput {...prs} />
+                    {children && (
+                        <div
+                            className={classNames({
+                                [ccs_contract("button")]: true,
+                                ...getcold(prs, is_horz(prs), 'button')
+                            })}
+                        >
+                            { isFunction(children) ? children(
+                                    {...prs, formgroup: false}
+                                ) : children }
+                        </div>
+                    )}
                 </>
             )
         }}
