@@ -26,11 +26,11 @@ class TableList extends React.Component {
     }
 
     componentDidMount() {
-        this.list.current.addEventListener('keyup', this.handleKeyPress);
+        document.addEventListener('keyup', this.handleKeyPress);
     }
 
     componentWillUnmount() {
-        this.list.current.removeEventListener('keyup', this.handleKeyPress);
+        document.removeEventListener('keyup', this.handleKeyPress);
     }
 
     componentDidUpdate(prevProps, prevState) {
