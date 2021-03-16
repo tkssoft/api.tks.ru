@@ -5,7 +5,8 @@ const keys = require('../../common/keys')
 
 import classNames from 'classnames'
 import { isFunction } from '../../common/utils'
-import { debug } from '../../common/debug';
+import { debug } from '../../common/debug'
+import NativeListener from 'react-native-listener'
 
 class TableList extends React.Component {
     constructor (props) {
@@ -13,24 +14,21 @@ class TableList extends React.Component {
         this.selected = React.createRef()
         this.list = React.createRef()
         this.state = {
-            selected: 0
+            selected: this.props.itemindex !== undefined ? parseInt(this.props.itemindex) : 0
         }
+        debug('TableList', this.state.selected, this.props.itemindex)
     }
 
     focus() {
-        if (this.selected.current) {
-            this.selected.current.focus()
-        } else {
-            debug('focus errror')
+        if (this.list.current) {
+            this.list.current.focus()
         }
     }
 
     componentDidMount() {
-        document.addEventListener('keyup', this.handleKeyPress);
     }
 
     componentWillUnmount() {
-        document.removeEventListener('keyup', this.handleKeyPress);
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -59,7 +57,6 @@ class TableList extends React.Component {
         const { selected } = this.state
         const { data } = this.props
         if (e.keyCode === keys.VK_RETURN) {
-            return
             this.buttonClick(selected, data[selected]);
             e.preventDefault()
         } else if (e.keyCode === keys.VK_DOWN) {
@@ -77,10 +74,10 @@ class TableList extends React.Component {
         }
     };
 
-    buttonClick(seleted, rec, e) {
+    buttonClick(selected, rec, e) {
         const { onSelect } = this.props
         if (onSelect) {
-            onSelect(rec)
+            onSelect(rec, selected)
         }
     }
 
@@ -100,6 +97,7 @@ class TableList extends React.Component {
     render () {
         const { onTitle, onItemLink, onContentItem, data, className, onHref } = this.props
         return (
+            <NativeListener stopKeyDown onKeyDown={this.handleKeyPress.bind(this)}>
             <div className={this.getcls("Window", className)}>
 
                 { isFunction(onTitle) && (
@@ -108,7 +106,7 @@ class TableList extends React.Component {
                     </div>
                 ) }
 
-                <div className={this.getcls("Content", "list-group w-100")} role="tablist" ref={this.list}>
+                <div className={this.getcls("Content", "list-group w-100")} tabIndex={-1} role="tablist" ref={this.list}>
                     {data.map((rec, i) => {
                         const active = i === this.state.selected ? "active" : "";
                         const linkclass = active ? 'text-white' : 'text-link'
@@ -126,6 +124,7 @@ class TableList extends React.Component {
                     })}
                 </div>
             </div>
+            </NativeListener>
         )
     }
 }
