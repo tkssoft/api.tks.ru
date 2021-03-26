@@ -56,11 +56,15 @@ class stateobject {
         }
     }
 
-    setDelayedState(state, delayname) {
+    setDelayedState(state, delayname, cb) {
         let that = this
         this.setState(state, () => {
             if (delayname) {
-                that.deman.run(delayname)
+                that.deman.run(delayname, cb)
+            } else {
+                if (cb !== undefined) {
+                    cb()
+                }
             }
         })
     }

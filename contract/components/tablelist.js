@@ -16,7 +16,6 @@ class TableList extends React.Component {
         this.state = {
             selected: this.props.itemindex !== undefined ? parseInt(this.props.itemindex) : 0
         }
-        debug('TableList', this.state.selected, this.props.itemindex)
     }
 
     focus() {
@@ -89,7 +88,7 @@ class TableList extends React.Component {
 
     getcls (cls, addcls) {
         return classNames({
-            [this.props.classPrefix || '' + '-' + cls]: true,
+            [this.props.classPrefix + '-' + cls]: true,
             [addcls]: !!addcls && this.props.isclasses
         })
     }
