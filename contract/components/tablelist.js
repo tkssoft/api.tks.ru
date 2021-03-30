@@ -81,8 +81,13 @@ class TableList extends React.Component {
     }
 
     itemClick(selected, rec, e) {
+        const { onChange } = this.props
         this.setState({
             selected
+        }, ()=>{
+            if (onChange) {
+                onChange(rec, selected)
+            }
         });
     }
 

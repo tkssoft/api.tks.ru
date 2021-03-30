@@ -89,7 +89,7 @@ class ShowSt extends React.Component {
     };
 
     render () {
-        if (this.props.data.G33 && this.props.tnved) {
+        if (this.props.tnved) {
             return (
                 <div className={'ccs-contract-ShowSt'}>
                     {this.props.showTitle && (
