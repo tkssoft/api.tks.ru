@@ -6,6 +6,7 @@ const { debug } = require('../common/debug');
 const nsi = require('../common/nsi');
 const { TYPE_IM, TYPE_EK, TYPE_DEPOSIT } = require('../common/consts')
 
+
 const EncodeSign = (s) => {
     switch (s) {
         case '>':
@@ -37,18 +38,23 @@ const inlist = (s, arr) => {
 };
 
 
+const isnull = (s) => {
+    return [null, undefined, ''].includes(s)
+}
+
+
 const get5 = (prz, s1, t1, s2, t2, s3, t3, pref, s, sign2, def, cu='') => {
     switch (prz) {
         // Экспорт
         case 0:
-            if (s1 === null) {
+            if (isnull(s1)) {
                 return 'Беспошлинно';
             } else {
                 let r = trim(s1) + ' ' + getLook(prz, t1);
-                if (s !== null) {
+                if (!isnull(s)) {
                     r = trim(r + EncodeSign(s) + s2 + ' ' + getLook(prz, t2));
                 }
-                if ((sign2 !== null) && (strtoreal(s3) !== 0)) {
+                if ((!isnull(sign2)) && (strtoreal(s3) !== 0)) {
                     r = trim(r + EncodeSign(sign2) + s3 + ' ' + getLook(prz, t3));
                 }
                 return r;

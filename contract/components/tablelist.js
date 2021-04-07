@@ -8,6 +8,15 @@ import { isFunction } from '../../common/utils'
 import { debug } from '../../common/debug'
 import NativeListener from 'react-native-listener'
 
+
+const  getcls = (props, cls, addcls) => {
+    const { classPrefix, isclasses } = props
+    return classNames({
+        [classPrefix + '-' + cls]: true,
+        [addcls]: !!addcls && isclasses
+    })
+}
+
 class TableList extends React.Component {
     constructor (props) {
         super(props)
@@ -91,32 +100,25 @@ class TableList extends React.Component {
         });
     }
 
-    getcls (cls, addcls) {
-        return classNames({
-            [this.props.classPrefix + '-' + cls]: true,
-            [addcls]: !!addcls && this.props.isclasses
-        })
-    }
-
     render () {
         const { onTitle, onItemLink, onContentItem, data, className, onHref } = this.props
         return (
             <NativeListener stopKeyDown onKeyDown={this.handleKeyPress.bind(this)}>
-            <div className={this.getcls("Window", className)}>
+            <div className={getcls(this.props, "Window", className)}>
 
                 { isFunction(onTitle) && (
-                    <div className={this.getcls("Title")}>
+                    <div className={getcls(this.props, "Title")}>
                         {onTitle(this.props)}
                     </div>
                 ) }
 
-                <div className={this.getcls("Content", "list-group w-100")} tabIndex={-1} role="tablist" ref={this.list}>
+                <div className={getcls(this.props, "Content", "list-group w-100")} tabIndex={-1} role="tablist" ref={this.list}>
                     {data.map((rec, i) => {
                         const active = i === this.state.selected ? "active" : "";
                         const linkclass = active ? 'text-white' : 'text-link'
                         return (
                             <div
-                                className={this.getcls("ContentItem", "list-group-item list-group-item-action " + active)}
+                                className={getcls(this.props, "ContentItem", "list-group-item list-group-item-action " + active)}
                                 key={i}
                                 onClick={this.itemClick.bind(this, i, rec)}
                                 onDoubleClick={this.buttonClick.bind(this, i, rec)}
@@ -133,6 +135,25 @@ class TableList extends React.Component {
     }
 }
 
+const ArrayList = (props) => {
+    const { onContentItem, data } = props
+    return (
+        <ul className={getcls(props, "Content", "list-group w-100")} role="tablist">
+        {data.map((rec, i) => {
+            return (
+                <li
+                    className={getcls(props, "ContentItem", "list-group-item")}
+                    key={i}
+                >
+                    {isFunction(onContentItem) && onContentItem(rec, i)}
+                </li>
+            )
+        })}
+        </ul>
+    )
+}
+
 export {
-    TableList
+    TableList,
+    ArrayList
 }
