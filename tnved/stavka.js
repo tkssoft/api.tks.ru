@@ -34,7 +34,7 @@ const get_stavka = (prz, tnved, tnvedall) => {
         // импорная пошлина
         case tnv_const.PRIZNAK_IMPORTDUTY:
             return {
-                ...add,                
+                ...add,
                 IMP: base ? tnved.IMP : tnvedall.MIN,
                 IMPEDI: base ? tnved.IMPEDI : tnvedall.TYPEMIN,
                 IMP2: base ? tnved.IMP2 : tnvedall.MAX,
@@ -47,7 +47,7 @@ const get_stavka = (prz, tnved, tnvedall) => {
         // акциз
         case tnv_const.PRIZNAK_EXCISEDUTY:
             return {
-                ...add,                
+                ...add,
                 AKC: base ? tnved.AKC : tnvedall.MIN,
                 AKCEDI: base ? tnved.AKCEDI : tnvedall.TYPEMIN,
                 AKC2: base ? tnved.AKC2 : tnvedall.MAX,
@@ -60,84 +60,84 @@ const get_stavka = (prz, tnved, tnvedall) => {
         // НДС
         case tnv_const.PRIZNAK_VAT:
             return {
-                ...add,                
+                ...add,
                 NDS: base ? tnved.NDS : tnvedall.MIN,
                 NDSEDI: base ? tnved.NDSEDI : tnvedall.PREF
             };
         case 4:
             return {
-                ...add,                
+                ...add,
                 DEPOSIT: base ? tnved.DEPOSIT : tnvedall.MIN,
                 DEPOSITEDI: base ? tnved.DEPOSITEDI : tnvedall.TYPEMIN
             };
         case 5:
             return {
-                ...add,                
+                ...add,
                 NOPREF: base ? tnved.NOPREF : tnvedall.TYPEMIN
             };
         case 32:
             return {
-                ...add,                
+                ...add,
                 NOPREF92: base ? tnved.NOPREF92 : tnvedall.TYPEMIN
             };
         case 6:
             return {
-                ...add,                
+                ...add,
                 LICEXP: base ? tnved.LICEXP : tnvedall.TYPEMIN
             };
         case 7:
             return {
-                ...add,                
+                ...add,
                 LICIMP: base ? tnved.LICIMP : tnvedall.TYPEMIN
             };
         case 8:
             return {
-                ...add,                
+                ...add,
                 KVOTAEXP: base ? tnved.KVOTAEXP : tnvedall.TYPEMIN
             };
         case 9:
             return {
-                ...add,                
+                ...add,
                 KVOTAIMP: base ? tnved.KVOTAIMP : tnvedall.TYPEMIN
             };
         case 21:
             return {
-                ...add,                
+                ...add,
                 REG: base ? tnved.REG : tnvedall.TYPEMIN
             };
         case 11:
             return {
-                ...add,                
+                ...add,
                 SAFETY: base ? tnved.SAFETY : tnvedall.TYPEMIN
             };
         case 12:
             return {
-                ...add,                
+                ...add,
                 STRATEG: base ? tnved.STRATEG : tnvedall.TYPEMIN
             };
         case 13:
             return {
-                ...add,                
+                ...add,
                 DOUBLE: base ? tnved.DOUBLE : tnvedall.TYPEMIN
             };
         // Разрешительные прочие экспорт
         case tnv_const.PRIZNAK_OTHER_LIC_IMP:
             // ToDo: исправить parseInt(TBL.KLASS) & tnv_const.I_OTHER_IMPORT ? STRINGCONST_ONE : STRINGCONST_ZERO,
             return {
-                ...add,                
+                ...add,
                 KLASS: base ? tnved.KLASS : tnvedall.TYPEMIN
             };
         // Разрешительные прочие экспорт
         case tnv_const.PRIZNAK_OTHER_LIC_EXP:
             // ToDo: исправить parseInt(TBL.KLASS) & tnv_const.I_OTHER_EXPORT ? STRINGCONST_ONE : STRINGCONST_ZERO,
             return {
-                ...add,                
+                ...add,
                 KLASS: base ? tnved.KLASS : tnvedall.TYPEMIN
             };
         // Временная специальная пошлина
         case 16:
             return {
-                ...add,                
+                ...add,
                 IMPTMP: base ? tnved.IMPTMP : tnvedall.MIN,
                 IMPTMPEDI: base ? tnved.IMPTMPEDI : tnvedall.TYPEMIN,
                 IMPTMP2: base ? tnved.IMPTMP2 : tnvedall.MAX,
@@ -146,13 +146,13 @@ const get_stavka = (prz, tnved, tnvedall) => {
             };
         case 17:
             return {
-                ...add,                
+                ...add,
                 IMPDOP: base ? tnved.IMPDOP : tnvedall.MIN
             };
         // Антидемпинговая пошлина
         case 19:
             return {
-                ...add,                
+                ...add,
                 IMPDEMP: base ? tnved.IMPDEMP : tnvedall.MIN,
                 IMPDEMPEDI: base ? tnved.IMPDEMPEDI : tnvedall.TYPEMIN,
                 IMPDEMP2: base ? tnved.IMPDEMP2 : tnvedall.MAX,
@@ -161,7 +161,7 @@ const get_stavka = (prz, tnved, tnvedall) => {
             };
         case 20:
             return {
-                ...add,                
+                ...add,
                 IMPCOMP: base ? tnved.IMPCOMP : tnvedall.MIN,
                 IMPCOMPEDI: base ? tnved.IMPCOMPEDI : tnvedall.TYPEMIN,
                 IMPCOMP2: base ? tnved.IMPCOMP2 : tnvedall.MAX,
@@ -170,7 +170,7 @@ const get_stavka = (prz, tnved, tnvedall) => {
             };
         case 28:
             return {
-                ...add,                
+                ...add,
                 MARK: base ? tnved.MARK : tnvedall.MIN
             };
         default:
@@ -180,10 +180,12 @@ const get_stavka = (prz, tnved, tnvedall) => {
 
 
 const get_tnvedcc_rec = (g34, tnvedcc) => {
-    if (Object.getOwnPropertyNames(tnvedcc).length > 0) {
-        for (let cc of tnvedcc) {
-            if (cc.CC === g34) {
-                return cc
+    if (![undefined, null].includes(tnvedcc)) {
+        if (Object.getOwnPropertyNames(tnvedcc).length > 0) {
+            for (let cc of tnvedcc) {
+                if (cc.CC === g34) {
+                    return cc
+                }
             }
         }
     }
@@ -283,8 +285,8 @@ const get_prim_values = (prz, TNVED, TNVEDALL, TNVEDCC) => {
             return a
         }, [{
             label: base + ' - (БАЗОВАЯ)',
-            key: base, 
-            value: {...TNVED, PRIZNAK: prz, base: true},            
+            key: base,
+            value: {...TNVED, PRIZNAK: prz, base: true},
         }]
     )
 };

@@ -34,18 +34,20 @@ class ShowStItem extends React.Component {
     }
 
     render () {
-        const { value } = this.props
+        const { value, prButtonLabel } = this.props
         if ([undefined, true].includes(this.props.skipIfEmpty) && !this.state.pr && [undefined, null, '', 'Нет', 'Беспошлинно', 'Отсутствует'].includes(value)) {
             return (<></>)
         } else {
             return (
-                <div className={ccs_contract("ShowStItem")}>
-                    <div className={"ccs-contract-strong ccs-contract-ShowStItem-name"}>{this.state.name}</div>
+                <div className=`${ccs_contract("ShowStItem")} list-group-item`>
+                    <div className={"ccs-contract-strong ccs-contract-ShowStItem-name"}>{this.state.name + ':'}</div>
                     <div className={"ccs-contract-ShowStItem-value"}>{this.props.value}</div>
                     {this.state.pr && (
-                        <ModalButton buttonLabel={"Выбрать"} ref={this.modalref} data={this.props.data}
+                        <ModalButton buttonLabel={prButtonLabel || "Выбрать"} ref={this.modalref} data={this.props.data}
                                      className={"ccs-contract-ShowStItem-button"}
                                      title={`Примечания по ${przdesc(this.props.prz)}`}
+                                     btnClassName={'btn btn-sm btn-block btn-danger'}
+                                     isclasses={this.props.isclasses}
                         >
                             <ShowPrim prz={this.props.prz}
                                       data={this.props.data}
@@ -95,7 +97,7 @@ class ShowSt extends React.Component {
     render () {
         if (!isEmptyAll(this.props.data) && !isEmptyAll(this.props.tnved)) {
             return (
-                <div className={ccs_contract('ShowSt')}>
+                <div className={ccs_contract('ShowSt list-group')}>
                     {this.props.showTitle && (
                         <div className={'ccs-contract-title ccs-contract-ShowSt-title'}><div>Ставки признаки по товару</div></div>
                     )}
@@ -110,6 +112,8 @@ class ShowSt extends React.Component {
                                     data={this.props.tnved}
                                     onSelect={this.doSelect}
                                     skipIfEmpty={this.props.skipIfEmpty}
+                                    isclasses={this.props.isclasses}
+                                    prButtonLabel={this.props.prButtonLabel}
                                 />
                     })}
                 </div>
