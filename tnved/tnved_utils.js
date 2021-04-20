@@ -285,6 +285,9 @@ const calc_get5 = (TBL, prz, acountry=tnv_const.CNTR_RUSSIA) => {
 
 /* Функция определяет, есть ли примечания по указанному номеру признака */
 const is_pr = (TBL, prz, acountry=tnv_const.CNTR_RUSSIA) => {
+    if (TBL === undefined) {
+        return false
+    }
     let b_is_ru = is_ru(acountry);
     switch (prz) {
         // экспортная пошлина
@@ -340,7 +343,7 @@ const is_pr = (TBL, prz, acountry=tnv_const.CNTR_RUSSIA) => {
         case 20:
             return TBL.IMPCOMP_PR === 1;
         case 28:
-            return TBL.MARK_PR;
+            return TBL.MARK_PR === 1;
         default:
             return false;
     }
