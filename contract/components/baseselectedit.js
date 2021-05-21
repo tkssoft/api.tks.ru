@@ -14,7 +14,7 @@ const BaseSelectEdit = (props) =>  {
             <select id={props.id}
                     value={props.value}
                     onChange={props.onChange}
-                    className={'form-control'}
+                    className={'form-control form-control-sm'}
             >
                 {
                     Object.keys(props.data).map((key) => {

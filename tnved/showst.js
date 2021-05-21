@@ -23,13 +23,13 @@ class ShowStItem extends React.Component {
         this.modalref = React.createRef();
         this.state = {
             name: this.props.name || tnv_const.przname(this.props.prz),
-            pr: this.props.data !== undefined && is_pr(this.props.data.TNVED, this.props.prz)
+            pr: this.props.data !== undefined && is_pr(this.props.data.TNVED, this.props.prz, this.props.data.TNVEDCC)
         };
     }
 
     static getDerivedStateFromProps(props, state) {
         return {
-            pr: props.data !== undefined && is_pr(props.data.TNVED, props.prz)
+            pr: props.data !== undefined && is_pr(props.data.TNVED, props.prz, props.data.TNVEDCC)
         }
     }
 
@@ -39,7 +39,7 @@ class ShowStItem extends React.Component {
             return (<></>)
         } else {
             return (
-                <div className=`${ccs_contract("ShowStItem")} list-group-item`>
+                <div className={ccs_contract("ShowStItem") + " list-group-item"}>
                     <div className={"ccs-contract-strong ccs-contract-ShowStItem-name"}>{this.state.name + ':'}</div>
                     <div className={"ccs-contract-ShowStItem-value"}>{this.props.value}</div>
                     {this.state.pr && (
@@ -101,10 +101,10 @@ class ShowSt extends React.Component {
                     {this.props.showTitle && (
                         <div className={'ccs-contract-title ccs-contract-ShowSt-title'}><div>Ставки признаки по товару</div></div>
                     )}
-                    {[undefined, true].includes(this.props.skipName) && (
+                    {[undefined, false].includes(this.props.skipName) && (
                         <ShowStItem name={"Наименование"} value={this.props.G312}/>
                     )}
-                    {get_type_priznak(this.state.typ).map((prz, index) => {
+                    {get_type_priznak(this.state.typ, this.props.expertmode).map((prz, index) => {
                         return <ShowStItem
                                     prz={prz}
                                     key={prz}

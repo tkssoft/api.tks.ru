@@ -46,6 +46,7 @@ class ShowPrim extends React.Component {
             desc: przdesc(this.props.prz),
             stavkas: TNVEDALL[this.props.prz].reduce(
                 (a, v) => {
+
                     a.push({
                         stavka: get5(
                             v.PRIZNAK,
@@ -58,12 +59,13 @@ class ShowPrim extends React.Component {
                             v.PREF,
                             v.SIGN,
                             v.SIGN2,
-                            ''
+                            '',
+                            v.CU
                             ),
                         note: v.NOTE && v.NOTE.replace('\n', '<br />')
                     });
                     return a
-                }, [{stavka: calc_get5(TNVED, this.props.prz) + ' - (БАЗОВАЯ)'}]
+                }, [15, 30].includes(this.props.prz)? [] :[{stavka: calc_get5(TNVED, this.props.prz) + ' - (БАЗОВАЯ)'}]
             ),
             selected: 0
         }

@@ -7,7 +7,7 @@ const { errorClass } = require('../../common/errors')
 const { debug } = require('../../common/debug')
 const { ccs_contract, ccs_class } = require('../../common/ccs')
 const { isFunction } = require('../../common/utils')
-const { HorzRow, Column, getcold, is_horz, IifRow } = require('../../common/bs')
+const { HorzRow, Column, getcold, is_horz, IfRow } = require('../../common/bs')
 
 const FormLabel = (props) => {
     const { type, isclasses } = props
@@ -37,11 +37,11 @@ class BaseContractEdit extends React.Component {
         }
     }
 
-    static getDerivedStateFromProps(props, state) {
-        return {
-            value: BaseContractEdit.get_field_value(props)
-        }
-    }
+    // static getDerivedStateFromProps(props, state) {
+    //     return {
+    //         value: BaseContractEdit.get_field_value(props)
+    //     }
+    // }
 
     static get_field_value(props) {
         return props.value === undefined ?
@@ -56,7 +56,9 @@ class BaseContractEdit extends React.Component {
     set_field_value(value, cb) {
         if (!this.is_readOnly()) {
             if (!this.props.onValidate || this.props.onValidate(value)) {
-                this.setState({value: value}, ()=>{
+                console.log('before setState', this.state.value, value);
+                this.setState({ value }, ()=>{
+                    console.log('after setState', this.state.value, value);
                     this.props.manager.setFieldData(this.props.fieldname, value, this.props.g32)
                     if (cb) {
                         cb(value)
@@ -100,7 +102,7 @@ class BaseContractEdit extends React.Component {
         })
         return (
             <div className={cls}>
-                <IifRow iif={is_horz(this.props) && !checkbox} {...this.props}>
+                <IfRow iif={is_horz(this.props) && !checkbox} {...this.props}>
                     { !checkbox && (<FormLabel {...this.props}/>) }
                     { isFunction(this.props.children) ? this.props.children({
                         ...this.props,
@@ -108,7 +110,7 @@ class BaseContractEdit extends React.Component {
                         onSelect: this.onselect.bind(this),
                         value: this.state.value
                     }) : this.props.children }
-                </IifRow>
+                </IfRow>
             </div>
         )
     }
@@ -175,9 +177,11 @@ const ContractInput = (props) => {
                                 ...getcold(prs, is_horz(prs), 'button')
                             })}
                         >
+                            <div className='row'>
                             { isFunction(children) ? children(
                                     {...prs, formgroup: false}
                                 ) : children }
+                            </div>
                         </div>
                     )}
                 </>

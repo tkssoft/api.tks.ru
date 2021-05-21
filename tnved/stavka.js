@@ -180,6 +180,10 @@ const get_stavka = (prz, tnved, tnvedall) => {
 
 
 const get_tnvedcc_rec = (g34, tnvedcc) => {
+    if (g34 === tnv_const.CNTR_RUSSIA) {
+        // Случай, когда требуется показать просто список всех ставок
+        return tnvedcc
+    }
     if (![undefined, null].includes(tnvedcc)) {
         if (Object.getOwnPropertyNames(tnvedcc).length > 0) {
             for (let cc of tnvedcc) {
