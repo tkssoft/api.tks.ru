@@ -5,17 +5,17 @@
 *
 * */
 
-const React = require('react')
-const { calctxt, is_pr, get_type_priznak } = require('./tnved_utils')
-const tnv_const = require('./tnv_const')
-const { ModalButton } = require('../common/modalbutton')
-const { ShowPrim, przdesc } = require('./shprim')
-const { get_stavka, get_tnvedcc_rec } = require('./stavka')
-const { TYPE_IM, TYPE_EK, TYPE_DEPOSIT } = require('../common/consts')
+const React = require('react');
+const { calctxt, is_pr, get_type_priznak } = require('./tnved_utils');
+const tnv_const = require('./tnv_const');
+const { ModalButton } = require('../common/modalbutton');
+const { ShowPrim, przdesc } = require('./shprim');
+const { get_stavka, get_tnvedcc_rec } = require('./stavka');
+const { TYPE_IM, TYPE_EK, TYPE_DEPOSIT } = require('../common/consts');
 
-import { ccs_contract } from '../common/ccs'
-import { isEmptyAll } from '../common/utils'
-
+import { ccs_contract } from '../common/ccs';
+import { isEmptyAll } from '../common/utils';
+import classNames from 'classnames';
 
 class ShowStItem extends React.Component {
     constructor (props) {
@@ -95,9 +95,17 @@ class ShowSt extends React.Component {
     };
 
     render () {
+
+        const { className, isclasses } = this.props;
+        const cls = classNames({
+            [className]: !!className,
+            [ccs_contract('ShowSt')]: true,
+            'list-group': isclasses,
+        })
+
         if (!isEmptyAll(this.props.data) && !isEmptyAll(this.props.tnved)) {
             return (
-                <div className={ccs_contract('ShowSt list-group')}>
+                <div className={cls}>
                     {this.props.showTitle && (
                         <div className={'ccs-contract-title ccs-contract-ShowSt-title'}><div>Ставки признаки по товару</div></div>
                     )}

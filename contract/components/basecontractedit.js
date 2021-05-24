@@ -56,9 +56,7 @@ class BaseContractEdit extends React.Component {
     set_field_value(value, cb) {
         if (!this.is_readOnly()) {
             if (!this.props.onValidate || this.props.onValidate(value)) {
-                console.log('before setState', this.state.value, value);
                 this.setState({ value }, ()=>{
-                    console.log('after setState', this.state.value, value);
                     this.props.manager.setFieldData(this.props.fieldname, value, this.props.g32)
                     if (cb) {
                         cb(value)

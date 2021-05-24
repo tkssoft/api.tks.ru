@@ -22,6 +22,7 @@ const StavkaEditor = (props) => {
                 const stavka = get_stavka(prz, kontdop.state.tnved.TNVED, base ? undefined : tnvedall);
                 kontdop.setStavka(stavka);
             }}
+            {...props}
         />
     } else {
         return <></>

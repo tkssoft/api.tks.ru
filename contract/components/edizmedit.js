@@ -14,7 +14,7 @@ const ContractEdizmInput = (props) => {
                 return (
                     <div
                         className={classNames({
-                            "pt-2 px-2 ccs-contract-strong": isclasses
+                            "pt-2 px-2 col-sm": isclasses
                         })}
                     >
                         {ediname}
@@ -29,7 +29,7 @@ const EdizmEdit = (props) => {
     const { kontdop } = props
     const edizm_list = kontdop.get_edizm_list()
     return (
-        <div className="ccs-contract-EdizmEdit">
+        <>
             {
                 edizm_list.map((edi, index) => {
                     let numqty = index + 1;
@@ -49,7 +49,7 @@ const EdizmEdit = (props) => {
                     )
                 })
             }
-        </div>
+        </>
     )
 }
 

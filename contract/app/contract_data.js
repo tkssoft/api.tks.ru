@@ -41,35 +41,41 @@ const ContractDopData = (props) => {
             className={classNames({
                 "kontdop": true,
                 [ccs_contract('ContractDopData')]: true,
-                'row': isclasses,
             })}
         >
+            <Row isclasses={isclasses}>
             <G33Edit
                 kontdop={kontdop}
                 orientation='horz'
                 layout={get_layout_config('-sm', '-sm-2', '-sm-3', '-sm-7')}
                 { ...props }
             />
+            </Row>
             {!isError(kontdop.state.errors.G33) && (
                 <>
-
-                    <G45Edit
-                        kontdop={kontdop}
-                        layout={get_layout_config('-sm', '-sm-4', '-sm-4', '-sm-4')}
-                        { ...props }
-                    />
-                    <EdizmEdit
-                        kontdop={kontdop}
-                        layout={get_layout_config('-sm', '-sm-4', '-sm-4', '-sm-4')}
-                        { ...props }
-                    />
+                    <Row isclasses={isclasses}>
+                        <G45Edit
+                            kontdop={kontdop}
+                            layout={get_layout_config('-sm', '-sm-4', '-sm-4', '-sm-4')}
+                            { ...props }
+                        />
+                    </Row>
+                    <Row isclasses={isclasses}>
+                        <EdizmEdit
+                            kontdop={kontdop}
+                            layout={get_layout_config('-sm', '-sm-4', '-sm-4', '-sm-4')}
+                            { ...props }
+                        />
+                    </Row>
                     {props.onDisplayCalcFields && (
                         props.onDisplayCalcFields(props)
                     )}
-                    <StavkaEditor
-                        kontdop={kontdop}
-                        {...props}
-                    />
+                    <Row>
+                        <StavkaEditor
+                            kontdop={kontdop}
+                            {...props}
+                        />
+                    </Row>
                 </>
             )}
         </div>
