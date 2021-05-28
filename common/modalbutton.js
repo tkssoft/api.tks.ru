@@ -101,13 +101,14 @@ class ModalButton extends React.Component {
     }
 
     render() {
-        const {buttonLabel, children, isclasses} = this.props;
+        const {buttonLabel, children, isclasses, btnClassName} = this.props;
         const {showModal} = this.state;
         return (
             <div className={this.props.className}>
                 <button
                     className={classNames({
-                        'w-100 text-truncate': isclasses
+                        'w-100 text-truncate': isclasses,
+                        [btnClassName]: !!btnClassName && isclasses
                     })}
                     type="button"
                     onClick={!this.state.showModal ? () => this.handleToggleModal() : undefined}

@@ -4,9 +4,10 @@ import React from 'react'
 import classNames from 'classnames'
 
 const getcls = (cls, props) => {
-    const { isclasses } = props
+    const { isclasses, className } = props
     return classNames({
-        [cls]: isclasses
+        [cls]: isclasses,
+        [className]: !!className
     })
 }
 
@@ -38,7 +39,7 @@ const Row = (props) => {
     )
 }
 
-const IifRow = (props) => {
+const IfRow = (props) => {
     const { iif, children } = props
     if (iif) {
         return (
@@ -85,6 +86,12 @@ const Column = (props) => {
     return children
 }
 
+const get_layout_config = (group, label, input, button) => {
+    return {
+        group, label, input, button
+    }
+}
+
 export {
     Row,
     Column,
@@ -93,5 +100,6 @@ export {
     is_horz,
     is_vert,
     HorzRow,
-    IifRow
+    IfRow,
+    get_layout_config
 }

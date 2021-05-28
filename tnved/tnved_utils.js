@@ -6,6 +6,9 @@ const { debug } = require('../common/debug');
 const nsi = require('../common/nsi');
 const { TYPE_IM, TYPE_EK, TYPE_DEPOSIT } = require('../common/consts')
 
+import { isEmpty } from '../common/utils'
+
+
 const EncodeSign = (s) => {
     switch (s) {
         case '>':
@@ -37,18 +40,23 @@ const inlist = (s, arr) => {
 };
 
 
+const isnull = (s) => {
+    return [null, undefined, ''].includes(s)
+}
+
+
 const get5 = (prz, s1, t1, s2, t2, s3, t3, pref, s, sign2, def, cu='') => {
     switch (prz) {
         // Экспорт
         case 0:
-            if (s1 === null) {
+            if (isnull(s1)) {
                 return 'Беспошлинно';
             } else {
                 let r = trim(s1) + ' ' + getLook(prz, t1);
-                if (s !== null) {
+                if (!isnull(s)) {
                     r = trim(r + EncodeSign(s) + s2 + ' ' + getLook(prz, t2));
                 }
-                if ((sign2 !== null) && (strtoreal(s3) !== 0)) {
+                if ((!isnull(sign2)) && (strtoreal(s3) !== 0)) {
                     r = trim(r + EncodeSign(sign2) + s3 + ' ' + getLook(prz, t3));
                 }
                 return r;
@@ -251,7 +259,6 @@ const calc_get5 = (TBL, prz, acountry=tnv_const.CNTR_RUSSIA) => {
             return get5(12, null, TBL.STRATEG, null, null, null, null, null, null, null, 'Нет');
         case 13:
             return get5(13, null, TBL.DOUBLE, null, null, null, null, null, null, null, 'Нет');
-
         // Разрешительные прочие экспорт
         case tnv_const.PRIZNAK_OTHER_LIC_IMP:
             return get5(tnv_const.PRIZNAK_OTHER_LIC_IMP, null,
@@ -277,6 +284,8 @@ const calc_get5 = (TBL, prz, acountry=tnv_const.CNTR_RUSSIA) => {
                 null, null, null, TBL.IMPCOMPSIGN, null, 'Нет');
         case 28:
             return get5(28, null, TBL.MARK, null, null, null, null, null, null, null, 'Нет');
+        case 33:
+            return get5(28, null, TBL.TRACE, null, null, null, null, null, null, null, 'Нет');
         default:
             return '';
     }
@@ -284,7 +293,10 @@ const calc_get5 = (TBL, prz, acountry=tnv_const.CNTR_RUSSIA) => {
 
 
 /* Функция определяет, есть ли примечания по указанному номеру признака */
-const is_pr = (TBL, prz, acountry=tnv_const.CNTR_RUSSIA) => {
+const is_pr = (TBL, prz, TBLCC, acountry=tnv_const.CNTR_RUSSIA) => {
+    if (TBL === undefined) {
+        return false
+    }
     let b_is_ru = is_ru(acountry);
     switch (prz) {
         // экспортная пошлина
@@ -308,7 +320,7 @@ const is_pr = (TBL, prz, acountry=tnv_const.CNTR_RUSSIA) => {
         case 6:
             return TBL.LICEXP_PR === 1;
         case 7:
-            return TBL.LICIMP_PR === 1;
+            return TBL.LICIMP_PR > 0;
         case 8:
             return TBL.KVOTAEXP_PR === 1;
         case 9:
@@ -316,22 +328,20 @@ const is_pr = (TBL, prz, acountry=tnv_const.CNTR_RUSSIA) => {
         case 21:
             return TBL.REG_PR === 1;
         case 11:
-            return TBL.SAFETY_PR === 1;
+            return TBL.SAFETY_PR > 0;
         case 12:
             return TBL.STRATEG_PR === 1;
         case 13:
             return TBL.DOUBLE_PR === 1;
         // Разрешительные прочие экспорт
         case tnv_const.PRIZNAK_OTHER_LIC_IMP:
-            // ToDo: переделать dm_tnved.TnvedKlass_pr.AsInteger and I_OTHER_IMPORT
-            return TBL.KLASS_PR === 1;
+            return TBL.KLASS_PR & tnv_const.I_OTHER_IMPORT === tnv_const.I_OTHER_IMPORT
         // Разрешительные прочие экспорт
         case tnv_const.PRIZNAK_OTHER_LIC_EXP:
-            // ToDo: переделать dm_tnved.TnvedKlass_pr.AsInteger and I_OTHER_EXPORT
-            return TBL.KLASS_PR === 1;
+            return TBL.KLASS_PR & tnv_const.I_OTHER_EXPORT === tnv_const.I_OTHER_EXPORT
         // Временная специальная пошлина
         case 16:
-            return TBL.IMPTMP_PR === 1;
+            return TBL.IMPTMP_PR > 0;
         case 17:
             return TBL.IMPDOP_PR === 1;
         // Антидемпинговая пошлина
@@ -340,7 +350,17 @@ const is_pr = (TBL, prz, acountry=tnv_const.CNTR_RUSSIA) => {
         case 20:
             return TBL.IMPCOMP_PR === 1;
         case 28:
-            return TBL.MARK_PR;
+            return TBL.MARK_PR > 0;
+        // Отслеживание
+        case 33:
+            return TBL.TRACE_PR > 0;
+        // Прочие
+        case 15:
+            return TBL.OTHER_PR > 0;
+        //Пошлины других стран
+        case 30:
+            // Дополнительная таблица с пошлинами непустая
+            return TBLCC !== undefined && TBLCC.length > 0
         default:
             return false;
     }
@@ -404,41 +424,79 @@ const calctxt = (Tnved, TnvedCC, acountry=tnv_const.CNTR_RUSSIA) => {
         19: b_is_ru ?  calc_get5(Tnved, tnv_const.PRIZNAK_IMPORTANTIDUMP) : '',
         20: b_is_ru ?  calc_get5(Tnved, tnv_const.PRIZNAK_IMPORTCOMP) : '',
         28: b_is_ru ?  calc_get5(Tnved, 28) : '',
-        30: b_is_ru ?  calc_get5_cc(TnvedCC, 30) : '',
-        32: b_is_ru ?  calc_get5(Tnved, 32) : ''
+        30: b_is_ru ?  TnvedCC === undefined || TnvedCC.length === 0 ? 'Нет' : 'Есть' : '',
+        32: b_is_ru ?  calc_get5(Tnved, 32) : '',
+        33: b_is_ru ?  calc_get5(Tnved, 33) : ''
     }
 };
 
 /*  Список признаков для определенного вида перевозок (экспорт, депозит, импорт) */
-const get_type_priznak = (typ) => {
+const get_type_priznak = (typ, expertmode=false) => {
     switch (typ) {
         case TYPE_EK:
-            return [
-                tnv_const.PRIZNAK_EXPORTDUTY, // 0 - экспортная пошлина
-            ]
+            if (expertmode) {
+                return [
+                    tnv_const.PRIZNAK_EXPORTDUTY, // 0 - экспортная пошлина
+                    tnv_const.PRIZNAK_EXPORTLIC, // 6 Лицензирование - импорт
+                    tnv_const.PRIZNAK_EXPORTDOUBLE, // 21 двойное применение - экспорт
+                    tnv_const.PRIZNAK_EXPORTQUOTA, // 8 квортирование - экспорт
+                    // ToDo проверить правильность постановки признака. в импорте тоже самое
+                    tnv_const.PRIZNAK_OTHER_LIC_EXP, // 27 прочие разрешительные документы
+                ]
+            } else {
+                return [
+                    tnv_const.PRIZNAK_EXPORTDUTY, // 0 - экспортная пошлина
+                ]
+            }
         case TYPE_DEPOSIT:
             return [
                 tnv_const.PRIZNAK_DEPOSIT, // 4 - ставки депозита
             ]
         default:
-            return [
-                tnv_const.PRIZNAK_IMPORTDUTY, // 1 Импортная пошлина
-                tnv_const.PRIZNAK_IMPORTDUTY_OTHER, // 30 Пошлина для других стран
-                tnv_const.PRIZNAK_EXCISEDUTY, // 2 Акциз
-                tnv_const.PRIZNAK_VAT, // 3 НДС
-                tnv_const.PRIZNAK_IMPORTANTIDUMP, // 19 антидемпинговая пошлина
-                tnv_const.PRIZNAK_IMPORTCOMP, // 20 компенсационная пошлина
-                tnv_const.PRIZNAK_IMPORTSPECDUTY, // 16 Временная специальная пошлина
-                tnv_const.PRIZNAK_IMPORTADDDUTY, // 17 доп.имп. пошлина
-                tnv_const.PRIZNAK_PREF, // 5 Преференциальные для развивающихся стран
-                tnv_const.PRIZNAK_PREF_92 // 32 Преференциальные для наименее развитых стран
-            ]
+            if (expertmode) {
+                return [
+                    tnv_const.PRIZNAK_IMPORTDUTY, // 1 Импортная пошлина
+                    tnv_const.PRIZNAK_EXCISEDUTY, // 2 Акциз
+                    tnv_const.PRIZNAK_VAT, // 3 НДС
+                    tnv_const.PRIZNAK_IMPORTDUTY_OTHER, // 30 Импортная пошлина другие страны
+                    tnv_const.PRIZNAK_IMPORTANTIDUMP, // 19 антидемпинговая пошлина
+                    tnv_const.PRIZNAK_IMPORTCOMP, // 20 компенсационная пошлина
+                    tnv_const.PRIZNAK_IMPORTSPECDUTY, // 16 Временная специальная пошлина
+                    tnv_const.PRIZNAK_IMPORTADDDUTY, // 17 доп.имп. пошлина
+                    tnv_const.PRIZNAK_IMPORTLIC, // 7 Лицензирование - импорт
+                    tnv_const.PRIZNAK_MARK, // 28 маркировка
+                    tnv_const.PRIZNAK_TRACE, // 33 прослеживаемость
+                    tnv_const.PRIZNAK_IMPORTDOUBLE, // 13 двойное применение - импорт
+
+                    tnv_const.PRIZNAK_PREF, // 5 Преференциальные для развивающихся стран
+                    tnv_const.PRIZNAK_PREF_92, // 32 Преференциальные для наименее развитых стран
+                    tnv_const.PRIZNAK_IMPORTQUOTA, // 9 квотирование на импорт
+
+                    tnv_const.PRIZNAK_SAFETY, // 11 сертификация
+                    tnv_const.PRIZNAK_OTHER_LIC_IMP, // 14 прочие разрешительные документы
+                    tnv_const.PRIZNAK_OTHER, // 15 прочие особенности
+
+                ]
+            } else {
+                return [
+                    tnv_const.PRIZNAK_IMPORTDUTY, // 1 Импортная пошлина
+                    tnv_const.PRIZNAK_IMPORTDUTY_OTHER, // 30 Пошлина для других стран
+                    tnv_const.PRIZNAK_EXCISEDUTY, // 2 Акциз
+                    tnv_const.PRIZNAK_VAT, // 3 НДС
+                    tnv_const.PRIZNAK_IMPORTANTIDUMP, // 19 антидемпинговая пошлина
+                    tnv_const.PRIZNAK_IMPORTCOMP, // 20 компенсационная пошлина
+                    tnv_const.PRIZNAK_IMPORTSPECDUTY, // 16 Временная специальная пошлина
+                    tnv_const.PRIZNAK_IMPORTADDDUTY, // 17 доп.имп. пошлина
+                    tnv_const.PRIZNAK_PREF, // 5 Преференциальные для развивающихся стран
+                    tnv_const.PRIZNAK_PREF_92 // 32 Преференциальные для наименее развитых стран
+                ]
+            }
     }
 }
 
 /* есть ли по типу примечания */
-const has_pr = (tbl, typ) => {
-    let arr = get_type_priznak(typ)
+const has_pr = (tbl, typ, expertmode) => {
+    let arr = get_type_priznak(typ, expertmode)
     for (var prz of arr) {
         if (is_pr(tbl, prz)) {
             return true
@@ -507,6 +565,7 @@ export  {
     has_pr,
     calc_get5,
     get5,
+    calc_get5_cc,
     get_type_priznak,
     get_edizm_list,
     validate_code,

@@ -7,11 +7,12 @@ const { isError } = require('../common/utils')
 const Errors = ({ errors, isclasses, toshow }) => {
     const show = toshow ? toshow.split(' ') : undefined
     return (
-        <div className={ccs_class('formErrors')}>
+        <div className={classNames({[ccs_class('formErrors')]: true, 'row': isclasses})}>
             {Object.keys(errors).map((fieldName, i) => {
                 var cls = classNames({
                     'alert': isclasses,
-                    'alert-danger' : isclasses
+                    'alert-danger' : isclasses,
+                    'col': isclasses
                 })
                 if(errors[fieldName] && (errors[fieldName].length > 0) && (show === undefined || show.includes(fieldName))) {
                     return (

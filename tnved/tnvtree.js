@@ -12,6 +12,9 @@ const clientid = encodeURIComponent(calc_tks_ru_license.split('\n').join(''));
 const get_tree_url = (nodeid) => `${get_api_tks_ru()}/tree.json/json/${clientid}/${nodeid}.json`;
 const get_code_url = (code) => `${get_api_tks_ru()}/tree.json/json/${clientid}/search/?code=${code}`;
 
+import classNames from 'classnames'
+import { ccs_class } from '../common/ccs'
+
 
 const LASTNEXTID = 200000000;
 
@@ -45,10 +48,19 @@ class TnvTree extends React.Component {
         this.state = {
             items: [],
             selected: 0,
-            initid: 10,
+            initid: props.initid || 10,
             updatecount: 0,
         };
         this.bindedHandle = this.handleKeyPress.bind(this)
+    }
+
+    setInitId (initid) {
+        this.setState({
+            initid: initid || 10,
+            items: []
+        }, () => {
+            this.insertRoot()
+        })
     }
 
     insertAfterIndex = (index) => {
@@ -71,8 +83,20 @@ class TnvTree extends React.Component {
 
     end_update = (cb) => {
         this.setState({updatecount : Math.max(this.state.updatecount - 1, 0)}, () => {
-            if (cb !== undefined) {
-                cb()
+            if (!this.state.updatecount) {
+                this.setSelected(this.state.selected)
+                if (cb !== undefined) {
+                    cb()
+                }
+            }
+        })
+    }
+
+    setSelected (selected) {
+        this.setState({selected}, () => {
+            if (this.props.onChange) {
+                const node = this.state.items[selected]
+                this.props.onChange(node)
             }
         })
     }
@@ -87,13 +111,13 @@ class TnvTree extends React.Component {
             } else if (e.keyCode === keys.VK_DOWN) {
                 // Стрелка вниз
                 if (this.state.selected !== this.state.items.length - 1) {
-                    this.setState({selected: this.state.selected + 1});
+                    this.setSelected(this.state.selected + 1)
                 }
                 e.preventDefault();
             } else if (e.keyCode === keys.VK_UP) {
                 // Стрелка вверх
                 if (this.state.selected > 0) {
-                    this.setState({selected: this.state.selected - 1})
+                    this.setSelected(this.state.selected - 1)
                 }
                 e.preventDefault();
             }
@@ -159,21 +183,23 @@ class TnvTree extends React.Component {
 
     opened = (node, index) => {
         if (index >= this.state.items.length - 1) {
-            return False
+            return false
         }
         return node.ID === this.state.items[index + 1].parentid;
     };
+
+    insertRoot() {
+        this.insertData(10, 0, 0, LASTNEXTID, 0);
+    }
 
     componentDidMount() {
         window.addEventListener(this.eventname, this.bindedHandle);
         if (![undefined, ''].includes(this.props.code)) {
             this.getCodeID(this.props.code).then((data) => {
-                this.setState({initid: data.length > 0 ? data[0].ID : this.state.initid}, () => {
-                    this.insertData(10, 0, 0, LASTNEXTID, 0);
-                })
+                this.setInitId(data.length > 0 ? data[0].ID : this.state.initid)
             })
         } else {
-            this.insertData(this.state.initid, 0, 0, LASTNEXTID, 0);
+            this.insertRoot()
         }
     }
 
@@ -181,12 +207,25 @@ class TnvTree extends React.Component {
         window.removeEventListener(this.eventname, this.bindedHandle);
     }
 
+    getBottomScrollMargin() {
+        const { bottomScrollMargin=0 } = this.props
+        return bottomScrollMargin
+    }
+
+    getTopScrollMargin() {
+        const { topScrollMargin=0 } = this.props
+        return topScrollMargin
+    }
+
     componentDidUpdate(prevProps, prevState) {
         if (this.selected.current !== null) {
             if (this.list.current !== null) {
-                let rootrect = this.list.current.parentElement.parentElement.getBoundingClientRect();
+                let rootelement = this.list.current.parentElement.parentElement
+                let rootrect = rootelement.getBoundingClientRect();
                 let currect = this.selected.current.getBoundingClientRect();
-                if (currect.bottom <= rootrect.bottom && currect.top >= rootrect.top) {
+                const rbottom = Math.min(window.innerHeight - this.getBottomScrollMargin(), rootrect.bottom)
+                const rtop = Math.max(this.getTopScrollMargin(), rootrect.top)
+                if (currect.bottom <= rbottom && currect.top >= rtop) {
                     return
                 }
             }
@@ -243,6 +282,8 @@ class TnvTree extends React.Component {
                 if (this.props.onAfterSelect) {
                     this.props.onAfterSelect()
                 }
+            } else {
+                this.setSelected(i)
             }
         }
     }
@@ -252,8 +293,16 @@ class TnvTree extends React.Component {
 
     render () {
 
+        const { isclasses, className } = this.props
+
+        const cls = classNames({
+            'list-group': isclasses,
+            [ccs_class('TnvTree')]: true,
+            [className]: !!className
+        })
+
         return (
-            <div className="list-group" role="tablist" ref={this.list}>
+            <div className={cls} role="tablist" ref={this.list} >
                 {this.state.items.map((item, i) => {
                     const {ID, CODE, TEXT, level} = item;
                     const active = i === this.state.selected ? "active" : "";

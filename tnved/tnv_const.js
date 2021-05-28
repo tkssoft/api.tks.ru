@@ -1,8 +1,13 @@
 export const ALL_PRIZNAK = -1;
+
+// Признак прочих разрешительных документов на импорт (поле KLASS)
 export const I_OTHER_IMPORT = 1;
+// Признак прочих разрешительных документов на экспорт (поле KLASS)
 export const I_OTHER_EXPORT = 2;
 export const I_OTHER_PRICE = 4;
+// Признак наличия примечаний по прочим разрешительным документам на импорт (поле KLASS_PR)
 export const I_OTHER_LIC_IMPORT = 8;
+// Признак наличия примечаний по прочим разрешительным документам на экспорт (поле KLASS_PR)
 export const I_OTHER_LIC_EXPORT = 16;
 
 export const CU_SIZE = 4;
@@ -48,6 +53,7 @@ export const PRIZNAK_UTIL = 29; // Признак утилизации
 export const PRIZNAK_IMPORTDUTY_OTHER = 30; // Импортная пошлина другие страны
 export const PRIZNAK_EXPORTDUTY_EA = 31; // Экспортная пошлина стран ЕАЭС
 export const PRIZNAK_PREF_92 = 32; // Преференциальные для наименее развитых стран
+export const PRIZNAK_TRACE = 33; // Прослеживаемость
 
 const PRIZNAK_NONE = 99;
 
@@ -70,24 +76,30 @@ export const przname = (prz) => {
             return  "Депозит|Ставки обеспечения";
         case "5":
             return  "Преф-ный режим для РС";
+        // Экспорт
         case "6":
-            return  "Лицензирование на экспорт";
+            return  "Лицензирование";
+        // Импорт
         case "7":
-            return  "Лицензирование на импорт";
+            return  "Лицензирование";
+        // Экспорт
         case "8":
-            return  "Квотирование на экспорт";
+            return  "Квотирование";
+        // Импорт
         case "9":
-            return  "Квотирование на импорт";
+            return  "Квотирование";
         case "10":
             return  "Сертификация";
         case "11":
             return  "Сертификация";
         case "12":
             return  "Стратегические товары";
+        // Импорт
         case "13":
-            return  "Товары двойного применения - импорт";
+            return  "Товары двойного применения";
+        // Импорт
         case "14":
-            return  "Разрешительные прочие - импорт";
+            return  "Разрешительные прочие";
         case "15":
             return  "Прочие особенности";
         case "16":
@@ -100,8 +112,9 @@ export const przname = (prz) => {
             return  "Антидемпинговая пошлина";
         case "20":
             return  "Компенсационная пошлина";
+        // Экспорт
         case "21":
-            return  "Товары двойного применения - экспорт";
+            return  "Товары двойного применения";
         case "22":
             return  "Сборы экспорт";
         case "23":
@@ -112,8 +125,9 @@ export const przname = (prz) => {
             return  "Акциз стран ЕАЭС";
         case "26":
             return  "НДС стран ЕАЭС";
+        // Экспорт
         case "27":
-            return  "Разрешительные прочие - экспорт";
+            return  "Разрешительные прочие";
         case "28":
             return  "Маркировка";
         case "29":
@@ -124,6 +138,8 @@ export const przname = (prz) => {
             return  "Экспортная пошлина стран ЕАЭС";
         case "32":
             return  "Преф-ный режим для НРС";
+        case "33":
+            return "Прослеживаемость";
     }
 };
 

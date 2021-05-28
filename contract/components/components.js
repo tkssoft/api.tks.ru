@@ -29,7 +29,7 @@ class ValutaSelect extends React.Component {
                 <select
                     className={classNames({
                         [this.props.className]: !!this.props.className,
-                        "form-control": true,
+                        "form-control form-control-sm": true,
                     })}
                     onChange={this.dovaluechange}
                     value={this.state.value}
@@ -77,7 +77,7 @@ class OksmtSelect extends React.Component {
                 <select
                     className={classNames({
                         [this.props.className]: !!this.props.className,
-                        "form-control": true,
+                        "form-control form-control-sm": true,
                     })}
                     onChange={this.dovaluechange}
                     value={this.state.value}

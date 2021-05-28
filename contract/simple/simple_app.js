@@ -19,16 +19,16 @@ class SimpleContractApp extends BaseContractApp {
                 <ContractDopData manager={manager} g32={1} {...props} />
                 {!manager.any_errors() && (
                     <>
-                        <SimpleResults
-                            data={this.state.result && this.state.result.kont47}
-                            manager={manager}
-                            {...props}
-                        />
-                        <SimpleResultTotals
-                            data={this.state.result && this.state.result.totals}
-                            manager={manager}
-                            {...props}
-                        />
+                    <SimpleResults
+                        data={this.state.result && this.state.result.kont47}
+                        manager={manager}
+                        {...props}
+                    />
+                    <SimpleResultTotals
+                        data={this.state.result && this.state.result.totals}
+                        manager={manager}
+                        {...props}
+                    />
                     </>
                 )}
             </>

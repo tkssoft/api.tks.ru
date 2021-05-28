@@ -25,10 +25,12 @@ const G33EditButtons = (props) => {
                 buttonLabel={"Выбрать"}
                 ref={g33ref}
                 className={classNames({
-                    [ccs_contract('tnved-button')]: true
+                    [ccs_contract('tnved-button')]: true,
+                    'col-sm': isclasses,
                 })}
                 title={"Товарная номенклатура ВЭД"}
                 isclasses={isclasses}
+                btnClassName='btn btn-sm btn-primary my-2'
             >
                 <TnvTree
                     onSelect={props.onSelect}
@@ -44,10 +46,12 @@ const G33EditButtons = (props) => {
                 buttonLabel={"Подобрать по наименованию"}
                 ref={goodsref}
                 className={classNames({
-                    [ccs_contract('goods-button')]: true
+                    [ccs_contract('goods-button')]: true,
+                    'col-sm': isclasses,
                 })}
                 title={"Подбор кода ТН ВЭД по наименованию. Примеры декларирования"}
                 isclasses={isclasses}
+                btnClassName='btn btn-sm btn-primary my-2'
             >
                 <GoodsSelect
                     onSelect={props.onSelect}
