@@ -46,7 +46,7 @@ class BaseContractEdit extends React.Component {
     static get_field_value(props) {
         return props.value === undefined ?
             props.manager.getFieldData(props.fieldname, props.g32) :
-            props.value
+            props.v
     }
 
     is_readOnly() {
@@ -54,6 +54,7 @@ class BaseContractEdit extends React.Component {
     }
 
     set_field_value(value, cb) {
+        console.log('set_field_value', value)
         if (!this.is_readOnly()) {
             if (!this.props.onValidate || this.props.onValidate(value)) {
                 this.setState({value: value}, ()=>{
@@ -69,6 +70,7 @@ class BaseContractEdit extends React.Component {
     }
 
     onchange(e) {
+        console.log('onchange')
         this.set_field_value(this.props.type === 'checkbox' ? e.target.checked : e.target.value, (value) => {
             if (this.props.onChange) {
                 this.props.onChange(e)
