@@ -305,7 +305,7 @@ class kontdop extends stateobject {
         /*Переписываем поля из таблицы TNVED в нашу data, за исключением некоторых, которых нет в kontdop*/
         state.data = {
             ...Object.keys(data.TNVED).filter(key => {
-                return !not_allowed.includes(key) && key.indexOf('_PR') === -1
+                return !not_allowed.includes(key)
             },
             ).reduce((obj, key) => {
                 obj[key] = data.TNVED[key];
