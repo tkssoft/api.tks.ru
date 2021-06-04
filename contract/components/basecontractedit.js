@@ -54,7 +54,6 @@ class BaseContractEdit extends React.Component {
     }
 
     set_field_value(value, cb) {
-        console.log('set_field_value', value)
         if (!this.is_readOnly()) {
             if (!this.props.onValidate || this.props.onValidate(value)) {
                 this.setState({ value }, ()=>{
@@ -70,7 +69,6 @@ class BaseContractEdit extends React.Component {
     }
 
     onchange(e) {
-        console.log('onchange')
         this.set_field_value(this.props.type === 'checkbox' ? e.target.checked : e.target.value, (value) => {
             if (this.props.onChange) {
                 this.props.onChange(e)
@@ -116,6 +114,16 @@ class BaseContractEdit extends React.Component {
     }
 }
 
+const get_input_className = (props) => {
+    const { type, isclasses } = props;
+    const checkbox = type === 'checkbox';
+    return classNames({
+        [ccs_class('input')]: true,
+        'w-100': isclasses,
+        ...getcold(props, is_horz(props) && !checkbox, 'input')
+    })
+}
+
 /* Базовый input с указанием ошибок */
 const BaseContractInput = (props) => {
     const { isclasses, fieldname, errors, onError, value, type, status } = props
@@ -133,11 +141,7 @@ const BaseContractInput = (props) => {
             p.value = value || ''
             break;
     }
-    const cls = classNames({
-        [ccs_class('input')]: true,
-        'w-100': isclasses,
-        ...getcold(props, is_horz(props) && !checkbox, 'input')
-    })
+    const cls = get_input_className(props);
     return (
         <div className={cls}>
             <input type={type || "text"}
@@ -177,11 +181,11 @@ const ContractInput = (props) => {
                                 ...getcold(prs, is_horz(prs), 'button')
                             })}
                         >
-                            <div className='row'>
+                            {/* <div className='row'> */}
                             { isFunction(children) ? children(
                                     {...prs, formgroup: false}
                                 ) : children }
-                            </div>
+                            {/* </div> */}
                         </div>
                     )}
                 </>
@@ -235,5 +239,6 @@ export {
     BaseContractInput,
     ContractInput,
     ContractNumericInput,
-    ContractNotEmptyNumericEdit
+    ContractNotEmptyNumericEdit,
+    get_input_className
 }

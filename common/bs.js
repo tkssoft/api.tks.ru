@@ -40,7 +40,7 @@ const Row = (props) => {
 }
 
 const IfRow = (props) => {
-    const { iif, children } = props
+    const { iif, children, type } = props
     if (iif) {
         return (
             <div className={getcls('row', props)}>

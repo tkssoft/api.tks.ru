@@ -1,13 +1,19 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import DatePicker from 'react-datepicker';
-import { BaseContractEdit } from './basecontractedit';
+import { BaseContractEdit, get_input_className } from './basecontractedit';
 import ru from 'date-fns/locale/ru';
 import MaskedInput from 'react-text-mask';
+//import moment from 'moment';
+
+// moment.locale('ru', {
+//     week: {
+//         dow: 1,
+//     }
+// });
 
 class MaskDateInput extends React.Component {
     render () {
-        console.log('MaskDateInput', this.props)
         return (
             <MaskedInput
                 mask={[/\d/, /\d/, '.', /\d/, /\d/, '.', /\d/, /\d/, /\d/, /\d/]}
@@ -16,6 +22,25 @@ class MaskDateInput extends React.Component {
     }
 }
 
+const zfill = (d) => {
+    const r = '00' + d.toString();
+    return r.slice(-2);
+}
+
+const date_to_string = (d) => {
+    if (d) {
+        return `${d.getFullYear()}-${zfill(d.getMonth() + 1)}-${zfill(d.getDate())}`
+    }
+    return d;
+}
+
+const string_to_date = (s) => {
+    if (s) {
+        const [y, m, d] = s.split('-');
+        return new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+    }
+    return s
+}
 
 const BaseDateInput = (props) => {
     /* selected={startDate}
@@ -39,27 +64,38 @@ customInput={<MaskedInput
   onChange={() => {}}
             className="red-border"
             calendarClassName="rasta-stripes"
+    locale={ru}
 
 />
 
 */
-    const { value, onChange } = props;
-    console.log('BaseDateInput', value)
+    const { value, onChange, className } = props;
     // ToDo: сделать общую функцию формирования className с form-control
+    const cls = get_input_className(props);
+    const ru_locale = {
+        ...ru,
+        // options: {
+        //     ...ru.options,
+        //     weekStartsOn: 0
+        // }
+        // https://github.com/y0c/react-datepicker/issues/55
+    };
+    const selected = string_to_date(value);
     return (
         <DatePicker
-            // customInput={<MaskedInput
-            //     mask={[/\d/, /\d/, '.', /\d/, /\d/, '.', /\d/, /\d/, /\d/, /\d/]}
-            // />}
-            isClearable
-            closeOnScroll={true}
-            locale={ru}
-            onChange={(d)=>{
-                onChange({
-                    target: {value: d}
-                })
+            customInput={<MaskedInput
+                mask={[/\d/, /\d/, '.', /\d/, /\d/, '.', /\d/, /\d/, /\d/, /\d/]}
+            />}
+            selected={selected}
+            onChange={date=>{
+                onChange({target: {
+                     value: date_to_string(date)
+                }})
             }}
-            className={"form-control form-control-sm"}
+            dateFormat="dd.MM.yyyy"
+            className="form-control form-control-sm"
+            locale={ru_locale}
+            wrapperClassName={cls}
         />
     )
 };
