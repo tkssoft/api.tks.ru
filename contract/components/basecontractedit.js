@@ -37,11 +37,11 @@ class BaseContractEdit extends React.Component {
         }
     }
 
-    // static getDerivedStateFromProps(props, state) {
-    //     return {
-    //         value: BaseContractEdit.get_field_value(props)
-    //     }
-    // }
+    static getDerivedStateFromProps(props, state) {
+        return {
+            value: BaseContractEdit.get_field_value(props)
+        }
+    }
 
     static get_field_value(props) {
         return props.value === undefined ?
@@ -100,7 +100,7 @@ class BaseContractEdit extends React.Component {
         })
         return (
             <div className={cls}>
-                <IfRow iif={is_horz(this.props) && !checkbox} {...this.props}>
+                <IfRow iif={is_horz(this.props) && !checkbox} alignCenter={true} {...this.props}>
                     { !checkbox && (<FormLabel {...this.props}/>) }
                     { isFunction(this.props.children) ? this.props.children({
                         ...this.props,

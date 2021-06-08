@@ -31,19 +31,27 @@ const getcold = (props, cond, part) => {
 }
 
 const Row = (props) => {
-    const { children } = props
+    const { children, alignCenter } = props
+    const cls = classNames({
+        'row': true,
+        'align-items-center': alignCenter
+    })
     return (
-        <div className={getcls('row', props)}>
+        <div className={getcls(cls, props)}>
             {children}
         </div>
     )
 }
 
 const IfRow = (props) => {
-    const { iif, children, type } = props
+    const { iif, children, type, alignCenter } = props
     if (iif) {
+        const cls = classNames({
+            'row': true,
+            'align-items-center': alignCenter
+        })
         return (
-            <div className={getcls('row', props)}>
+            <div className={getcls(cls, props)}>
                 {children}
             </div>
         )
