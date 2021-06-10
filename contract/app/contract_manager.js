@@ -529,9 +529,9 @@ class contract_manager extends stateobject {
         })
     }
 
-    get_default_values (tblname) {
+    get_default_values (tblname, keys) {
         if (this.props.onGetDefaultValues) {
-            return this.props.onGetDefaultValues(tblname)
+            return this.props.onGetDefaultValues(tblname, keys)
         }
         return {}
     }
@@ -559,7 +559,10 @@ class contract_manager extends stateobject {
 
     /**Добавление товара */
     append = (G32) => {
-        var data = default_kontdop()
+        var data = {
+            ...default_kontdop(),
+            ...this.get_default_values('kontdop', { G32 }),
+        }
         return new kontdop({
                 tn: this.tn,
                 onChange: this.kondopchange,

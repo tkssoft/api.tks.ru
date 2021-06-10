@@ -5,6 +5,7 @@ const React  = require('react');
 
 const { contract_manager } = require('./contract_manager')
 const { isFunction } = require('../../common/utils')
+import { LocalContractStorage } from "./contract_storage"
 // const { Dummy } = require('../common/debug')
 
 class BaseContractApp extends React.Component {
@@ -60,7 +61,7 @@ class BaseContractApp extends React.Component {
         return {}
     }
 
-    get_default_values (tblname) {
+    get_default_values (tblname, keys) {
         let r = {}
         const tableconfig = this.get_table_config(tblname)
         if (tableconfig) {
@@ -73,7 +74,24 @@ class BaseContractApp extends React.Component {
                     return arr
                 }, r)
         }
+        r = {
+            ...r,
+            ...this.get_storage_values(tblname, keys)
+        }
         return r
+    }
+
+    get_storage_values (tblname, keys) {
+        return {}
+    }
+
+    set_storage_values (tblname, keys, data) {
+        // nothing
+    }
+
+    componentWillUnmount () {
+        this.set_storage_values('kontrakt', this.contract_manager.kontrakt.state.data)
+        this.set_storage_values('kontdop', { G32: 1 }, this.contract_manager.kontdop[0].state.data)
     }
 
     contractmanagerchanged (cm) {
