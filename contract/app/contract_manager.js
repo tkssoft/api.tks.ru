@@ -747,7 +747,6 @@ class contract_manager extends stateobject {
             sums: this.calcsums(data),
             pending: false
         }, () => {
-            console.log('updateStateWithResults')
             if (this.props.onResultsChange !== undefined) {
                 this.props.onResultsChange({
                     result: this.state.result,

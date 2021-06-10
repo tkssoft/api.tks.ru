@@ -19,7 +19,8 @@ const G33EditButtons = (props) => {
     const g33ref = React.createRef()
     const goodsref = React.createRef()
     const { isclasses, show_tnved_button, show_goods_button } = props
-    return (<>
+    const btnClassName = 'btn btn-sm btn-primary mb-2'
+    return (<div className="row">
         {is_show_window(show_tnved_button) && (
             <ModalButton
                 buttonLabel={"Выбрать"}
@@ -30,7 +31,7 @@ const G33EditButtons = (props) => {
                 })}
                 title={"Товарная номенклатура ВЭД"}
                 isclasses={isclasses}
-                btnClassName='btn btn-sm btn-primary my-2'
+                btnClassName={btnClassName}
             >
                 <TnvTree
                     onSelect={props.onSelect}
@@ -51,7 +52,7 @@ const G33EditButtons = (props) => {
                 })}
                 title={"Подбор кода ТН ВЭД по наименованию. Примеры декларирования"}
                 isclasses={isclasses}
-                btnClassName='btn btn-sm btn-primary my-2'
+                btnClassName={btnClassName}
             >
                 <GoodsSelect
                     onSelect={props.onSelect}
@@ -61,7 +62,7 @@ const G33EditButtons = (props) => {
                 />
             </ModalButton>
         )}
-    </>)
+    </div>)
 }
 
 

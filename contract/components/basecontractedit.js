@@ -38,15 +38,18 @@ class BaseContractEdit extends React.Component {
     }
 
     static getDerivedStateFromProps(props, state) {
-        return {
-            value: BaseContractEdit.get_field_value(props)
+        if (props.value !== undefined && props.value !== state.value) {
+            return {
+                value: BaseContractEdit.get_field_value(props)
+            }
         }
+        return null;
     }
 
     static get_field_value(props) {
         return props.value === undefined ?
             props.manager.getFieldData(props.fieldname, props.g32) :
-            props.v
+            props.value
     }
 
     is_readOnly() {
@@ -100,7 +103,7 @@ class BaseContractEdit extends React.Component {
         })
         return (
             <div className={cls}>
-                <IfRow iif={is_horz(this.props) && !checkbox} alignCenter={true} {...this.props}>
+                <IfRow iif={is_horz(this.props) && !checkbox} alignCenter={checkbox} {...this.props}>
                     { !checkbox && (<FormLabel {...this.props}/>) }
                     { isFunction(this.props.children) ? this.props.children({
                         ...this.props,
