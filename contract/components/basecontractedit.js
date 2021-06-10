@@ -129,7 +129,7 @@ const get_input_className = (props) => {
 
 /* Базовый input с указанием ошибок */
 const BaseContractInput = (props) => {
-    const { isclasses, fieldname, errors, onError, value, type, status } = props
+    const { isclasses, fieldname, errors, onError, value, type, status, onInputGroup } = props
     const errormsg = errors ? errors[fieldname] : ''
     const error = errormsg || (onError ? onError(value) : '')
     var p = {}
@@ -147,16 +147,23 @@ const BaseContractInput = (props) => {
     const cls = get_input_className(props);
     return (
         <div className={cls}>
-            <input type={type || "text"}
-                className={classNames({
-                    ["form-control form-control-sm"]: fcontrol && isclasses,
-                    ["form-check-input"]: !fcontrol && isclasses,
-                    [errorClass(error)]: isclasses}
-                    )}
-                onChange={props.onChange}
-                {...p}
-            />
-            { type === 'checkbox' && (<FormLabel {...props} />) }
+            <div className="input-group">
+                <input type={type || "text"}
+                    className={classNames({
+                        ["form-control form-control-sm"]: fcontrol && isclasses,
+                        ["form-check-input"]: !fcontrol && isclasses,
+                        [errorClass(error)]: isclasses}
+                        )}
+                    onChange={props.onChange}
+                    {...p}
+                />
+                { type === 'checkbox' && (<FormLabel {...props} />) }
+                { onInputGroup !== undefined && (
+                    <div className="input-group-append">
+                        { onInputGroup(props) }
+                    </div>
+                )}
+            </div>
             {[undefined, true].includes(status) && (
                 <small
                     className={classNames({

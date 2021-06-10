@@ -8,20 +8,21 @@ const { ContractNotEmptyNumericEdit } = require('./basecontractedit')
 const ContractEdizmInput = (props) => {
     const { ediname } = props
     return (
-        <ContractNotEmptyNumericEdit {...props}>
-            {(prs) => {
+        <ContractNotEmptyNumericEdit
+            onInputGroup={(prs) => {
                 const { isclasses } = prs
                 return (
                     <div
                         className={classNames({
-                            "pt-2 px-2 col-sm": isclasses
+                            "pl-2": isclasses
                         })}
                     >
                         {ediname}
                     </div>
                 )
             }}
-        </ContractNotEmptyNumericEdit>
+            {...props}
+        />
     )
 }
 
