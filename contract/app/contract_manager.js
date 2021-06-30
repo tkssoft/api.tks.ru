@@ -304,7 +304,7 @@ class kontdop extends stateobject {
         /*Переписываем поля из таблицы TNVED в нашу data, за исключением некоторых, которых нет в kontdop*/
         state.data = {
             ...Object.keys(data.TNVED).filter(key => {
-                return !not_allowed.includes(key) && key.indexOf('_PR') === -1
+                return !not_allowed.includes(key)
             },
             ).reduce((obj, key) => {
                 obj[key] = data.TNVED[key];
@@ -744,7 +744,7 @@ class contract_manager extends stateobject {
     }
 
     // Данные расчета получены с сервера - сниманием флажок calcpending
-    updateStateWithResults(data) {
+    updateStateWithResults(data, calcdata) {
         this.setState({
             result: data,
             sums: this.calcsums(data),
@@ -752,8 +752,15 @@ class contract_manager extends stateobject {
         }, () => {
             if (this.props.onResultsChange !== undefined) {
                 this.props.onResultsChange({
-                    result: this.state.result,
-                    sums: this.state.sums,
+                    result: {
+                        ...this.state.result
+                    },
+                    sums: {
+                        ...this.state.sums
+                    },
+                    calcdata: {
+                        ...calcdata
+                    },
                 })
             }
         })
@@ -821,7 +828,7 @@ class contract_manager extends stateobject {
                 throw new FetchError(response)
             }
         }).then(data => {
-            this.updateStateWithResults(data);
+            this.updateStateWithResults(data, calcdata);
         }).catch(error => {
             this.setState({
                 errors: {

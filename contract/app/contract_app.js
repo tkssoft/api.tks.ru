@@ -25,6 +25,12 @@ class BaseContractApp extends React.Component {
             },
             errors : {
                 ...this.contract_manager.state.errors
+            },
+            result : {
+
+            },
+            calcdata : {
+
             }
         }
 
@@ -100,7 +106,7 @@ class BaseContractApp extends React.Component {
         })
     }
 
-    calcresultschange = (r) => {
+    calcresultschange (r) {
         this.setState({...r})
     }
 
