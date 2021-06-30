@@ -1,12 +1,13 @@
 /* Примерное приложение с деревом ТН ВЭД и показом ставок / признаков по выбранному коду */
 
-import React, { useState, useEffect, useRef } from 'react'
-import classNames from 'classnames'
-import { Row } from '../../common/bs'
-import TnvTree from '../tnvtree'
-import { isEmptyAll, isEmpty } from '../../common/utils'
-import { ShowSt } from '../showst'
-import { getTreeData } from '../tnved_search'
+import React, { useState, useEffect, useRef } from 'react';
+import classNames from 'classnames';
+import { Row } from '../../common/bs';
+import TnvTree from '../tnvtree';
+import { isEmptyAll, isEmpty } from '../../common/utils';
+import { ShowSt } from '../showst';
+import { getTreeData } from '../tnved_search';
+import { tnved_manager } from '../tnved_manager';
 
 const ShowStWindow = (props) => {
     const { code, data, isclasses } = props
@@ -78,9 +79,12 @@ const TnvedApp = (props) => {
 
     const { isclasses, manager } = props
 
+    if (!manager) {
+        manager = new tnved_manager({})
+    }
+
     const cls = classNames({
         'ccs-tnvedapp': true,
-        'main': true,
         'container': isclasses
     })
 
@@ -102,7 +106,7 @@ const TnvedApp = (props) => {
 
     return (
         <>
-            <NavToolbar
+            {/* <NavToolbar
                 onSearchResults={(result) => {
                     if (result.length > 0) {
                         const first = result[0]
@@ -110,7 +114,7 @@ const TnvedApp = (props) => {
                     }
                 }}
                 {...props}
-            />
+            /> */}
             <div className={cls}>
                 <Row className='' {...props}>
                     <div className="col-sm-8">

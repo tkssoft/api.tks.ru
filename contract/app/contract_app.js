@@ -90,8 +90,8 @@ class BaseContractApp extends React.Component {
     }
 
     componentWillUnmount () {
-        this.set_storage_values('kontrakt', this.contract_manager.kontrakt.state.data)
-        this.set_storage_values('kontdop', { G32: 1 }, this.contract_manager.kontdop[0].state.data)
+        // this.set_storage_values('kontrakt', this.contract_manager.kontrakt.state.data)
+        // this.set_storage_values('kontdop', { G32: 1 }, this.contract_manager.kontdop[0].state.data)
     }
 
     contractmanagerchanged (cm) {
