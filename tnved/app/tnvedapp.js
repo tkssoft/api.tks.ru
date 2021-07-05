@@ -1,10 +1,11 @@
 /* Примерное приложение с деревом ТН ВЭД и показом ставок / признаков по выбранному коду */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import classNames from 'classnames';
 import { Row } from '../../common/bs';
 import TnvTree from '../tnvtree';
 import { isEmptyAll, isEmpty } from '../../common/utils';
+import { useEventListener } from '../../common/hooks';
 import { ShowSt } from '../showst';
 import { getTreeData } from '../tnved_search';
 import { tnved_manager } from '../tnved_manager';
@@ -35,43 +36,56 @@ const ShowStWindow = (props) => {
     )
 }
 
-const NavToolbar = (props) => {
+const event_searchresults = 'tnvsearchresults';
 
-    const { isclasses, onSearchResults } = props
-    const [ value, setValue ] = useState('')
+const fire_result_event = (data) => {
+    let tnvsearchresults = new CustomEvent(event_searchresults, {
+        detail: {
+            results: data,
+        }
+    });
+    document.dispatchEvent(tnvsearchresults);
+}
+
+const TnvSearchForm = (props) => {
+
+    const { isclasses, onSearchResults, code } = props
+    const [ value, setValue ] = useState(code || '')
     const [ search, setSearch ] = useState('')
 
     useEffect(() => {
         if (search) {
             getTreeData(search).then((data) => {
-                console.log(data)
-                onSearchResults(data)
+                if (onSearchResults) {
+                    onSearchResults(data)
+                } else {
+                    fire_result_event(data)
+                }
             })
         }
     }, [search])
 
     return (
-        <div className="header title toolbar">
-            <div className="searchbox form-group">
-                <input
-                    className="form-control-sm"
-                    value={value}
-                    type="text"
-                    placeholder="Введите текст..."
-                    onChange={(e) => {
-                        setValue(e.target.value)
-                    }}
-                />
-                <button
-                    className="btn btn-primary btn-sm"
-                    onClick={(e) => {
-                        setSearch(value)
-                    }}
-                >
-                        Поиск
-                </button>
-            </div>
-        </div>
+        <form className="mt-2 mt-md-0 form-inline mb-md-0">
+            <input
+                className="form-control-sm mr-sm-2"
+                type="text"
+                placeholder="Введите код..."
+                value={value}
+                onChange={(e) => {
+                    setValue(e.target.value)
+                }}
+            />
+            <button
+                className="btn btn-sm btn-outline-success my-2 my-sm-0"
+                onClick={(e) => {
+                    e.preventDefault();
+                    setSearch(value);
+                }}
+            >
+                Поиск
+            </button>
+        </form>
     )
 }
 
@@ -96,6 +110,17 @@ const TnvedApp = (props) => {
     const notvalid = isEmptyAll(current) || isEmptyAll(current.CODE) || (current.CODE.length !== 10)
     const code = notvalid ? '' : current.CODE
 
+    const searchresults_handler = useCallback(
+        (customevent) => {
+            const result = customevent.detail.results;
+            if (result.length > 0) {
+                const first = result[0];
+                tree.current.setInitId(first.ID);
+            }
+        },
+        [ setCurrent ]
+    );
+
     useEffect(() => {
         if (code && data.CODE !== code) {
             manager.getData(code).then((data) => {
@@ -104,47 +129,39 @@ const TnvedApp = (props) => {
         }
     })
 
+    useEventListener(event_searchresults, searchresults_handler, document)
+
     return (
-        <>
-            {/* <NavToolbar
-                onSearchResults={(result) => {
-                    if (result.length > 0) {
-                        const first = result[0]
-                        tree.current.setInitId(first.ID)
-                    }
-                }}
-                {...props}
-            /> */}
-            <div className={cls}>
-                <Row className='' {...props}>
-                    <div className="col-sm-8">
-                        <TnvTree
-                            className=""
-                            onChange={(node) => {
-                                setCurrent(node)
-                            }}
-                            bottomScrollMargin={100}
-                            topScrollMargin={60}
-                            initid={2074000 || 10}
-                            ref={tree}
-                            {...props}
-                        />
-                    </div>
-                    <div className="col-sm-4">
-                        <ShowStWindow
-                            code={code}
-                            data={data}
-                            {...props}
-                        />
-                    </div>
-                </Row>
-            </div>
-        </>
+        <div className={cls}>
+            <Row className='' {...props}>
+                <div className="col-sm-8">
+                    <TnvTree
+                        className=""
+                        onChange={(node) => {
+                            setCurrent(node)
+                        }}
+                        bottomScrollMargin={100}
+                        topScrollMargin={60}
+                        initid={2074000 || 10}
+                        ref={tree}
+                        {...props}
+                    />
+                </div>
+                <div className="col-sm-4">
+                    <ShowStWindow
+                        code={code}
+                        data={data}
+                        {...props}
+                    />
+                </div>
+            </Row>
+        </div>
     )
 }
 
 export {
 
-    TnvedApp
+    TnvedApp,
+    TnvSearchForm
 
 }

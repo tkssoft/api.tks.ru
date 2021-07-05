@@ -23,7 +23,6 @@ const getTreeData = (search) => {
         // nothing yet
     }
     const url = `https://api.tks.ru/tree.json/json/${clientid}/search/?${sp.toString()}`
-    console.log(url)
     return fetch(url).then((r) => {return r.json()})
 }
 
