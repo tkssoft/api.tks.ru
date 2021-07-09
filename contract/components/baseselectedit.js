@@ -1,9 +1,11 @@
 /* select */
 
-const React = require('react')
-const classNames = require('classnames')
+const React = require('react');
+const classNames = require('classnames');
 
-const { ccs_class, ccs_contract } = require('../../common/ccs')
+const { ccs_class, ccs_contract } = require('../../common/ccs');
+
+import { CT_SELECT, register_control } from './controlfactory';
 
 const BaseSelectEdit = (props) =>  {
     return (
@@ -27,6 +29,8 @@ const BaseSelectEdit = (props) =>  {
         </div>
     )
 }
+
+register_control(CT_SELECT, BaseSelectEdit);
 
 export {
     BaseSelectEdit

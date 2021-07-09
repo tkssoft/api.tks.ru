@@ -360,7 +360,13 @@ const is_pr = (TBL, prz, TBLCC, acountry=tnv_const.CNTR_RUSSIA) => {
         //Пошлины других стран
         case 30:
             // Дополнительная таблица с пошлинами непустая
-            return TBLCC !== undefined && TBLCC.length > 0
+            if (TBLCC !== undefined) {
+                if (Array.isArray(TBLCC)) {
+                    return TBLCC.length > 0;
+                }
+                return TBLCC.PRIM > 0;
+            }
+            return  false;
         default:
             return false;
     }
@@ -370,20 +376,25 @@ const is_pr = (TBL, prz, TBLCC, acountry=tnv_const.CNTR_RUSSIA) => {
 const calc_get5_cc = (TABLE, prz, acountry=tnv_const.CNTR_RUSSIA) => {
     switch (prz) {
         case tnv_const.PRIZNAK_IMPORTDUTY_OTHER:
-            if (Object.getOwnPropertyNames(TABLE).length > 0) {
-                return get5(tnv_const.PRIZNAK_IMPORTDUTY_OTHER,
-                    TABLE.MIN,
-                    TABLE.TYPEMIN,
-                    TABLE.MAX,
-                    TABLE.TYPEMAX,
-                    TABLE.MIN2,
-                    TABLE.TYPEMIN2,
-                    '',
-                    TABLE.SIGN,
-                    TABLE.SIGN2,
-                    'Нет',
-                    TABLE.CC
-                );
+            if (TABLE !== undefined) {
+                if (Array.isArray(TABLE)) {
+                    return TABLE.length === 0 ? 'Нет' : 'Есть'
+                }
+                if (Object.getOwnPropertyNames(TABLE).length > 0) {
+                    return get5(tnv_const.PRIZNAK_IMPORTDUTY_OTHER,
+                        TABLE.MIN,
+                        TABLE.TYPEMIN,
+                        TABLE.MAX,
+                        TABLE.TYPEMAX,
+                        TABLE.MIN2,
+                        TABLE.TYPEMIN2,
+                        '',
+                        TABLE.SIGN,
+                        TABLE.SIGN2,
+                        'Нет',
+                        TABLE.CC
+                    );
+                }
             }
         default:
             return 'Нет';
@@ -424,7 +435,7 @@ const calctxt = (Tnved, TnvedCC, acountry=tnv_const.CNTR_RUSSIA) => {
         19: b_is_ru ?  calc_get5(Tnved, tnv_const.PRIZNAK_IMPORTANTIDUMP) : '',
         20: b_is_ru ?  calc_get5(Tnved, tnv_const.PRIZNAK_IMPORTCOMP) : '',
         28: b_is_ru ?  calc_get5(Tnved, 28) : '',
-        30: b_is_ru ?  TnvedCC === undefined || TnvedCC.length === 0 ? 'Нет' : 'Есть' : '',
+        30: b_is_ru ?  calc_get5_cc(TnvedCC, 30) : '',
         32: b_is_ru ?  calc_get5(Tnved, 32) : '',
         33: b_is_ru ?  calc_get5(Tnved, 33) : ''
     }

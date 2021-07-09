@@ -6,7 +6,8 @@ import { get_stavka } from "../../tnved/stavka"
 import { isError } from "../../common/utils"
 
 const StavkaEditor = (props) => {
-    const { manager, kontdop, skipName, skipIfEmpty } = props
+    const { manager, kontdop, skipName, skipIfEmpty } = props;
+    const g34 = manager.kontrakt.G34 || kontdop.state.data.G34;
     if ((kontdop !== undefined) && !isError(kontdop.state.errors.G33)) {
         return <ShowSt
             typ={manager.kontrakt.TYPE}
@@ -14,7 +15,7 @@ const StavkaEditor = (props) => {
             tnved={kontdop.state.tnved}
             G33={kontdop.state.data.G33}
             G312={kontdop.state.data.G312}
-            G34={kontdop.state.data.G34}
+            G34={g34}
             key={kontdop.state.data.G33}
             skipName={skipName}
             skipIfEmpty={skipIfEmpty}

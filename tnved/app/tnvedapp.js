@@ -129,19 +129,19 @@ const TnvedApp = (props) => {
         }
     })
 
-    useEventListener(event_searchresults, searchresults_handler, document)
+    useEventListener(event_searchresults, searchresults_handler, document);
+
+    console.log(data);
 
     return (
         <div className={cls}>
             <Row className='' {...props}>
                 <div className="col-sm-8">
                     <TnvTree
-                        className=""
+                        className="ccs-scroll-container"
                         onChange={(node) => {
                             setCurrent(node)
                         }}
-                        bottomScrollMargin={100}
-                        topScrollMargin={60}
                         initid={2074000 || 10}
                         ref={tree}
                         {...props}

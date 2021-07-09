@@ -18,6 +18,7 @@ class SimpleContractApp extends BaseContractApp {
 
         const cls = classNames({
             'container': isclasses,
+            'ccs-scroll-container': true,
         })
 
         return (

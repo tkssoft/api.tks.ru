@@ -42,6 +42,7 @@ class ShowPrim extends React.Component {
     constructor (props) {
         super(props);
         const { TNVED, TNVEDALL, TNVEDCC } = this.props.data;
+        console.log('ShowPrim constructor', TNVEDALL, TNVEDCC);
         this.state = {
             desc: przdesc(this.props.prz),
             stavkas: TNVEDALL[this.props.prz].reduce(
