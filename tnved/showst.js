@@ -23,13 +23,13 @@ class ShowStItem extends React.Component {
         this.modalref = React.createRef();
         this.state = {
             name: this.props.name || tnv_const.przname(this.props.prz),
-            pr: this.props.data !== undefined && is_pr(this.props.data.TNVED, this.props.prz, this.props.data.TNVEDCC)
+            pr: this.props.data !== undefined && is_pr(this.props.data.TNVED, this.props.prz, this.props.tnvedcc)
         };
     }
 
     static getDerivedStateFromProps(props, state) {
         return {
-            pr: props.data !== undefined && is_pr(props.data.TNVED, props.prz, props.data.TNVEDCC)
+            pr: props.data !== undefined && is_pr(props.data.TNVED, props.prz, props.tnvedcc)
         }
     }
 
@@ -64,11 +64,13 @@ class ShowStItem extends React.Component {
 
 
 const getState = (data, tnved, g34, typ) => {
+    const tnvedcc_rec = get_tnvedcc_rec(g34, tnved === undefined? {} : tnved.TNVEDCC);
     return {
-        stavkas: calctxt(data, get_tnvedcc_rec(g34, tnved === undefined? {} : tnved.TNVEDCC)),
+        stavkas: calctxt(data, tnvedcc_rec),
         data: {...data},
         G33: data.G33,
-        typ: typ
+        typ: typ,
+        tnvedcc_rec: tnvedcc_rec,
     }
 };
 
@@ -118,6 +120,7 @@ class ShowSt extends React.Component {
                                     key={prz}
                                     value={this.state.stavkas[prz]}
                                     data={this.props.tnved}
+                                    tnvedcc={this.state.tnvedcc_rec}
                                     onSelect={this.doSelect}
                                     skipIfEmpty={this.props.skipIfEmpty}
                                     isclasses={this.props.isclasses}

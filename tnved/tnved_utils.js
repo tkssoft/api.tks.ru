@@ -362,7 +362,7 @@ const is_pr = (TBL, prz, TBLCC, acountry=tnv_const.CNTR_RUSSIA) => {
             // Дополнительная таблица с пошлинами непустая
             if (TBLCC !== undefined) {
                 if (Array.isArray(TBLCC)) {
-                    return TBLCC.length > 0;
+                    return TBLCC.length > 1;
                 }
                 return TBLCC.PRIM > 0;
             }
