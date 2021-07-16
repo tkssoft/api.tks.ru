@@ -188,7 +188,6 @@ const get_tnvedcc_rec = (g34, tnvedcc) => {
         if (Object.getOwnPropertyNames(tnvedcc).length > 0) {
             for (let cc of tnvedcc) {
                 if (cc.CC === g34) {
-                    console.log('get_tnvedcc_rec return', cc);
                     return cc;
                 }
             }

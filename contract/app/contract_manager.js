@@ -49,16 +49,9 @@ class kontdop extends stateobject {
             ...addedizm
         }
         this.state = {
+            data: {},
+            errors: {},
             debug: false,
-            data: {
-                ...data,
-                ...this.get_additional_values(data)
-            },
-            errors: {
-                G33: validate_code_error(data.G33),
-                G45: this.validateNotEmptyNumber(data.G45),
-                ...this.validateEdizmAll(data)
-            }
         };
     }
 
@@ -73,20 +66,22 @@ class kontdop extends stateobject {
     }
 
     doStateUpdated(prevState, delta) {
-        super.doStateUpdated(prevState, delta)
-        let updated = this.updatestavka()
+        super.doStateUpdated(prevState, delta);
+        let updated = this.updatestavka();
+        console.log('doStateUpdated');
+        // Передача в kontrakt части по ставкам из TNVEDCC в зависимости от страны G34
+        let cc = {};
+        if (this.state.tnved) {
+            cc = get_tnvedcc_rec(this.state.data.G34, this.state.tnved.TNVEDCC);
+            console.log('doStateUpdated cc', this.state.data.G34, cc);
+        }
         if (!isEmpty(updated)) {
             this.state.data = {
                 ...this.state.data,
-                ...updated
+                ...updated,
+                cc: cc
             }
         }
-        // ToDo: переделать
-        // Передача в kontrakt части по ставкам из TNVEDCC в зависимости от страны G34
-        // let cc = {};
-        // if (this.state.tnved) {
-        //     cc = get_tnvedcc_rec(this.state.data.G34, this.state.tnved.TNVEDCC);
-        // }
     }
 
     setStavka = (value) => {
@@ -98,6 +93,18 @@ class kontdop extends stateobject {
         }
         if (v !== undefined) {
             this.doStavkaSelect(v.PRIZNAK, v.base, v, v)
+        }
+    }
+
+    setAttrs = (data) => {
+        if (data) {
+            Object.keys(data).map((key) => {
+                try {
+                    this.setAttr(key, data[key]);
+                } catch(e) {
+                    debug('setAttr error', e);
+                }
+            })
         }
     }
 
@@ -234,7 +241,8 @@ class kontdop extends stateobject {
 
     calcfields () {
         if (this.props.onCalcFields) {
-            return this.props.onCalcFields(this)
+            const r = this.props.onCalcFields(this);
+            return r;
         }
         return {}
     }
@@ -263,9 +271,9 @@ class kontdop extends stateobject {
     }
 
     loadTnvedData(procinfo, params) {
-        const { code } = params
+        const { code } = params;
         let tn = this.tn || new tnved_manager();
-        let that = this
+        let that = this;
         if (code && (code.length === 10)) {
             return tn.getData(code)
                 .then(data => {
@@ -339,7 +347,7 @@ class kontdop extends stateobject {
             modified: ['', undefined].includes(error || delayname),
             errors: {
                 ...this.state.errors,
-                [fieldname]: error || delayname
+                [fieldname]: error || (delayname ? 'Обработка...' : '')
             }
         }, delayname, cb)
     }
@@ -494,7 +502,10 @@ const default_kontdop = () => {
         // аналог галочки - есть сертификат происхождения
         SERT: true,
         // валюта по умолчанию
-        G45V: '643'
+        G45V: '643',
+        // Значение для правильного срабатывания проверок
+        G33: null,
+        G45: null
     }
 };
 
@@ -513,11 +524,8 @@ class contract_manager extends stateobject {
             ...this.get_default_values('kontrakt'),
             NUM: this.num
         }
-        this.kontdop = [
-            this.append(1)
-        ]
-        // ToDo - сделать. Непонятно как редактировать такие ставки
-        this.kontdopcc = []
+        this.kontdop = [];
+        this.append(1);
     }
 
     register_delay(deman) {
@@ -562,18 +570,23 @@ class contract_manager extends stateobject {
         var data = {
             ...default_kontdop(),
             ...this.get_default_values('kontdop', { G32 }),
-        }
-        return new kontdop({
-                tn: this.tn,
-                onChange: this.kondopchange,
-                onCalcFields: this.props.onCalcFields,
-                data: {
-                    ...data,
-                    G32: G32,
-                    NUM: this.num
-                },
-                addedizm: this.props.addedizm ? {...this.props.addedizm} : {}
-            })
+        };
+        data.G34 = this.kontrakt.G34 || data.G34;
+        console.log('append', this.kontrakt, data)
+        const r = new kontdop({
+            tn: this.tn,
+            onChange: this.kondopchange,
+            onCalcFields: this.props.onCalcFields,
+            data: {
+                G32: G32,
+                NUM: this.num
+            },
+            addedizm: this.props.addedizm ? {...this.props.addedizm} : {}
+        });
+        r.setAttrs(data);
+        this.kontdop.push(r);
+        this.kondopchange(r);
+        return r
     }
 
     all_errors = () => {
@@ -592,7 +605,8 @@ class contract_manager extends stateobject {
     }
 
     kondopchange = (kondop) => {
-        const errors = this.all_errors()
+        const errors = this.all_errors();
+        console.log('kondopchange', errors);
         // Должно вызвать onchange
         this.setDelayedState({
             errors: {
@@ -627,9 +641,15 @@ class contract_manager extends stateobject {
     }
 
     setKontraktData = (data) => {
+        console.log('setKontraktData', data);
         this.kontrakt = {
             ...this.kontrakt,
             ...data
+        }
+        if ('G34' in data) {
+            this.kontdop.map((kontdop) => {
+                kontdop.setAttr( 'G34', data.G34 );
+            })
         }
         this.setDelayedState({
             modified: true
@@ -791,6 +811,9 @@ class contract_manager extends stateobject {
     }
 
     any_errors() {
+        if (this.kontdop.length === 0) {
+            return 'Добавьте товар'
+        }
         for (var fieldname of Object.keys(this.state.errors)) {
             if (fieldname !== 'calc') {
                 const error = this.state.errors[fieldname]
@@ -841,15 +864,24 @@ class contract_manager extends stateobject {
     }
 
     getCalcData = () => {
+        const init = {
+            NUM: this.num,
+            G34: this.kontrakt.G34,
+            G45V: this.kontrakt.G221
+        };
         var r = {
-            kontrakt: this.filterCalcData(this.kontrakt),
-            kontdop: this.kontdop.map((kontdop) => this.filterCalcData(kontdop.state.data)),
-            kontdopcc: this.kontdopcc.map((kontdopcc) => this.filterCalcData(kontdopcc)),
+            kontrakt: this.filterCalcData(this.kontrakt, init),
+            kontdop: this.kontdop.map((kontdop) => this.filterCalcData(kontdop.state.data, init, ['cc', ])),
+            kontdopcc: this.kontdop.map((kontdop) => this.filterCalcData(kontdop.state.data.cc, {
+                NUM: this.num,
+                G32: kontdop.state.data.G32
+            })),
         }
+        console.log('getCalcData', r);
         return r
     };
 
-    filterCalcData = (data, exfields) => {
+    filterCalcData = (data, init, exfields) => {
         return Object.keys(data).reduce((obj, key) => {
             if (exfields === undefined || !exfields.includes(key) ) {
                 if (data[key] !== null && obj[key] === undefined) {
@@ -857,11 +889,7 @@ class contract_manager extends stateobject {
                 }
             }
             return obj
-        }, {
-            NUM: this.num,
-            G34: this.kontrakt.G34,
-            G45V: this.kontrakt.G221
-        })
+        }, init)
     }
 
     /* Чтение настроек показа полей */

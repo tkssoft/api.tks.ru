@@ -34,6 +34,9 @@ class BaseContractApp extends React.Component {
             }
         }
 
+        this.handleSaveData = this.save_data.bind(this);
+        this.mounted = false;
+
     }
 
     get_manager_params () {
@@ -87,27 +90,65 @@ class BaseContractApp extends React.Component {
         return r
     }
 
-    get_storage_values (tblname, keys) {
-        return {}
+    get_storage_key (tblname, keys) {
+        let d = {
+            'tblname': tblname,
+        };
+        if (keys) {
+            d = {
+                ...d,
+                ...keys
+            }
+        }
+        return JSON.stringify(d)
     }
 
-    set_storage_values (tblname, keys, data) {
-        // nothing
+    get_storage_values (tblname, keys) {
+        const r = {};
+        const key = this.get_storage_key(tblname, keys);
+        if (tblname === 'kontdop') {
+            return {
+                // Код для расчетта ставок по Вьетнаму
+                G33: '2402209000'
+            }
+        } else if (tblname === 'kontrakt') {
+            return {
+                G34: '704',
+            }
+        }
+        return r;
+    }
+
+    set_storage_values (tblname, data, keys) {
+        const key = this.get_storage_key(tblname, keys);
+    }
+
+    componentDidMount () {
+        this.mounted = true;
+        window.addEventListener('unload', this.handleSaveData);
     }
 
     componentWillUnmount () {
-        // this.set_storage_values('kontrakt', this.contract_manager.kontrakt.state.data)
-        // this.set_storage_values('kontdop', { G32: 1 }, this.contract_manager.kontdop[0].state.data)
+        window.removeEventListener('unload', this.handleSaveData);
+    }
+
+    save_data () {
+        this.set_storage_values('kontrakt', this.contract_manager.kontrakt);
+        this.set_storage_values('kontdop', this.contract_manager.kontdop[0].state.data, { G32: 1 });
     }
 
     contractmanagerchanged (cm) {
-        this.setState({
-            ...cm.state
-        })
+        if (this.mounted) {
+            this.setState({
+                ...cm.state
+            })
+        }
     }
 
     calcresultschange (r) {
-        this.setState({...r})
+        if (this.mounted) {
+            this.setState({...r})
+        }
     }
 
     render() {

@@ -36,6 +36,9 @@ const ContractData = (props) => {
 const ContractDopData = (props) => {
     let kontdop = props.manager.getSourceData((props.g32 || 1) - 1)
     const { isclasses } = props
+    if (!kontdop) {
+        return <></>
+    }
     return (
         <div
             className={classNames({

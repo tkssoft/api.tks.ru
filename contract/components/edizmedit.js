@@ -1,34 +1,44 @@
 /* Редактирование количества с разными единицами измерения */
 
 const React  = require('react');
-const classNames = require('classnames')
+const classNames = require('classnames');
 
-const { ContractNotEmptyNumericEdit } = require('./basecontractedit')
+const { ContractNotEmptyNumericEdit, ContractNumericInput } = require('./basecontractedit');
+
+const doInputGroup = (props) => {
+    const { isclasses, ediname } = props;
+    return (
+        <div
+            className={classNames({
+                "pl-2": isclasses
+            })}
+        >
+            {ediname}
+        </div>
+    )
+}
 
 const ContractEdizmInput = (props) => {
-    const { ediname } = props
     return (
         <ContractNotEmptyNumericEdit
-            onInputGroup={(prs) => {
-                const { isclasses } = prs
-                return (
-                    <div
-                        className={classNames({
-                            "pl-2": isclasses
-                        })}
-                    >
-                        {ediname}
-                    </div>
-                )
-            }}
+            onInputGroup={doInputGroup.bind()}
+            {...props}
+        />
+    )
+}
+
+const ContractCalcEdizmInput = (props) => {
+    return (
+        <ContractNumericInput
+            onInputGroup={doInputGroup.bind()}
             {...props}
         />
     )
 }
 
 const EdizmEdit = (props) => {
-    const { kontdop } = props
-    const edizm_list = kontdop.get_edizm_list()
+    const { kontdop } = props;
+    const edizm_list = kontdop.get_edizm_list();
     return (
         <>
             {
@@ -56,5 +66,6 @@ const EdizmEdit = (props) => {
 
 export {
     EdizmEdit,
-    ContractEdizmInput
+    ContractEdizmInput,
+    ContractCalcEdizmInput
 }

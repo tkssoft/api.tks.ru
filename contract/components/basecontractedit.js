@@ -38,7 +38,7 @@ class BaseContractEdit extends React.Component {
     }
 
     static getDerivedStateFromProps(props, state) {
-        if (props.value !== undefined && props.value !== state.value) {
+        if (props.readOnly || (props.value !== undefined && props.value !== state.value)) {
             return {
                 value: BaseContractEdit.get_field_value(props)
             }
