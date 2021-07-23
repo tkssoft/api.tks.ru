@@ -8,11 +8,11 @@ const Errors = ({ errors, isclasses, toshow }) => {
     const show = toshow ? toshow.split(' ') : undefined
     return (
         <div className={classNames({[ccs_class('formErrors')]: true, 'row': isclasses})}>
+            <div className={classNames({'col': isclasses})}>
             {Object.keys(errors).map((fieldName, i) => {
                 var cls = classNames({
                     'alert': isclasses,
                     'alert-danger' : isclasses,
-                    'col': isclasses
                 })
                 if(errors[fieldName] && (errors[fieldName].length > 0) && (show === undefined || show.includes(fieldName))) {
                     return (
@@ -22,6 +22,7 @@ const Errors = ({ errors, isclasses, toshow }) => {
                     return ''
                 }
             })}
+            </div>
         </div>
     )
 }

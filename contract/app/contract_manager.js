@@ -68,12 +68,10 @@ class kontdop extends stateobject {
     doStateUpdated(prevState, delta) {
         super.doStateUpdated(prevState, delta);
         let updated = this.updatestavka();
-        console.log('doStateUpdated');
         // Передача в kontrakt части по ставкам из TNVEDCC в зависимости от страны G34
         let cc = {};
         if (this.state.tnved) {
             cc = get_tnvedcc_rec(this.state.data.G34, this.state.tnved.TNVEDCC);
-            console.log('doStateUpdated cc', this.state.data.G34, cc);
         }
         if (!isEmpty(updated)) {
             this.state.data = {
@@ -572,7 +570,6 @@ class contract_manager extends stateobject {
             ...this.get_default_values('kontdop', { G32 }),
         };
         data.G34 = this.kontrakt.G34 || data.G34;
-        console.log('append', this.kontrakt, data)
         const r = new kontdop({
             tn: this.tn,
             onChange: this.kondopchange,
@@ -606,7 +603,6 @@ class contract_manager extends stateobject {
 
     kondopchange = (kondop) => {
         const errors = this.all_errors();
-        console.log('kondopchange', errors);
         // Должно вызвать onchange
         this.setDelayedState({
             errors: {
@@ -641,7 +637,6 @@ class contract_manager extends stateobject {
     }
 
     setKontraktData = (data) => {
-        console.log('setKontraktData', data);
         this.kontrakt = {
             ...this.kontrakt,
             ...data
@@ -768,7 +763,12 @@ class contract_manager extends stateobject {
         this.setState({
             result: data,
             sums: this.calcsums(data),
-            pending: false
+            pending: false,
+            modified: true,
+            errors: {
+                ...this.state.errors,
+                calc: null
+            }
         }, () => {
             if (this.props.onResultsChange !== undefined) {
                 this.props.onResultsChange({
@@ -854,6 +854,7 @@ class contract_manager extends stateobject {
             this.updateStateWithResults(data, calcdata);
         }).catch(error => {
             this.setState({
+                modified: true,
                 errors: {
                     ...this.state.errors,
                     calc: `Ошибка расчета. ${this.get_calc_error_msg(error)}`
@@ -877,7 +878,6 @@ class contract_manager extends stateobject {
                 G32: kontdop.state.data.G32
             })),
         }
-        console.log('getCalcData', r);
         return r
     };
 
