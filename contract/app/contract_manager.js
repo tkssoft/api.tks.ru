@@ -115,24 +115,24 @@ class kontdop extends stateobject {
                 this.doG45Change(value);
                 break;
             case 'G38':
-                this.doEdizmChange(value, this.state.data.G38C)
-                break
+                this.doEdizmChange(value, this.state.data.G38C);
+                break;
             case 'GEDI1':
-                this.doEdizmChange(value, this.state.data.GEDI1C)
-                break
+                this.doEdizmChange(value, this.state.data.GEDI1C);
+                break;
             case 'GEDI2':
-                this.doEdizmChange(value, this.state.data.GEDI2C)
-                break
+                this.doEdizmChange(value, this.state.data.GEDI2C);
+                break;
             case 'GEDI3':
-                this.doEdizmChange(value, this.state.data.GEDI3C)
-                break
+                this.doEdizmChange(value, this.state.data.GEDI3C);
+                break;
             case 'STAVKA_1':
             case 'STAVKA_2':
             case 'STAVKA_3':
                 this.setStavka(value);
                 break;
             default:
-                this.setFieldData(attr, value, '')
+                this.setFieldData(attr, value, '');
         }
     };
 

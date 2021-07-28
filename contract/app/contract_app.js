@@ -109,7 +109,10 @@ class BaseContractApp extends React.Component {
         if (tblname === 'kontdop') {
             return {
                 // Код для расчетта ставок по Вьетнаму
-                G33: '2402209000'
+                G33: '2402209000',
+                G45: 1000,
+                G38: 10,
+                GEDI3: 20
             }
         } else if (tblname === 'kontrakt') {
             return {
