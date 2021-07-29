@@ -40,11 +40,27 @@ const isError = (error) => {
     return ![undefined, null].includes(error) && (error.length > 0)
 }
 
+const filter_dict = (d, inclkeys) => {
+    return inclkeys.reduce((arr, key) => {
+        arr[key] = d[key];
+        return arr;
+    }, {});
+    // return {
+    //     ...Object.keys(d).filter(key => {
+    //         return inclkeys.includes(key)
+    //     }).reduce((obj, key) => {
+    //         obj[key] = d[key];
+    //         return obj
+    //     }, {})
+    // };
+}
+
 export {
     isFunction,
     FetchError,
     isEmpty,
     isError,
     isEmptyAll,
-    get_fetch_error_msg
+    get_fetch_error_msg,
+    filter_dict
 }

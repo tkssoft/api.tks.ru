@@ -139,8 +139,24 @@ const sort_results = (results) => {
     return r;
 }
 
+const get_result_array = (results, indent=0) => {
+    if (results) {
+        let r = results.reduce((r, result) => {
+            r.push({
+                ...result,
+                indent
+            });
+            r = r.concat(get_result_array(result.items, indent+1));
+            return r;
+        }, []);
+        return r;
+    }
+    return [];
+}
+
 export {
     process_config,
     get_result_value,
-    sort_results
+    sort_results,
+    get_result_array
 }

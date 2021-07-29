@@ -3,38 +3,66 @@
 import React from 'react';
 
 import classNames from 'classnames';
-import { ccs_class } from '../../common/ccs';
+import { ccs_class, ccs_contract } from '../../common/ccs';
 import { isEmptyAll } from '../../common/utils';
+import { get_result_value } from './clientcalc';
+import { ArrayList } from './tablelist';
 
 const ResultValue = (props) => {
-    const { name, value } = props;
+    const { name, value, indent } = props;
+    const cls = classNames({
+        [ccs_contract('Result-total')]: true,
+    });
+    const clsname = classNames({
+        [ccs_contract('Result-total-name')]: true,
+        [ccs_class('indent-' + indent)]: indent !== undefined
+    })
     return (
-        <div>
-            <div>{name}</div>
-            <div>{value}</div>
+        <div className={cls}>
+            <div className={clsname}>{name}</div>
+            <div className={ccs_contract('Result-total-value')}>{value}</div>
         </div>
     )
 }
 
 const ClientResult = (props) => {
-    const { isclasses, result } = props;
+    const { isclasses, result, subitems } = props;
     const cls = classNames({
         [ccs_class('ClientResult')]: true,
     });
     return (
         <div className={cls}>
-            { result.map((r) => {
-                return (
-                    <ResultValue
-                        name={r.name}
-                        value={ get_result_value(r) }
-                    />
-                )
-            }) }
+            <ResultValue
+                name={result.name}
+                value={ get_result_value(result) }
+                indent={result.indent}
+            />
+            {subitems && result.items && (
+                <ClientResultArray results={result.items} {...props} />
+            )}
         </div>
     )
 }
 
+const ClientResultArray = (props) => {
+    const { isclasses, results } = props;
+    const cls = classNames({
+        [ccs_contract('Result-table')]: true,
+    });
+    return (
+        <ArrayList
+            onContentItem={(r) => {
+                return (
+                    <ClientResult result={r} />
+                )
+            }}
+            data={results}
+            classPrefix={ccs_class('ClientResult')}
+            {...props}
+        />
+    )
+}
+
 export {
-    ClientResult
+    ClientResultArray
 }

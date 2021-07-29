@@ -1,27 +1,27 @@
 // менеджер расчета контракта
 
-import { debug } from "../../common/debug"
-import { isEmpty } from "../../common/utils"
-import { stateobject } from "../../common/stateobject"
-import { FetchError, isError } from '../../common/utils'
-import { tnved_manager } from "../../tnved/tnved_manager"
-import { validate_code_error } from "../../tnved/tnved_utils"
+import { debug } from "../../common/debug";
+import { isEmpty } from "../../common/utils";
+import { stateobject } from "../../common/stateobject";
+import { FetchError, isError } from '../../common/utils';
+import { tnved_manager } from "../../tnved/tnved_manager";
+import { validate_code_error } from "../../tnved/tnved_utils";
 
-import { get_stavka, get_tnvedcc_rec, updatestavka, get_prim_values } from "../../tnved/stavka"
-import { calc_get5, has_pr, is_pr, get_edizm_list } from "../../tnved/tnved_utils"
+import { get_stavka, get_tnvedcc_rec, updatestavka, get_prim_values } from "../../tnved/stavka";
+import { calc_get5, has_pr, is_pr, get_edizm_list } from "../../tnved/tnved_utils";
 import {
     LETTER_B,
     LETTER_C,
     LETTER_D,
     PRIZNAK_IMPORTDUTY,
     PRIZNAK_VAT,
-    PRIZNAK_EXCISEDUTY } from '../../tnved/tnv_const'
+    PRIZNAK_EXCISEDUTY } from '../../tnved/tnv_const';
 
-const nsi = require( '../../common/nsi' )
-const edizm = nsi.edizm()
+const nsi = require( '../../common/nsi' );
+const edizm = nsi.edizm();
 
-const DELAY_TNVED = 'TNVED'
-const DELAY_CALC = 'CALC'
+const DELAY_TNVED = 'TNVED';
+const DELAY_CALC = 'CALC';
 
 const get_edizm_displayLabel = (edi, index) => {
     switch (edi) {
@@ -31,7 +31,7 @@ const get_edizm_displayLabel = (edi, index) => {
         case nsi.POWER_CODES[0]:
         case nsi.POWER_CODES[1]: return "Мощность";
         default:
-            return `Количество ${index}`
+            return `Количество ${index}`;
     }
 };
 
@@ -47,7 +47,7 @@ class kontdop extends stateobject {
         /* дополнительные количества, единицы измерения и их поля */
         this.addedizm = {
             ...addedizm
-        }
+        };
         this.state = {
             data: {},
             errors: {},
@@ -56,13 +56,13 @@ class kontdop extends stateobject {
     }
 
     register_delay (deman) {
-        super.register_delay(deman)
+        super.register_delay(deman);
         deman.add({
             name: DELAY_TNVED,
             action: this.loadTnvedData.bind(this),
             params: this.loadTnvedDataParams.bind(this),
             delay: 1000
-        })
+        });
     }
 
     doStateUpdated(prevState, delta) {
@@ -78,19 +78,19 @@ class kontdop extends stateobject {
                 ...this.state.data,
                 ...updated,
                 cc: cc
-            }
+            };
         }
     }
 
     setStavka = (value) => {
         let v;
         if (value.value !== undefined) {
-            v = value.value
+            v = value.value;
         } else {
-            v = value
+            v = value;
         }
         if (v !== undefined) {
-            this.doStavkaSelect(v.PRIZNAK, v.base, v, v)
+            this.doStavkaSelect(v.PRIZNAK, v.base, v, v);
         }
     }
 
@@ -322,6 +322,8 @@ class kontdop extends stateobject {
             this.setState(
                 {
                     data: {
+                        // Сохраняем дополнительную единицу измерения для того, чтобы иметь возможность определять поля, где хранится кол-во
+                        GEDI1C: this.state.tnved.EDI2,
                         ...this.state.data,
                         ...this.get_additional_values(this.state.data, this.state.tnved)
                     },
@@ -351,36 +353,40 @@ class kontdop extends stateobject {
     }
 
     setG33 = (code) => {
-        this.setFieldData('G33', code, validate_code_error(code), DELAY_TNVED)
+        this.setFieldData('G33', code, validate_code_error(code), DELAY_TNVED);
     }
 
     parseFloat(value, def='') {
         let r = parseFloat(value)
         if (isNaN(r)) {
-            return def
+            return def;
         }
-        return r
+        return r;
     }
 
     doG45Change = (value) => {
         // Проверка ввода таможенной стоимости
         const error = this.validateNotEmptyNumber(value);
-        return this.setFieldData('G45', this.parseFloat(value), error)
+        return this.setFieldData('G45', this.parseFloat(value), error);
     };
 
     validateNotEmptyNumber = (number) => {
         try {
             if ([undefined, null, '', NaN].includes(number) || (parseFloat(number).toString() !== number.toString())) {
-                return 'Введите значение'
+                return 'Введите значение';
             }
         } catch (e) {
-            return 'Введите значение'
+            return 'Введите значение';
         }
-        return ''
+        return '';
     };
 
+    getEdi2 = (def='XXX') => {
+        return this.state.tnved !== undefined ? this.state.tnved.TNVED.EDI2 : this.state.data.GEDI1C || def;
+    }
+
     getEdiValue = (edi) => {
-        let edi2 = this.state.tnved !== undefined ? this.state.tnved.TNVED.EDI2 : 'XXX'
+        let edi2 = this.getEdi2();
         switch(edi) {
             case "166":
                 return this.state.data.G38;
@@ -397,8 +403,8 @@ class kontdop extends stateobject {
     };
 
     getEdiError = (edi) => {
-        const fieldname = this.get_edizm_fieldname(edi)
-        return this.state.errors[fieldname]
+        const fieldname = this.get_edizm_fieldname(edi);
+        return this.state.errors[fieldname];
     };
 
     get_edizm_displayLabel = (edi, index) => {
@@ -411,9 +417,9 @@ class kontdop extends stateobject {
     /* Наименование единицы измерения */
     get_edizm_name = (edi) => {
         if (edi in this.addedizm) {
-            return this.addedizm[edi].name
+            return this.addedizm[edi].name;
         }
-        return edi in edizm ? edizm[edi].KRNAIM : ''
+        return edi in edizm ? edizm[edi].KRNAIM : '';
     }
 
     /* Имя поля, в котором хранится значение */
@@ -421,15 +427,13 @@ class kontdop extends stateobject {
         if (edi in this.addedizm) {
             return this.addedizm[edi].fieldname
         }
-        let edi2 = this.state.tnved !== undefined
-            ? this.state.tnved.TNVED.EDI2
-            : 'XXX'
+        let edi2 = this.getEdi2();
         switch(edi) {
             case "166":
             case "168":
-                return 'G38'
+                return 'G38';
             case edi2:
-                return 'GEDI1'
+                return 'GEDI1';
             case nsi.POWER_CODES[0]:
             case nsi.POWER_CODES[1]:
                 return 'GEDI3';
@@ -439,9 +443,9 @@ class kontdop extends stateobject {
     }
 
     doEdizmChange = (value, edi) => {
-        const error = this.validateNotEmptyNumber(value)
-        const fieldname = this.get_edizm_fieldname(edi)
-        return this.setFieldData(fieldname, this.parseFloat(value), error)
+        const error = this.validateNotEmptyNumber(value);
+        const fieldname = this.get_edizm_fieldname(edi);
+        return this.setFieldData(fieldname, this.parseFloat(value), error);
     }
 
     doG33Select = (code, text) => {

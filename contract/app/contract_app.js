@@ -3,10 +3,18 @@
 const React  = require('react');
 
 
-const { contract_manager } = require('./contract_manager')
-const { isFunction } = require('../../common/utils')
+const { contract_manager } = require('./contract_manager');
+const { isFunction, filter_dict } = require('../../common/utils');
 import { LocalContractStorage } from "./contract_storage"
-// const { Dummy } = require('../common/debug')
+
+const kontdop = 'kontdop';
+const kontrakt = 'kontrakt';
+
+// Наименования полей, которые сохраняются у пользователя
+const saved_fields = {
+    kontrakt: ['G34', ],
+    kontdop: ['G33', 'G45', 'G38C', 'G38', 'GEDI1C', 'GEDI1', ],
+};
 
 class BaseContractApp extends React.Component {
 
@@ -104,26 +112,20 @@ class BaseContractApp extends React.Component {
     }
 
     get_storage_values (tblname, keys) {
-        const r = {};
         const key = this.get_storage_key(tblname, keys);
-        if (tblname === 'kontdop') {
-            return {
-                // Код для расчетта ставок по Вьетнаму
-                G33: '2402209000',
-                G45: 1000,
-                G38: 10,
-                GEDI3: 20
-            }
-        } else if (tblname === 'kontrakt') {
-            return {
-                G34: '704',
-            }
+        const data = window.localStorage.getItem(key);
+        if (data && (tblname in saved_fields)) {
+            return filter_dict(JSON.parse(data), saved_fields[tblname]);
         }
-        return r;
+        return {};
     }
 
     set_storage_values (tblname, data, keys) {
         const key = this.get_storage_key(tblname, keys);
+        if (data && (tblname in saved_fields)) {
+            const to_save = filter_dict(data, saved_fields[tblname]);
+            window.localStorage.setItem(key, JSON.stringify(to_save));
+        }
     }
 
     componentDidMount () {

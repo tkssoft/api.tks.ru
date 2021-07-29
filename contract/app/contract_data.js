@@ -21,13 +21,14 @@ const ContractData = (props) => {
     const { isclasses } = props
     const cls = classNames({
         [ccs_contract('ContractData')]: true,
-        'row': isclasses
     })
     return (
         <div className={cls}>
-            <ContractTypeEdit layout={get_layout_config('-sm', '-sm-4', '-sm-8')} {...props} />
-            <ValutaEdit layout={get_layout_config('-sm', '-sm-4', '-sm-8')} {...props} />
-            <OksmtEdit layout={get_layout_config('-sm', '-sm-4', '-sm-8')} {...props} />
+            <div className="row">
+                <ContractTypeEdit layout={get_layout_config('-sm', '-sm-4', '-sm-8')} {...props} />
+                <ValutaEdit layout={get_layout_config('-sm', '-sm-4', '-sm-8')} {...props} />
+                <OksmtEdit layout={get_layout_config('-sm', '-sm-4', '-sm-8')} {...props} />
+            </div>
         </div>
     )
 }
