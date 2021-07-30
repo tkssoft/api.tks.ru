@@ -56,10 +56,13 @@ import { isEmptyAll } from '../../common/utils';
 
 
 const eval_value = (value, vars) => {
+    Object.keys(vars).map((key) => {
+        window[key] = vars[key];
+    });
     if (value) {
         return eval(value);
     }
-    return 0
+    return 0;
 }
 
 const get_result_value = (result) => {
@@ -116,6 +119,7 @@ const process_config = (config, variables) => {
     const vars = {
         ...variables
     };
+    console.log('process_config vars', vars);
     if (config && config.length > 0) {
         return config.map((cfg) => {
             return process_config_field(cfg, vars)

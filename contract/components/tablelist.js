@@ -136,9 +136,13 @@ class TableList extends React.Component {
 }
 
 const ArrayList = (props) => {
-    const { onContentItem, data } = props
+    const { className, onContentItem, data } = props
+    const cls = classNames({
+        [className]: !!className,
+        [getcls(props, "Content", "list-group w-100")]: true
+    })
     return (
-        <ul className={getcls(props, "Content", "list-group w-100")} role="tablist">
+        <ul className={cls} role="tablist">
         {data.map((rec, i) => {
             return (
                 <li

@@ -886,7 +886,7 @@ class contract_manager extends stateobject {
     };
 
     filterCalcData = (data, init, exfields) => {
-        return Object.keys(data).reduce((obj, key) => {
+        return data === undefined ? init : Object.keys(data).reduce((obj, key) => {
             if (exfields === undefined || !exfields.includes(key) ) {
                 if (data[key] !== null && obj[key] === undefined) {
                     obj[key] = data[key]

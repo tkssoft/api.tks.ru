@@ -25,7 +25,14 @@ class BaseContractApp extends React.Component {
             this.get_manager_params()
         )
 
-        this.state = {
+        this.state = this.get_init_state();
+        this.handleSaveData = this.save_data.bind(this);
+        this.mounted = false;
+
+    }
+
+    get_init_state () {
+        return {
             sums: {
                 total: 0,
                 g32: {},
@@ -40,11 +47,7 @@ class BaseContractApp extends React.Component {
             calcdata : {
 
             }
-        }
-
-        this.handleSaveData = this.save_data.bind(this);
-        this.mounted = false;
-
+        };
     }
 
     get_manager_params () {
