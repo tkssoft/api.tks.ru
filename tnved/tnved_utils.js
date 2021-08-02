@@ -443,7 +443,7 @@ const calctxt = (Tnved, TnvedCC, acountry=tnv_const.CNTR_RUSSIA) => {
 
 /*  Список признаков для определенного вида перевозок (экспорт, депозит, импорт) */
 const get_type_priznak = (typ, expertmode=false) => {
-    switch (typ) {
+    switch (parseInt(typ)) {
         case TYPE_EK:
             if (expertmode) {
                 return [
@@ -458,11 +458,13 @@ const get_type_priznak = (typ, expertmode=false) => {
                 return [
                     tnv_const.PRIZNAK_EXPORTDUTY, // 0 - экспортная пошлина
                 ]
-            }
+            };
+            break;
         case TYPE_DEPOSIT:
             return [
                 tnv_const.PRIZNAK_DEPOSIT, // 4 - ставки депозита
-            ]
+            ];
+            break;
         default:
             if (expertmode) {
                 return [

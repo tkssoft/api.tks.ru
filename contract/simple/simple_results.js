@@ -4,10 +4,45 @@ const React = require('react');
 const classNames = require('classnames');
 
 const nsi = require('../../common/nsi');
-import { ccs_class } from '../../common/ccs';
-const { g47name } = require('../../common/consts');
+import { ccs_class, ccs_contract } from '../../common/ccs';
+const { g47name, nbsp } = require('../../common/consts');
 
 import { ArrayList } from '../components/tablelist';
+
+const vlnm = nsi.valname();
+const edizm = nsi.edizm();
+
+
+const NumberWithEdi = (props) => {
+    const { value, valedi, edizmedi, altvalue, className, valediname, editype } = props;
+    let edi;
+    if (valedi && edizmedi) {
+        edi = `${vlnm[valedi].BUK}${nbsp}/${nbsp}${edizm[edizmedi].KRNAIM}`;
+    } else if (valedi) {
+        edi = `${valediname || vlnm[valedi].BUK}`;
+    } else if (edizmedi) {
+        edi = `${edizmedi === "%" ? edizmedi : edizm[edizmedi].KRNAIM}`;
+    } else if (editype === "%") {
+        edi = editype;
+    } else if (valediname) {
+        edi = valediname;
+    } else {
+        edi = '';
+    }
+    const cls = classNames({
+        [className]: !!className,
+        [ccs_class('NumberWithEdi')]: edi
+    })
+    if (!edi) {
+        return (<div className={cls}>{altvalue || value}</div>)
+    }
+    return (
+        <div className={cls}>
+            <div className={ccs_class('NumberWithEdi-value')}>{value}</div>
+            <div className={ccs_class('NumberWithEdi-edi')}>{edi}</div>
+        </div>
+    )
+}
 
 
 /* Таблица с данными 47 графы */
@@ -15,30 +50,32 @@ const SimpleResults = (props) => {
 
     const { data, isclasses } = props
 
-    if (data) {
+    if (data && data.length > 0) {
         data.sort((v1, v2) => {
             var key1 = ('00000' + v1.G32.toString()).slice(-5) + v1.G471;
             var key2 = ('00000' + v2.G32.toString()).slice(-5) + v2.G471;
             return key1.localeCompare(key2)
-        })
-        let vlnm = nsi.valname();
+        });
         let d = [{
-            DUMMY: '\u00A0',
+            DUMMY: nbsp,
             OSNOVA: 'Основа',
             STAVKA: 'Ставка',
             SUMMA: 'Сумма'
         }, ...data];
-        console.log('SimpleResults', d);
         return (
             <ArrayList
                 onContentItem={(rec, index) => {
+                    let platname = g47name(rec.G471, rec.LETTER);
+                    if (platname) {
+                        platname = platname + ':';
+                    }
                     return (
-                        <div>
-                            <div>{rec.DUMMY || g47name(rec.G471, rec.LETTER)}</div>
-                            <div>{rec.OSNOVA || rec.G472}</div>
-                            <div>{rec.STAVKA || rec.G473}</div>
-                            <div>{rec.SUMMA || rec.G474}&nbsp;{!rec.SUMMA && (vlnm[rec.G4741].BUK || vlnm[rec.G4741].KRNAIM)}</div>
-                        </div>
+                        <>
+                            <div className={ccs_class('g47name')}>{rec.DUMMY || platname}</div>
+                            <NumberWithEdi altvalue={rec.OSNOVA} value={rec.G472} valedi={rec.G4721} edizmedi={rec.G472EDI}/>
+                            <NumberWithEdi altvalue={rec.STAVKA} value={rec.G473_ARM} valedi={rec.G4732} edizmedi={rec.G4733} editype={rec.G4731}/>
+                            <NumberWithEdi className={ccs_class('g47summa')} altvalue={rec.SUMMA} value={rec.G474} valedi={rec.G4741}/>
+                        </>
                     )
                 }
                 }
@@ -66,10 +103,7 @@ const SimpleResultTotals = (props) => {
                 })}
             >
                 <div className={'ccs-contract-Result-total-name'}>Итого:</div>
-                <div className={'ccs-contract-Result-total-value'}>
-                    <div>{data.sum}</div>
-                    <div className={'ccs-contract-Result-total-valname'}>{data.buk}</div>
-                </div>
+                <NumberWithEdi className={'ccs-contract-Result-total-value'} value={data.sum} valediname={data.buk} />
             </div>
         )
     } else {

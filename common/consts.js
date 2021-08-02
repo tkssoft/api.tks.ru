@@ -36,7 +36,9 @@ const get_api_tks_ru = () => {
         return api
     }
 }
- 
+
+const nbsp = '\u00A0';
+
 export {
     g47name,
     calctype,
@@ -45,4 +47,5 @@ export {
     TYPE_DEPOSIT,
     QTYFIELDS,
     get_api_tks_ru,
+    nbsp
 }

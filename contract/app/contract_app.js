@@ -5,15 +5,15 @@ const React  = require('react');
 
 const { contract_manager } = require('./contract_manager');
 const { isFunction, filter_dict } = require('../../common/utils');
-import { LocalContractStorage } from "./contract_storage"
+import { LocalContractStorage } from "./contract_storage";
 
 const kontdop = 'kontdop';
 const kontrakt = 'kontrakt';
 
 // Наименования полей, которые сохраняются у пользователя
 const saved_fields = {
-    kontrakt: ['G34', ],
-    kontdop: ['G33', 'G45', 'G38C', 'G38', 'GEDI1C', 'GEDI1', ],
+    kontrakt: ['G34', 'TYPE', 'G221', ],
+    kontdop: ['G33', 'G45', 'G38C', 'G38', 'GEDI1C', 'GEDI1', 'GEDI2C', 'GEDI2', 'GEDI3C', 'GEDI3', ],
 };
 
 class BaseContractApp extends React.Component {

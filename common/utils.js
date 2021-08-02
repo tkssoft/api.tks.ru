@@ -42,7 +42,10 @@ const isError = (error) => {
 
 const filter_dict = (d, inclkeys) => {
     return inclkeys.reduce((arr, key) => {
-        arr[key] = d[key];
+        const value = d[key];
+        if (value !== undefined) {
+            arr[key] = d[key];
+        }
         return arr;
     }, {});
     // return {

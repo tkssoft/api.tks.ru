@@ -119,7 +119,6 @@ const process_config = (config, variables) => {
     const vars = {
         ...variables
     };
-    console.log('process_config vars', vars);
     if (config && config.length > 0) {
         return config.map((cfg) => {
             return process_config_field(cfg, vars)

@@ -105,6 +105,8 @@ class ShowSt extends React.Component {
             'list-group': isclasses,
         })
 
+        const przarr = get_type_priznak(this.state.typ, this.props.expertmode);
+
         if (!isEmptyAll(this.props.data) && !isEmptyAll(this.props.tnved)) {
             return (
                 <div className={cls}>
@@ -114,7 +116,7 @@ class ShowSt extends React.Component {
                     {[undefined, false].includes(this.props.skipName) && (
                         <ShowStItem name={"Наименование"} value={this.props.G312}/>
                     )}
-                    {get_type_priznak(this.state.typ, this.props.expertmode).map((prz, index) => {
+                    {przarr.map((prz, index) => {
                         return <ShowStItem
                                     prz={prz}
                                     key={prz}
