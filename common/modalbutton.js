@@ -111,7 +111,10 @@ class ModalButton extends React.Component {
                         [btnClassName]: !!btnClassName && isclasses
                     })}
                     type="button"
-                    onClick={!this.state.showModal ? () => this.handleToggleModal() : undefined}
+                    onClick={!this.state.showModal ? (e) => {
+                        e.preventDefault();
+                        this.handleToggleModal();
+                    } : undefined}
                 >
                     {buttonLabel}
                 </button>
