@@ -15,13 +15,13 @@ class ModalWindow extends React.Component {
     componentDidMount() {
         window.addEventListener('keyup', this.handleKeyUp, false);
         document.addEventListener('click', this.handleOutsideClick, false);
-        window.modalwindow_count = window.modalwindow_count === undefined ? 1: (window.modalwindow_count + 1)
+        window.modalwindow_count = window.modalwindow_count === undefined ? 1: (window.modalwindow_count + 1);
     }
 
     componentWillUnmount() {
         window.removeEventListener('keyup', this.handleKeyUp, false);
         document.removeEventListener('click', this.handleOutsideClick, false);
-        window.modalwindow_count = window.modalwindow_count === undefined ? 0: (window.modalwindow_count - 1)
+        window.modalwindow_count = window.modalwindow_count === undefined ? 0: (window.modalwindow_count - 1);
     }
 
     handleKeyUp(e) {
@@ -113,6 +113,7 @@ class ModalButton extends React.Component {
                     type="button"
                     onClick={!this.state.showModal ? (e) => {
                         e.preventDefault();
+                        e.stopPropagation();
                         this.handleToggleModal();
                     } : undefined}
                 >
