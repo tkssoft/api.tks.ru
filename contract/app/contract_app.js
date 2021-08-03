@@ -138,9 +138,11 @@ class BaseContractApp extends React.Component {
 
     componentWillUnmount () {
         window.removeEventListener('unload', this.handleSaveData);
+        this.save_data();
     }
 
     save_data () {
+        // ToDo: сохранять все товары. Табличные данные сохранять отдельно от однотоварных
         this.set_storage_values('kontrakt', this.contract_manager.kontrakt);
         this.set_storage_values('kontdop', this.contract_manager.kontdop[0].state.data, { G32: 1 });
     }
