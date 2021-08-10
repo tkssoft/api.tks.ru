@@ -38,7 +38,11 @@ class BaseContractEdit extends React.Component {
     }
 
     static getDerivedStateFromProps(props, state) {
-        if (props.readOnly || (props.value !== undefined && props.value !== state.value)) {
+        const { readOnly, value, modified, fieldname } = props;
+        // modified как и readOnly здесь используются для того, чтобы была возможность
+        // менять значение, которое выдает get_field_value извне,
+        // если не ставить условие, то например код товара в форме расчета констракта не работает
+        if (modified || readOnly || (value !== undefined && value !== state.value)) {
             return {
                 value: BaseContractEdit.get_field_value(props)
             }
