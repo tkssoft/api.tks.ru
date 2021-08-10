@@ -12,9 +12,9 @@ class stateobject {
         this.props = {
             ...props
         };
-        this.state = this.get_init_state()
-        this.deman = new DelayManager()
-        this.register_delay(this.deman)
+        this.state = this.get_init_state();
+        this.deman = new DelayManager();
+        this.register_delay(this.deman);
     }
 
     register_delay(deman) {
@@ -23,19 +23,28 @@ class stateobject {
 
     get_init_state () {
         return {
-            modified: false
+            modified: false,
+            update_count: 0,
         }
     }
 
+    begin_update () {
+        this.setState({update_count : this.state.update_count + 1});
+    }
+
+    end_update (cb) {
+        this.setState({update_count : this.state.update_count - 1}, cb);
+    }
+
     setState = (state, callback) => {
-        let prevState = {...this.state}
+        let prevState = {...this.state};
         this.state = {
             ...this.state,
             ...state
-        }
+        };
         this.stateUpdated(prevState, state);
         if (callback !== undefined) {
-            callback();
+            callback(this);
         }
     };
 
@@ -44,14 +53,14 @@ class stateobject {
     }
 
     stateUpdated(prevState, delta) {
-        if (this.state.modified) {
+        if (this.state.modified && !this.state.update_count) {
             this.state = {
                 ...this.state,
                 modified: false,
-            }
-            this.doStateUpdated(prevState, delta)
+            };
+            this.doStateUpdated(prevState, delta);
             if (this.props.onChange !== undefined) {
-                this.props.onChange(this)
+                this.props.onChange(this);
             }
         }
     }

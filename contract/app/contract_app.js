@@ -3,17 +3,14 @@
 const React  = require('react');
 
 
-const { contract_manager } = require('./contract_manager');
-const { isFunction, filter_dict } = require('../../common/utils');
+const { contract_manager, tbl_kontrakt, tbl_kontdop } = require('./contract_manager');
+const { isFunction, filter_dict, isEmptyAll,  } = require('../../common/utils');
 import { LocalContractStorage } from "./contract_storage";
-
-const kontdop = 'kontdop';
-const kontrakt = 'kontrakt';
 
 // Наименования полей, которые сохраняются у пользователя
 const saved_fields = {
-    kontrakt: ['G34', 'TYPE', 'G221', ],
-    kontdop: ['G33', 'G45', 'G38C', 'G38', 'GEDI1C', 'GEDI1', 'GEDI2C', 'GEDI2', 'GEDI3C', 'GEDI3', ],
+    [tbl_kontrakt]: ['G34', 'TYPE', 'G221', ],
+    [tbl_kontdop]: ['G33', 'G45', 'G38C', 'G38', 'GEDI1C', 'GEDI1', 'GEDI2C', 'GEDI2', 'GEDI3C', 'GEDI3', ],
 };
 
 class BaseContractApp extends React.Component {
@@ -28,7 +25,12 @@ class BaseContractApp extends React.Component {
         this.state = this.get_init_state();
         this.handleSaveData = this.save_data.bind(this);
         this.mounted = false;
+        this.storage_section = this.get_storage_section();
 
+    }
+
+    get_storage_section () {
+        return 'ContractApp'
     }
 
     get_init_state () {
@@ -81,7 +83,7 @@ class BaseContractApp extends React.Component {
         return {}
     }
 
-    get_default_values (tblname, keys) {
+    get_default_values (tblname) {
         let r = {}
         const tableconfig = this.get_table_config(tblname)
         if (tableconfig) {
@@ -94,18 +96,15 @@ class BaseContractApp extends React.Component {
                     return arr
                 }, r)
         }
-        r = {
-            ...r,
-            ...this.get_storage_values(tblname, keys)
-        }
         return r
     }
 
     get_storage_key (tblname, keys) {
         let d = {
+            'section': this.storage_section,
             'tblname': tblname,
         };
-        if (keys) {
+        if (!isEmptyAll(keys)) {
             d = {
                 ...d,
                 ...keys
@@ -114,26 +113,31 @@ class BaseContractApp extends React.Component {
         return JSON.stringify(d)
     }
 
-    get_storage_values (tblname, keys) {
+    get_storage_values (tblname, keys, def={}) {
         const key = this.get_storage_key(tblname, keys);
         const data = window.localStorage.getItem(key);
-        if (data && (tblname in saved_fields)) {
-            return filter_dict(JSON.parse(data), saved_fields[tblname]);
+        if (data) {
+            try {
+                return JSON.parse(data);
+            } catch (error) {
+                console.error('get_storage_values', tblname, keys, error);
+                return def;
+            }
         }
-        return {};
+        return def;
     }
 
     set_storage_values (tblname, data, keys) {
         const key = this.get_storage_key(tblname, keys);
-        if (data && (tblname in saved_fields)) {
-            const to_save = filter_dict(data, saved_fields[tblname]);
-            window.localStorage.setItem(key, JSON.stringify(to_save));
+        if (data) {
+            window.localStorage.setItem(key, JSON.stringify(data));
         }
     }
 
     componentDidMount () {
-        this.mounted = true;
+        this.read_data();
         window.addEventListener('unload', this.handleSaveData);
+        this.mounted = true;
     }
 
     componentWillUnmount () {
@@ -141,10 +145,48 @@ class BaseContractApp extends React.Component {
         this.save_data();
     }
 
+    /* Восстановление данных расчета */
+    read_data () {
+        // ToDo: возможно сохранять / восстанавливать ставки-признаки
+        let that = this;
+        const kontrakt = this.get_storage_values(tbl_kontrakt, null, {});
+        const kontdop = this.get_storage_values(tbl_kontdop, null, []);
+        this.contract_manager.begin_update();
+        try {
+            this.contract_manager.kontrakt = {
+                ...this.contract_manager.kontrakt,
+                ...kontrakt
+            };
+            if (Array.isArray(kontdop)) {
+                kontdop.map((data, index) => {
+                    if (!isEmptyAll(data)) {
+                        Object.keys(data).map((fieldname) => {
+                            that.contract_manager.setFieldData(fieldname, data[fieldname], index + 1);
+                        })
+                    }
+                    return true;
+                });
+            }
+            this.contract_manager.setState({modified: true});
+        } finally {
+            this.contract_manager.end_update((cm) => {cm.kondopchange()});
+        }
+    }
+
+    /* Сохранение данных расчета */
     save_data () {
         // ToDo: сохранять все товары. Табличные данные сохранять отдельно от однотоварных
-        this.set_storage_values('kontrakt', this.contract_manager.kontrakt);
-        this.set_storage_values('kontdop', this.contract_manager.kontdop[0].state.data, { G32: 1 });
+        try {
+            const kontrakt_to_save = filter_dict(this.contract_manager.kontrakt, saved_fields[tbl_kontrakt]);
+            this.set_storage_values(tbl_kontrakt, kontrakt_to_save);
+            this.set_storage_values(tbl_kontdop, this.contract_manager.kontdop.reduce((arr, kontdop, index) => {
+                let to_save = filter_dict(kontdop.state.data, saved_fields[tbl_kontdop]);
+                arr.push(to_save);
+                return arr;
+            }, []));
+        } catch(err) {
+            console.error('save_data', err);
+        }
     }
 
     contractmanagerchanged (cm) {

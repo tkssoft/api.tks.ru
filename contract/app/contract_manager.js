@@ -23,6 +23,9 @@ const edizm = nsi.edizm();
 const DELAY_TNVED = 'TNVED';
 const DELAY_CALC = 'CALC';
 
+const tbl_kontdop = 'kontdop';
+const tbl_kontrakt = 'kontrakt';
+
 const get_edizm_displayLabel = (edi, index) => {
     switch (edi) {
         case "166":
@@ -49,7 +52,7 @@ class kontdop extends stateobject {
             ...addedizm
         };
         this.state = {
-            data: {},
+            data: {...data},
             errors: {},
             debug: false,
         };
@@ -94,11 +97,11 @@ class kontdop extends stateobject {
         }
     }
 
-    setAttrs = (data) => {
+    setAttrs = (data, modified=false) => {
         if (data) {
             Object.keys(data).map((key) => {
                 try {
-                    this.setAttr(key, data[key]);
+                    this.setAttr(key, data[key], modified);
                 } catch(e) {
                     debug('setAttr error', e);
                 }
@@ -106,33 +109,33 @@ class kontdop extends stateobject {
         }
     }
 
-    setAttr = (attr, value) => {
+    setAttr = (attr, value, modified=true) => {
         switch (attr) {
             case 'G33':
-                this.setG33(value);
+                this.setG33(value, modified);
                 break;
             case 'G45':
-                this.doG45Change(value);
+                this.doG45Change(value, modified);
                 break;
             case 'G38':
-                this.doEdizmChange(value, this.state.data.G38C);
+                this.doEdizmChange(value, this.state.data.G38C, modified);
                 break;
             case 'GEDI1':
-                this.doEdizmChange(value, this.state.data.GEDI1C);
+                this.doEdizmChange(value, this.state.data.GEDI1C, modified);
                 break;
             case 'GEDI2':
-                this.doEdizmChange(value, this.state.data.GEDI2C);
+                this.doEdizmChange(value, this.state.data.GEDI2C, modified);
                 break;
             case 'GEDI3':
-                this.doEdizmChange(value, this.state.data.GEDI3C);
+                this.doEdizmChange(value, this.state.data.GEDI3C, modified);
                 break;
             case 'STAVKA_1':
             case 'STAVKA_2':
             case 'STAVKA_3':
-                this.setStavka(value);
+                this.setStavka(value, modified);
                 break;
             default:
-                this.setFieldData(attr, value, '');
+                this.setFieldData(attr, value, '', '', undefined, modified);
         }
     };
 
@@ -338,13 +341,13 @@ class kontdop extends stateobject {
         })
     }
 
-    setFieldData = (fieldname, fieldvalue, error, delayname, cb) => {
+    setFieldData = (fieldname, fieldvalue, error, delayname, cb, modified=true) => {
         this.setDelayedState({
             data: {
                 ...this.state.data,
                 [fieldname]: fieldvalue
             },
-            modified: ['', undefined].includes(error || delayname),
+            modified: modified && ['', undefined].includes(error || delayname),
             errors: {
                 ...this.state.errors,
                 [fieldname]: error || (delayname ? 'Обработка...' : '')
@@ -352,8 +355,8 @@ class kontdop extends stateobject {
         }, delayname, cb)
     }
 
-    setG33 = (code) => {
-        this.setFieldData('G33', code, validate_code_error(code), DELAY_TNVED);
+    setG33 = (code, modified=true) => {
+        this.setFieldData('G33', code, validate_code_error(code), DELAY_TNVED, undefined, modified);
     }
 
     parseFloat(value, def='') {
@@ -364,10 +367,10 @@ class kontdop extends stateobject {
         return r;
     }
 
-    doG45Change = (value) => {
+    doG45Change = (value, modified=true) => {
         // Проверка ввода таможенной стоимости
         const error = this.validateNotEmptyNumber(value);
-        return this.setFieldData('G45', this.parseFloat(value), error);
+        return this.setFieldData('G45', this.parseFloat(value), error, '', undefined, modified);
     };
 
     validateNotEmptyNumber = (number) => {
@@ -442,10 +445,10 @@ class kontdop extends stateobject {
         }
     }
 
-    doEdizmChange = (value, edi) => {
+    doEdizmChange = (value, edi, modified=true) => {
         const error = this.validateNotEmptyNumber(value);
         const fieldname = this.get_edizm_fieldname(edi);
-        return this.setFieldData(fieldname, this.parseFloat(value), error);
+        return this.setFieldData(fieldname, this.parseFloat(value), error, '', undefined, modified);
     }
 
     doG33Select = (code, text) => {
@@ -523,7 +526,7 @@ class contract_manager extends stateobject {
         this.num = NUM;
         this.kontrakt = {
             ...default_kontrakt(),
-            ...this.get_default_values('kontrakt'),
+            ...this.get_default_values(tbl_kontrakt),
             NUM: this.num
         }
         this.kontdop = [];
@@ -539,15 +542,15 @@ class contract_manager extends stateobject {
         })
     }
 
-    get_default_values (tblname, keys) {
+    get_default_values (tblname) {
         if (this.props.onGetDefaultValues) {
-            return this.props.onGetDefaultValues(tblname, keys)
+            return this.props.onGetDefaultValues(tblname)
         }
         return {}
     }
 
     get_init_state() {
-        var r = super.get_init_state()
+        var r = super.get_init_state();
         return {
             ...r,
             result: {
@@ -568,10 +571,10 @@ class contract_manager extends stateobject {
     }
 
     /**Добавление товара */
-    append = (G32) => {
+    append = (G32, change=true) => {
         var data = {
             ...default_kontdop(),
-            ...this.get_default_values('kontdop', { G32 }),
+            ...this.get_default_values(tbl_kontdop),
         };
         data.G34 = this.kontrakt.G34 || data.G34;
         const r = new kontdop({
@@ -584,10 +587,31 @@ class contract_manager extends stateobject {
             },
             addedizm: this.props.addedizm ? {...this.props.addedizm} : {}
         });
-        r.setAttrs(data);
+        r.setAttrs({
+            ...data,
+            G32
+        });
         this.kontdop.push(r);
-        this.kondopchange(r);
+        if (change) {
+            this.kondopchange(r);
+        }
         return r
+    }
+
+    /* Удаление товара */
+    delete = (fromindex, toindex) => {
+        console.log('delete before', this.kontdop.length);
+        this.kontdop = this.kontdop.reduce((arr, kontdop, index) => {
+            if (index < fromindex || index > toindex) {
+                arr.push(kontdop);
+            }
+            return arr;
+        }, []);
+        if (this.kontdop.length === 0) {
+            this.append(1, false);
+        };
+        this.kondopchange();
+        console.log('delete after', this.kontdop.length);
     }
 
     all_errors = () => {
@@ -606,6 +630,9 @@ class contract_manager extends stateobject {
     }
 
     kondopchange = (kondop) => {
+        if (this.state.update_count) {
+            return false;
+        }
         const errors = this.all_errors();
         // Должно вызвать onchange
         this.setDelayedState({
@@ -614,18 +641,19 @@ class contract_manager extends stateobject {
             },
             modified: true
         }, DELAY_CALC);
+        return true;
     }
 
     setFieldData = (fieldname, newvalue, g32) => {
         if (g32 === undefined) {
-            return this.setKontraktData({[fieldname]: newvalue})
+            return this.setKontraktData({[fieldname]: newvalue});
         }
-        const index = g32 - 1
+        const index = g32 - 1;
         while (index >= this.kontdop.length) {
-            this.kontdop.push(this.append(this.kontdop.length + 1))
+            this.append(this.kontdop.length + 1, false);
         }
         var kontdop = this.kontdop[index];
-        return kontdop.setAttr(fieldname, newvalue)
+        return kontdop.setAttr(fieldname, newvalue);
     }
 
     getFieldData = (fieldname, g32) => {
@@ -680,7 +708,7 @@ class contract_manager extends stateobject {
     getData = () => {
         var index = 0
         let that = this
-        return this.kontdop.map((kontdop) => {
+        const r = this.kontdop.map((kontdop) => {
             index = index + 1
             let has_prim = false
             let poshl_pr = false
@@ -731,7 +759,8 @@ class contract_manager extends stateobject {
                 AKCIZ_PR: akciz_pr,
                 NDS_PR: nds_pr
             }
-        })
+        });
+        return r;
     }
 
     round(value) {
@@ -747,7 +776,7 @@ class contract_manager extends stateobject {
             data.kont47.map((rec) => {
                 let g474 = this.round(rec.G474V)
                 total += g474
-                lettersum[rec.LETTER] = (lettersum[rec.LETTER] || 0) + g474
+                lettersum[rec.LETTER] = this.round((lettersum[rec.LETTER] || 0) + g474)
                 g32sum[rec.G32] = (g32sum[rec.G32] || 0) + g474
                 var d = g47sum[rec.G32] === undefined ? {} : g47sum[rec.G32]
                 g47sum[rec.G32] = {...d, [rec.LETTER]: g474}
@@ -876,11 +905,13 @@ class contract_manager extends stateobject {
         };
         var r = {
             kontrakt: this.filterCalcData(this.kontrakt, init),
-            kontdop: this.kontdop.map((kontdop) => this.filterCalcData(kontdop.state.data, init, ['cc', ])),
-            kontdopcc: this.kontdop.map((kontdop) => this.filterCalcData(kontdop.state.data.cc, {
-                NUM: this.num,
-                G32: kontdop.state.data.G32
-            })),
+            kontdop: this.kontdop.map((kontdop, index) => this.filterCalcData(kontdop.state.data, {...init, G32: index + 1}, ['cc', ])),
+            kontdopcc: this.kontdop.map((kontdop) => {
+                return this.filterCalcData(kontdop.state.data.cc, {
+                    NUM: this.num,
+                    G32: kontdop.state.data.G32
+                })
+            }),
         }
         return r
     };
@@ -907,5 +938,7 @@ class contract_manager extends stateobject {
 }
 
 export {
-    contract_manager
+    contract_manager,
+    tbl_kontdop,
+    tbl_kontrakt,
 }

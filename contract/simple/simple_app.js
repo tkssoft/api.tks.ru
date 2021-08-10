@@ -10,6 +10,10 @@ import { ScrollContainer } from '../../common/container';
 
 class SimpleContractApp extends BaseContractApp {
 
+    get_storage_section () {
+        return 'ContractApp'
+    }
+
     render () {
         const props = this.props
         const manager = this.contract_manager
