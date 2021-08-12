@@ -5,7 +5,6 @@ const React  = require('react');
 
 const { contract_manager, tbl_kontrakt, tbl_kontdop } = require('./contract_manager');
 const { isFunction, filter_dict, isEmptyAll,  } = require('../../common/utils');
-import { LocalContractStorage } from "./contract_storage";
 
 // Наименования полей, которые сохраняются у пользователя
 const saved_fields = {
@@ -26,6 +25,8 @@ class BaseContractApp extends React.Component {
         this.handleSaveData = this.save_data.bind(this);
         this.mounted = false;
         this.storage_section = this.get_storage_section();
+
+        this.read_data();
 
     }
 
@@ -135,7 +136,6 @@ class BaseContractApp extends React.Component {
     }
 
     componentDidMount () {
-        this.read_data();
         window.addEventListener('unload', this.handleSaveData);
         this.mounted = true;
     }
@@ -161,7 +161,9 @@ class BaseContractApp extends React.Component {
                 kontdop.map((data, index) => {
                     if (!isEmptyAll(data)) {
                         Object.keys(data).map((fieldname) => {
-                            that.contract_manager.setFieldData(fieldname, data[fieldname], index + 1);
+                            if (![undefined, null].includes(data[fieldname])) {
+                                that.contract_manager.setFieldData(fieldname, data[fieldname], index + 1);
+                            }
                         })
                     }
                     return true;

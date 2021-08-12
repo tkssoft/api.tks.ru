@@ -131,8 +131,6 @@ const TnvedApp = (props) => {
 
     useEventListener(event_searchresults, searchresults_handler, document);
 
-    console.log(data);
-
     return (
         <div className={cls}>
             <Row className='' {...props}>

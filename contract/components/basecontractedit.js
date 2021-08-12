@@ -91,7 +91,10 @@ class BaseContractEdit extends React.Component {
     }
 
     render () {
-        const { formgroup, isclasses, type } = this.props
+        const { formgroup, isclasses, type, debug } = this.props;
+        if (debug) {
+            console.log('value', this.state.value);
+        }
         let fieldconfig = this.props.manager.get_field_config(this.props)
         const checkbox = type === 'checkbox'
         /* Возможность не показывать поле  */
@@ -149,6 +152,9 @@ const BaseContractInput = (props) => {
             break;
     }
     const cls = get_input_className(props);
+    if (props.debug) {
+        console.log('BaseContractInput', fieldname, value);
+    }
     return (
         <div className={cls}>
             <div className="input-group">

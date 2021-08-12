@@ -600,7 +600,6 @@ class contract_manager extends stateobject {
 
     /* Удаление товара */
     delete = (fromindex, toindex) => {
-        console.log('delete before', this.kontdop.length);
         this.kontdop = this.kontdop.reduce((arr, kontdop, index) => {
             if (index < fromindex || index > toindex) {
                 arr.push(kontdop);
@@ -611,7 +610,6 @@ class contract_manager extends stateobject {
             this.append(1, false);
         };
         this.kondopchange();
-        console.log('delete after', this.kontdop.length);
     }
 
     all_errors = () => {

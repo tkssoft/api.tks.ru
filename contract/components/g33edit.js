@@ -85,6 +85,7 @@ const G33Edit = (props) => {
                 }
                 return ''
             }}
+            debug={true}
             {...props}
         >
             {(prs) => {return <G33EditButtons {...prs}/>}}

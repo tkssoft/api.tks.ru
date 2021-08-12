@@ -55,6 +55,10 @@
 import { isEmptyAll } from '../../common/utils';
 
 
+const round2 = (value) => {
+    return Math.round((value + 0.00001) * 100) / 100;
+}
+
 const eval_value = (value, vars) => {
     Object.keys(vars).map((key) => {
         window[key] = vars[key];
@@ -69,7 +73,7 @@ const get_result_value = (result) => {
     const { items, value } = result;
     if (items && items.length > 0) {
         return items.reduce((sum, res) => {
-            return sum + get_result_value(res);
+            return round2(sum + get_result_value(res));
         }, 0)
     }
     return value;
