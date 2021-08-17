@@ -49,18 +49,22 @@ const ClientResultArray = (props) => {
     const cls = classNames({
         [ccs_contract('Result-table')]: true,
     });
-    return (
-        <ArrayList
-            onContentItem={(r) => {
-                return (
-                    <ClientResult result={r} />
-                )
-            }}
-            data={results}
-            classPrefix={ccs_class('ClientResult')}
-            {...props}
-        />
-    )
+    if (results && Array.isArray(results) && (results.length > 0)) {
+        return (
+            <ArrayList
+                onContentItem={(r) => {
+                    return (
+                        <ClientResult result={r} />
+                    )
+                }}
+                data={results}
+                classPrefix={ccs_class('ClientResult')}
+                {...props}
+            />
+        )
+    } else {
+        return <></>
+    }
 }
 
 export {
