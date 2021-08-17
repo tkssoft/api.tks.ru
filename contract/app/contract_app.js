@@ -24,7 +24,7 @@ class BaseContractApp extends React.Component {
         this.state = this.get_init_state();
         this.handleSaveData = this.save_data.bind(this);
         this.mounted = false;
-        this.storage_section = this.get_storage_section();
+        this.storage_section = props.storage_section || this.get_storage_section();
 
         this.read_data();
 
@@ -41,15 +41,9 @@ class BaseContractApp extends React.Component {
                 g32: {},
                 letter: {}
             },
-            errors : {
-                ...this.contract_manager.state.errors
-            },
-            result : {
-
-            },
-            calcdata : {
-
-            }
+            errors : { ...this.contract_manager.state.errors },
+            result : {},
+            calcdata : {}
         };
     }
 
@@ -66,38 +60,8 @@ class BaseContractApp extends React.Component {
         }
     }
 
-    get_table_config (tblname) {
-        const { fieldconfig } = this.props
-        if (fieldconfig) {
-            if (tblname in fieldconfig) {
-                return fieldconfig[tblname]
-            }
-        }
-        return null
-    }
-
-    get_field_config (tblname) {
-        const tableconfig = this.get_table_config(tblname)
-        if (tableconfig && tableconfig.fields) {
-            return tableconfig.fields
-        }
-        return {}
-    }
-
     get_default_values (tblname) {
-        let r = {}
-        const tableconfig = this.get_table_config(tblname)
-        if (tableconfig) {
-            const fieldconfig = tableconfig.fields || {}
-            r = Object.keys(fieldconfig).reduce((arr, fieldname) => {
-                    const cfg = fieldconfig[fieldname]
-                    if (cfg) {
-                        arr[fieldname] = cfg.value
-                    }
-                    return arr
-                }, r)
-        }
-        return r
+        return {}
     }
 
     get_storage_key (tblname, keys) {

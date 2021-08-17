@@ -19,16 +19,61 @@ const fetch_client_config = (clientid) => {
         });
 }
 
+const get_config_member = (config, member) => {
+    if (member in config) {
+        return config.member
+    }
+    return {}
+}
+
+get_table_config (tblname) {
+    const { fieldconfig } = this.props
+    if (fieldconfig) {
+        if (tblname in fieldconfig) {
+            return fieldconfig[tblname]
+        }
+    }
+    return null
+}
+
+get_field_config (tblname) {
+    const tableconfig = this.get_table_config(tblname)
+    if (tableconfig && tableconfig.fields) {
+        return tableconfig.fields
+    }
+    return {}
+}
+
+get_default_values (tblname) {
+    let r = {}
+    const tableconfig = this.get_table_config(tblname)
+    if (tableconfig) {
+        const fieldconfig = tableconfig.fields || {}
+        r = Object.keys(fieldconfig).reduce((arr, fieldname) => {
+                const cfg = fieldconfig[fieldname]
+                if (cfg) {
+                    arr[fieldname] = cfg.value
+                }
+                return arr
+            }, r)
+    }
+    return r
+}
+
 
 const ConfigApp = (props) => {
     const [ config, setConfig ] = useState({});
     const [ clientresultarr, setclientresultarr ] = useState([]);
     return (
-        <>
-        {(clientresultarr.length > 0) && (
-            <ClientResultArray results={clientresultarr} {...props} />
-        )}
-        </>
+        <BaseContractApp storage_section={get_config_member(config, 'common').storage_section} {...props}>
+            {(prs) => {
+                return (
+                    <>
+                        <ClientResultArray results={clientresultarr} {...prs} />
+                    </>
+                )
+            }}
+        </BaseContractApp>
     );
 };
 
