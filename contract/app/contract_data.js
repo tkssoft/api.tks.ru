@@ -48,12 +48,12 @@ const ContractDopData = (props) => {
             })}
         >
             <Row isclasses={isclasses}>
-            <G33Edit
-                kontdop={kontdop}
-                orientation='horz'
-                layout={get_layout_config('-sm', '-sm-2', '-sm-3', '-sm-7')}
-                { ...props }
-            />
+                <G33Edit
+                    kontdop={kontdop}
+                    orientation='horz'
+                    layout={get_layout_config('-sm', '-sm-2', '-sm-3', '-sm-7')}
+                    { ...props }
+                />
             </Row>
             {!isError(kontdop.state.errors.G33) && (
                 <>
