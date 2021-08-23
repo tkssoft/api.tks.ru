@@ -20,7 +20,9 @@ const ResultValue = (props) => {
     return (
         <div className={cls}>
             <div className={clsname}>{name}</div>
-            <div className={ccs_contract('Result-total-value')}>{value}</div>
+            {value !== undefined && (
+                <div className={ccs_contract('Result-total-value')}>{value}</div>
+            )}
         </div>
     )
 }

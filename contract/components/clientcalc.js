@@ -124,11 +124,15 @@ const process_config = (config, variables) => {
         ...variables
     };
     if (config && config.length > 0) {
-        return config.map((cfg) => {
-            return process_config_field(cfg, vars)
-        })
+        return config.reduce((arr, cfg) => {
+            let r = process_config_field(cfg, vars);
+            if (r && r.name) {
+                arr.push(r);
+            }
+            return arr;
+        }, []);
     }
-    return []
+    return [];
 }
 
 /* сортировка результатов по полю orderby */
@@ -149,11 +153,15 @@ const sort_results = (results) => {
 const get_result_array = (results, indent=0) => {
     if (results) {
         let r = results.reduce((r, result) => {
-            r.push({
-                ...result,
-                indent
-            });
-            r = r.concat(get_result_array(result.items, indent+1));
+            if (result.name) {
+                r.push({
+                    ...result,
+                    indent
+                });
+            }
+            if (result.items && result.items.length > 0) {
+                r = r.concat(get_result_array(result.items, indent+1));
+            }
             return r;
         }, []);
         return r;
