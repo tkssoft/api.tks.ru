@@ -59,12 +59,17 @@ const round2 = (value) => {
     return Math.round((value + 0.00001) * 100) / 100;
 }
 
-const eval_value = (value, vars) => {
+const eval_value = (value, vars, def=0) => {
     Object.keys(vars).map((key) => {
         window[key] = vars[key];
     });
     if (value) {
-        return eval(value);
+        try {
+            return eval(value);
+        } catch(error) {
+            console.error('clientcalc.eval_value', error);
+            return def;
+        }
     }
     return 0;
 }
