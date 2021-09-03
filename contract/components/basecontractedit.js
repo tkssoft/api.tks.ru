@@ -57,20 +57,20 @@ class BaseContractEdit extends React.Component {
     }
 
     is_readOnly() {
-        return ![undefined, false].includes(this.props.readOnly)
+        return ![undefined, false].includes(this.props.readOnly);
     }
 
     set_field_value(value, cb) {
         if (!this.is_readOnly()) {
             if (!this.props.onValidate || this.props.onValidate(value)) {
                 this.setState({ value }, ()=>{
-                    this.props.manager.setFieldData(this.props.fieldname, value, this.props.g32)
+                    this.props.manager.setFieldData(this.props.fieldname, value, this.props.g32);
                     if (cb) {
-                        cb(value)
+                        cb(value);
                     }
                 })
             } else {
-                debug('set_field_value', this.props.fieldname, value, 'not valid')
+                debug('set_field_value', this.props.fieldname, value, 'not valid');
             }
         }
     }
@@ -144,11 +144,12 @@ const BaseContractInput = (props) => {
     const checkbox = type === 'checkbox'
     switch (type) {
         case 'checkbox':
-            p.checked = value === true
-            fcontrol = false
+            // ToDo: вынести undefined в параметры для значения по умолчанию.
+            p.checked = [true, undefined].includes(value);
+            fcontrol = false;
             break;
         default:
-            p.value = value || ''
+            p.value = value || '';
             break;
     }
     const cls = get_input_className(props);
