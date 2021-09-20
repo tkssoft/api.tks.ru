@@ -28,7 +28,7 @@ class TableList extends React.Component {
     }
 
     focus() {
-        if (this.list.current) {
+        if (this.list.current && !this.props.nofocus) {
             this.list.current.focus()
         }
     }
@@ -53,9 +53,9 @@ class TableList extends React.Component {
                     }
                 }
                 if (prevState.selected < this.state.selected) {
-                    this.selected.current.scrollIntoView({block: "end", behavior: "instant"})
+                    this.selected.current.scrollIntoView({block: "end", behavior: "instant"});
                 } else {
-                    this.selected.current.scrollIntoView({block: "start", behavior: "instant"})
+                    this.selected.current.scrollIntoView({block: "start", behavior: "instant"});
                 }
             }
         }
