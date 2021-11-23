@@ -155,17 +155,25 @@ class BaseContractApp extends React.Component {
         }
     }
 
+    updatestatefrommanager(state) {
+        this.setState({
+            ...state,
+            errors: {
+                ...state.errors,
+                ...this.state.errors
+            }
+        })
+    }
+
     contractmanagerchanged (cm) {
         if (this.mounted) {
-            this.setState({
-                ...cm.state
-            })
+            this.updatestatefrommanager(cm.state);
         }
     }
 
     calcresultschange (r) {
         if (this.mounted) {
-            this.setState({...r})
+            this.updatestatefrommanager(r);
         }
     }
 

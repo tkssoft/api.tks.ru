@@ -5,7 +5,7 @@ const { ccs_class } = require('./ccs')
 const { isError } = require('../common/utils')
 
 const Errors = ({ errors, isclasses, toshow }) => {
-    const show = toshow ? toshow.split(' ') : undefined
+    const show = toshow ? toshow.split(' ') : undefined;
     return (
         <div className={classNames({[ccs_class('formErrors')]: true, 'row': isclasses})}>
             <div className={classNames({'col': isclasses})}>
@@ -13,7 +13,8 @@ const Errors = ({ errors, isclasses, toshow }) => {
                 var cls = classNames({
                     'alert': isclasses,
                     'alert-danger' : isclasses,
-                })
+                });
+                console.log('error', fieldName, errors[fieldName]);
                 if(errors[fieldName] && (errors[fieldName].length > 0) && (show === undefined || show.includes(fieldName))) {
                     return (
                         <div key={fieldName} className={cls} role="alert">{errors[fieldName]}</div>
