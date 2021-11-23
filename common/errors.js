@@ -14,7 +14,6 @@ const Errors = ({ errors, isclasses, toshow }) => {
                     'alert': isclasses,
                     'alert-danger' : isclasses,
                 });
-                console.log('error', fieldName, errors[fieldName]);
                 if(errors[fieldName] && (errors[fieldName].length > 0) && (show === undefined || show.includes(fieldName))) {
                     return (
                         <div key={fieldName} className={cls} role="alert">{errors[fieldName]}</div>
