@@ -5,7 +5,8 @@ const classNames = require('classnames');
 
 const { ccs_class, ccs_contract } = require('../../common/ccs');
 
-import { CT_SELECT, register_control } from './controlfactory';
+const CT_SELECT = 'Список';
+const { ControlFactory, ContractControlCreation } = require('./controlfactory');
 
 const BaseSelectEdit = (props) =>  {
     return (
@@ -30,8 +31,14 @@ const BaseSelectEdit = (props) =>  {
     )
 }
 
-register_control(CT_SELECT, BaseSelectEdit);
+new ControlFactory()
+    .register_control(new ContractControlCreation({
+        type: CT_SELECT,
+        onCreate: function (props) {
+            return <BaseSelectEdit {...props}/>
+        }
+    }))
 
 export {
-    BaseSelectEdit
+    CT_SELECT
 }

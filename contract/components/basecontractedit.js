@@ -1,13 +1,15 @@
 /* Базовый редактор */
 
 const React  = require('react');
-const classNames = require('classnames')
+const classNames = require('classnames');
 
-const { errorClass } = require('../../common/errors')
-const { debug } = require('../../common/debug')
-const { ccs_contract, ccs_class } = require('../../common/ccs')
-const { isFunction } = require('../../common/utils')
-const { HorzRow, Column, getcold, is_horz, IfRow } = require('../../common/bs')
+const { errorClass } = require('../../common/errors');
+const { debug } = require('../../common/debug');
+const { ccs_contract, ccs_class } = require('../../common/ccs');
+const { isFunction } = require('../../common/utils');
+const { HorzRow, Column, getcold, is_horz, IfRow } = require('../../common/bs');
+
+const { ControlFactory, ContractControlCreation } = require('./controlfactory');
 
 const FormLabel = (props) => {
     const { type, isclasses } = props
@@ -23,7 +25,6 @@ const FormLabel = (props) => {
         </label>
     )
 }
-
 
 /* Базовая конструкция с label и внутренним содержимым, куда передается onChange
    !!! children нужна функция !!!!
@@ -254,11 +255,36 @@ const ContractNotEmptyNumericEdit = (props) => {
     )
 }
 
+const CT_CONTRACTINPUT = 'Текст';
+const CT_NUMERICINPUT = 'Число';
+const CT_NOTNULLNUMERIC = 'НеПустоеЧисло';
+
+new ControlFactory()
+    .register_control(new ContractControlCreation({
+        type: CT_CONTRACTINPUT,
+        onCreate: function (props) {
+            return <ContractInput {...props} />
+        }
+    }))
+    .register_control(new ContractControlCreation({
+        type: CT_NUMERICINPUT,
+        onCreate: function (props) {
+            return <ContractNumericInput {...props} />
+        }
+    }))
+    .register_control(new ContractControlCreation({
+        type: CT_NOTNULLNUMERIC,
+        onCreate: function (props) {
+            return <ContractNotEmptyNumericEdit {...props} />
+        }
+    }))
+
+
 export {
     BaseContractEdit,
     BaseContractInput,
-    ContractInput,
-    ContractNumericInput,
-    ContractNotEmptyNumericEdit,
+    CT_CONTRACTINPUT,
+    CT_NUMERICINPUT,
+    CT_NOTNULLNUMERIC,
     get_input_className
 }

@@ -5,6 +5,10 @@ const classNames = require('classnames');
 
 const { ContractNotEmptyNumericEdit, ContractNumericInput } = require('./basecontractedit');
 
+const CT_EDIZMQTY = 'Количество';
+
+const { ControlFactory, ContractControlCreation } = require('./controlfactory');
+
 const doInputGroup = (props) => {
     const { isclasses, ediname } = props;
     return (
@@ -64,8 +68,22 @@ const EdizmEdit = (props) => {
     )
 }
 
+class EdizmEditFactory extends ContractControlCreation {
+
+    type () {
+        return CT_EDIZMQTY
+    }
+
+    create (props) {
+        return <EdizmEdit {...props} />
+    }
+
+}
+
+new ControlFactory().register_control(new EdizmEditFactory({}));
+
 export {
-    EdizmEdit,
+    CT_EDIZMQTY,
     ContractEdizmInput,
     ContractCalcEdizmInput
 }

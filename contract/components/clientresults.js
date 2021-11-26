@@ -28,9 +28,10 @@ const ResultValue = (props) => {
 }
 
 const ClientResult = (props) => {
-    const { isclasses, result, subitems } = props;
+    const { isclasses, result, subitems, className } = props;
     const cls = classNames({
         [ccs_class('ClientResult')]: true,
+        [className]: !!className
     });
     return (
         <div className={cls}>

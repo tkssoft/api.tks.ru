@@ -1,10 +1,15 @@
 
 const React  = require('react');
-const classNames = require('classnames')
+const classNames = require('classnames');
 
 const nsi = require('../../common/nsi');
-const { ccs_class, ccs_contract } = require('../../common/ccs')
-const { BaseContractEdit } = require('./basecontractedit')
+const { ccs_class, ccs_contract } = require('../../common/ccs');
+const { BaseContractEdit } = require('./basecontractedit');
+
+const { ControlFactory, ContractControlCreation } = require('./controlfactory');
+
+const CT_VALUTA = 'СписокВалют';
+const CT_OKSMT = 'СписокСтран';
 
 class ValutaSelect extends React.Component {
     constructor (props) {
@@ -140,9 +145,36 @@ const OksmtEdit = (props) => {
     )
 }
 
+class ValutaFactory extends ContractControlCreation {
+
+    type () {
+        return CT_VALUTA;
+    }
+
+    create (props) {
+        return <ValutaEdit {...props} />
+    }
+
+}
+
+class OksmtFactory extends ContractControlCreation {
+
+    type () {
+        return CT_OKSMT;
+    }
+
+    create (props) {
+        return <OksmtEdit {...props} />
+    }
+
+}
+
+new ControlFactory()
+    .register_control(new ValutaFactory({}))
+    .register_control(new OksmtFactory({}))
+    ;
+
 export {
-    ValutaSelect,
-    OksmtSelect,
-    ValutaEdit,
-    OksmtEdit
+    CT_VALUTA,
+    CT_OKSMT
 }

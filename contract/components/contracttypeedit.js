@@ -6,6 +6,11 @@ const { BaseContractEdit } = require('./basecontractedit')
 const { BaseSelectEdit } = require('./baseselectedit')
 const { calctype } = require('../../common/consts')
 
+const { ControlFactory, ContractControlCreation } = require('./controlfactory');
+
+const CT_TYPEEDIT = 'ТипРасчетов';
+const CT_TYPEEDIT_DATA = 'СписокТиповРасчетов';
+
 const ContractTypeEdit = (props) => {
     const { fieldname, displayLabel } = props
     return (
@@ -21,6 +26,23 @@ const ContractTypeEdit = (props) => {
     )
 }
 
+class ContractTypeEditFactory extends ContractControlCreation {
+    type () {
+        return CT_TYPEEDIT
+    }
+
+    create ( props ) {
+        return <ContractTypeEdit {...props} />
+    }
+}
+
+
+new ControlFactory()
+    .register_control(new ContractTypeEditFactory({}))
+    .register_datasource(CT_TYPEEDIT_DATA, calctype());
+
+
 export {
-    ContractTypeEdit
+    CT_TYPEEDIT,
+    CT_TYPEEDIT_DATA
 }

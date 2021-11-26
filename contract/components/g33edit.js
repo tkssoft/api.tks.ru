@@ -1,13 +1,16 @@
 /* Редактирование кода ТН ВЭД */
 
-const React = require('react')
-const classNames = require('classnames')
+const React = require('react');
+const classNames = require('classnames');
 
-const { ModalButton, ModalWindow } = require('../../common/modalbutton')
-const { ContractInput } = require('./basecontractedit')
-const TnvTree = require('../../tnved/tnvtree')
-const { GoodsSelect } = require('../../tnved/goods')
-const { ccs_contract } = require('../../common/ccs')
+const { ModalButton, ModalWindow } = require('../../common/modalbutton');
+const { ContractInput } = require('./basecontractedit');
+const TnvTree = require('../../tnved/tnvtree');
+const { GoodsSelect } = require('../../tnved/goods');
+const { ccs_contract } = require('../../common/ccs');
+
+const CT_TNVEDCODE = 'КодТНВЭД';
+const { ControlFactory, ContractControlCreation } = require('./controlfactory');
 
 
 const is_show_window = (b) => {
@@ -93,6 +96,20 @@ const G33Edit = (props) => {
     )
 }
 
+class G33EditFactory extends ContractControlCreation {
+
+    type () {
+        return CT_TNVEDCODE
+    }
+
+    create (props) {
+        return <G33Edit {...props} />
+    }
+
+}
+
+new ControlFactory().register_control(new G33EditFactory({}));
+
 export {
-    G33Edit
+    CT_TNVEDCODE
 }

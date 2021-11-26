@@ -1,35 +1,103 @@
 /* Создание пользовательских контролов по настройкам */
 
-const controltypes = {};
+import React from 'react';
+import { Row } from '../../common/bs';
 
-const CT_INPUT = 1;
-const CT_DATEINPUT = 2;
-const CT_SELECT = 3;
-const CT_CITY_TO = 4;
-const CT_CITY_FROM = 5;
-const CT_NUMERICINPUT = 6;
-const CT_CALCFIELD = 7;
+class CreateControlError extends Error {
 
-const create_control = (fieldconfig) => {
-    const { typ, fieldname, displaylabel, data } = fieldconfig;
+}
 
-};
+class ContractControlCreation {
 
-const register_control = (typ, ctrlfunc) => {
-    if (!(typ in Object.keys(controltypes))) {
-        controltypes[typ] = ctrlfunc;
+    constructor ({type, onCreate}) {
+        this._type = type;
+        this._onCreate = onCreate;
     }
-    return controltypes[typ];
-};
+
+    type () {
+        return this._type;
+    }
+
+    create ( props ) {
+        if (this._onCreate) {
+            return this._onCreate(props);
+        }
+        return <></>;
+    }
+
+}
+
+class ControlFactory {
+
+    constructor (props) {
+        if (!ControlFactory._instance) {
+            this.datasources = {};
+            this.controltypes = {};
+            ControlFactory._instance = this;
+        }
+        return ControlFactory._instance;
+    }
+
+    create ( { edittype, ...props } ) {
+        const controlcreation = this.controltypes[edittype];
+        return controlcreation.create( { edittype, ...props } );
+    }
+
+    get_data ( dsname ) {
+        if (!(dsname in Object.keys(this.datasources))) {
+            return {};
+        }
+        return this.datasources[dsname];
+    }
+
+    register_control (creation) {
+        const ctype = creation.type();
+        if (!(ctype in Object.keys(this.controltypes))) {
+            this.controltypes[ctype] = creation;
+        }
+        return this;
+    };
+
+    register_datasource = (dsname, data) => {
+        // Не проверяем наличие ключа, а просто переписываем данные
+        this.datasources[dsname] = data;
+        return this;
+    }
+
+    render ( { fields, ...props } ) {
+        var sfields = [...fields];
+        var rows = sfields.sort(function (a, b) {
+            const row1 = parseInt(a.row) || 0;
+            const row2 = parseInt(a.row) || 0;
+            return row1 - row2;
+        }).reduce((arr, field, index) => {
+            const row = field.row || 0;
+            if (!(row in arr)) {
+                arr[row] = []
+            }
+            arr[row].push(field);
+            return arr;
+        }, {});
+        return Object.keys(rows).map((row, index) => {
+            return (
+                <Row key={index} {...props}>
+                    {rows[row].map((field, index) => {
+                        return this.create({
+                            key: `field${index}`,
+                            insiderow: true,
+                            ...field,
+                            ...props
+                        });
+                    })}
+                </Row>
+            )
+        })
+    }
+
+}
+
 
 export {
-    create_control,
-    register_control,
-    CT_INPUT,
-    CT_DATEINPUT,
-    CT_SELECT,
-    CT_CITY_TO,
-    CT_CITY_FROM,
-    CT_NUMERICINPUT,
-    CT_CALCFIELD,
+    ContractControlCreation,
+    ControlFactory
 }
