@@ -6,11 +6,6 @@ const React  = require('react');
 const { contract_manager, tbl_kontrakt, tbl_kontdop } = require('./contract_manager');
 const { isFunction, filter_dict, isEmptyAll,  } = require('../../common/utils');
 
-// Наименования полей, которые сохраняются у пользователя
-const saved_fields = {
-    [tbl_kontrakt]: ['G34', 'TYPE', 'G221', ],
-    [tbl_kontdop]: ['G33', 'G45', 'G38C', 'G38', 'GEDI1C', 'GEDI1', 'GEDI2C', 'GEDI2', 'GEDI3C', 'GEDI3', ],
-};
 
 class BaseContractApp extends React.Component {
 
@@ -23,10 +18,7 @@ class BaseContractApp extends React.Component {
 
         this.state = this.get_init_state();
         this.handleSaveData = this.save_data.bind(this);
-        this.mounted = false;
         this.storage_section = props.storage_section || this.get_storage_section();
-
-        this.read_data();
 
     }
 
@@ -43,7 +35,13 @@ class BaseContractApp extends React.Component {
             },
             errors : { ...this.contract_manager.state.errors },
             result : {},
-            calcdata : {}
+            calcdata : {},
+            mounted: false,
+            // Наименования полей, которые сохраняются у пользователя
+            saved_fields: {
+                [tbl_kontrakt]: ['G34', 'TYPE', 'G221', ],
+                [tbl_kontdop]: ['G33', 'G45', 'G38C', 'G38', 'GEDI1C', 'GEDI1', 'GEDI2C', 'GEDI2', 'GEDI3C', 'GEDI3', ],
+            }
         };
     }
 
@@ -99,9 +97,21 @@ class BaseContractApp extends React.Component {
         }
     }
 
+    doreadprefs () {
+        return this.read_data();
+    }
+
     componentDidMount () {
+        const that = this;
         window.addEventListener('unload', this.handleSaveData);
-        this.mounted = true;
+        this.doreadprefs().then(function () {
+            that.setState(
+                {mounted: true},
+                () => {
+                    that.updatestatefrommanager(that.contract_manager.state);
+                }
+            )
+        })
     }
 
     componentWillUnmount () {
@@ -109,44 +119,53 @@ class BaseContractApp extends React.Component {
         this.save_data();
     }
 
+    filter_saved_data (tblname, data, saveddata) {
+        const saved_fields = this.state.saved_fields[tblname];
+        return saved_fields.reduce((r, fieldname) => {
+            r[fieldname] = saveddata[fieldname];
+            return r;
+        }, data)
+    }
+
     /* Восстановление данных расчета */
     read_data () {
-        // ToDo: возможно сохранять / восстанавливать ставки-признаки
-        let that = this;
-        const kontrakt = this.get_storage_values(tbl_kontrakt, null, {});
-        const kontdop = this.get_storage_values(tbl_kontdop, null, []);
-        this.contract_manager.begin_update();
-        try {
-            this.contract_manager.kontrakt = {
-                ...this.contract_manager.kontrakt,
-                ...kontrakt
-            };
-            if (Array.isArray(kontdop)) {
-                kontdop.map((data, index) => {
-                    if (!isEmptyAll(data)) {
-                        Object.keys(data).map((fieldname) => {
-                            if (![undefined, null].includes(data[fieldname])) {
-                                that.contract_manager.setFieldData(fieldname, data[fieldname], index + 1);
-                            }
-                        })
-                    }
-                    return true;
-                });
+        const that = this;
+        return new Promise(function (res, rej) {
+            const kontrakt = that.get_storage_values(tbl_kontrakt, null, {});
+            const kontdop = that.get_storage_values(tbl_kontdop, null, []);
+            that.contract_manager.begin_update();
+            try {
+                that.contract_manager.kontrakt = that.filter_saved_data(
+                    tbl_kontrakt, that.contract_manager.kontrakt, kontrakt
+                );
+                if (Array.isArray(kontdop)) {
+                    kontdop.map((data, index) => {
+                        if (!isEmptyAll(data)) {
+                            Object.keys(data).map((fieldname) => {
+                                if (![undefined, null].includes(data[fieldname]) && that.state.saved_fields[tbl_kontdop].includes(fieldname)) {
+                                    that.contract_manager.setFieldData(fieldname, data[fieldname], index + 1);
+                                }
+                            })
+                        }
+                        return true;
+                    });
+                }
+                that.contract_manager.setState({modified: true});
+            } finally {
+                that.contract_manager.end_update((cm) => {cm.kondopchange()});
             }
-            this.contract_manager.setState({modified: true});
-        } finally {
-            this.contract_manager.end_update((cm) => {cm.kondopchange()});
-        }
+            res();
+        });
     }
 
     /* Сохранение данных расчета */
     save_data () {
         // ToDo: сохранять все товары. Табличные данные сохранять отдельно от однотоварных
         try {
-            const kontrakt_to_save = filter_dict(this.contract_manager.kontrakt, saved_fields[tbl_kontrakt]);
+            const kontrakt_to_save = filter_dict(this.contract_manager.kontrakt, this.state.saved_fields[tbl_kontrakt]);
             this.set_storage_values(tbl_kontrakt, kontrakt_to_save);
             this.set_storage_values(tbl_kontdop, this.contract_manager.kontdop.reduce((arr, kontdop, index) => {
-                let to_save = filter_dict(kontdop.state.data, saved_fields[tbl_kontdop]);
+                let to_save = filter_dict(kontdop.state.data, this.state.saved_fields[tbl_kontdop]);
                 arr.push(to_save);
                 return arr;
             }, []));
@@ -166,13 +185,13 @@ class BaseContractApp extends React.Component {
     }
 
     contractmanagerchanged (cm) {
-        if (this.mounted) {
+        if (this.state.mounted) {
             this.updatestatefrommanager(cm.state);
         }
     }
 
     calcresultschange (r) {
-        if (this.mounted) {
+        if (this.state.mounted) {
             this.updatestatefrommanager(r);
         }
     }

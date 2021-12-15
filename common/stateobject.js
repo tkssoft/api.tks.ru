@@ -52,8 +52,12 @@ class stateobject {
 
     }
 
+    can_update () {
+        return true;
+    }
+
     stateUpdated(prevState, delta) {
-        if (this.state.modified && !this.state.update_count) {
+        if (this.state.modified && !this.state.update_count && this.can_update()) {
             this.state = {
                 ...this.state,
                 modified: false,

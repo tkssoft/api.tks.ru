@@ -59,14 +59,34 @@ const round2 = (value) => {
     return Math.round((value + 0.00001) * 100) / 100;
 }
 
+function create_context_function_template(eval_string, context) {
+    return `
+    return function (context) {
+        "use strict";
+        const round2 = function (value) {
+            return Math.round((value + 0.00001) * 100) / 100;
+        }
+        ${Object.keys(context).length > 0
+            ? `let ${Object.keys(context).map((key) => ` ${key} = context['${key}']`)};`
+            : ``
+        }
+        return ${eval_string};
+    }
+    `
+}
+
+function make_context_evaluator(eval_string, context) {
+    let template = create_context_function_template(eval_string, context)
+    let functor = Function(template)
+    return functor()
+}
+
 const eval_value = (value, vars, def=0) => {
-    Object.keys(vars).map((key) => {
-        window[key] = vars[key];
-    });
     let r = def;
     if (value) {
         try {
-            r = eval(value);
+            let evaluator = make_context_evaluator(value, vars);
+            r = evaluator(vars);
         } catch(error) {
             console.error('clientcalc.eval_value', error);
             r = def;
@@ -92,7 +112,7 @@ const get_result_value = (result) => {
 
 /* Обработка отдельных структур config_field */
 const process_config_field = (field_config, variables, init) => {
-    const { name, formula, ifthen, ifelse, items, variable, value  } = field_config;
+    const { name, formula, ifthen, ifelse, items, variable, value, visible, edizm  } = field_config;
     let result = {};
     if (init) {
         result = {
@@ -102,10 +122,11 @@ const process_config_field = (field_config, variables, init) => {
     if (name) {
         result.name = name;
     }
+    if (visible !== undefined) {
+        result.visible = visible;
+    }
     if (value !== undefined) {
         result.value = value;
-    } else {
-        result.value = "";
     }
     if (!isEmptyAll(ifthen)) {
         if (eval_value(ifthen.condition, variables)) {
@@ -130,6 +151,9 @@ const process_config_field = (field_config, variables, init) => {
     }
     if (variable) {
         variables[variable] = get_result_value(result);
+    }
+    if (edizm) {
+        result.edizm = eval_value(edizm, variables);
     }
     return result;
 }
@@ -176,7 +200,7 @@ const sort_results = (results) => {
 const get_result_array = (results, indent=0) => {
     if (results) {
         let r = results.reduce((r, result) => {
-            if (result.name) {
+            if (result.name && [undefined, 1, true].includes(result.visible)) {
                 r.push({
                     ...result,
                     indent
@@ -196,5 +220,6 @@ export {
     process_config,
     get_result_value,
     sort_results,
-    get_result_array
+    get_result_array,
+    eval_value
 }

@@ -1,7 +1,10 @@
 /* Редактирование таможенной стоимости */
 
-const React = require('react')
-const { ContractNotEmptyNumericEdit } = require('./basecontractedit')
+const React = require('react');
+const { ContractNotEmptyNumericEdit } = require('./basecontractedit');
+const { ControlFactory } = require('./controlfactory')
+
+const CT_COST = 'Стоимость';
 
 const G45Edit = (props) => {
     const { displayLabel, fieldname, kontdop } = props
@@ -13,6 +16,12 @@ const G45Edit = (props) => {
             />
 }
 
+new ControlFactory().register({
+    type: CT_COST,
+    onCreate : (props) => <G45Edit {...props}/>
+})
+
 export {
-    G45Edit
+    G45Edit,
+    CT_COST
 }

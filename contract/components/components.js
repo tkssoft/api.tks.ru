@@ -11,108 +11,82 @@ const { ControlFactory, ContractControlCreation } = require('./controlfactory');
 const CT_VALUTA = 'СписокВалют';
 const CT_OKSMT = 'СписокСтран';
 
-class ValutaSelect extends React.Component {
-    constructor (props) {
-        super(props);
-        this.values = nsi.valname();
-        this.state = {
-            value: props.value
-        }
+const oksmt = nsi.oksmt();
+const oksmt_codes = Object.keys(oksmt).sort((a, b) => {
+    if (a === b) {
+        return 0;
     }
-
-    dovaluechange = (e) => {
-        this.setState({value: e.target.value});
-        this.props.onChange(e);
-    };
-
-    render () {
-        return (
-            <div className={classNames({
-                [ccs_class("form-item")]: true,
-                [ccs_contract("select")]: true
-            })}>
-                <select
-                    className={classNames({
-                        [this.props.className]: !!this.props.className,
-                        "form-control form-control-sm": true,
-                    })}
-                    onChange={this.dovaluechange}
-                    value={this.state.value}
-                >
-                    {Object.keys(this.values).sort((a, b) => {
-                        if (this.values[a].KRNAIM > this.values[b].KRNAIM) {
-                            return 1
-                        }
-                        if (this.values[a].KRNAIM < this.values[b].KRNAIM) {
-                            return -1
-                        }
-                        return 0
-                    }).map((key, i) => {
-                        return (
-                            <option key={key} value={key}>{this.values[key].KRNAIM}</option>
-                        )
-                    })}
-                </select>
-            </div>
-        )
+    if (a === '000' && b !== '000') {
+        return -1;
     }
+    if (a !== '000' && b === '000') {
+        return 1;
+    }
+    if (oksmt[a].KRNAIM > oksmt[b].KRNAIM) {
+        return 1;
+    }
+    if (oksmt[a].KRNAIM < oksmt[b].KRNAIM) {
+        return -1;
+    }
+    return 0;
+});
+
+const valname = nsi.valname();
+const valname_codes = Object.keys(valname).sort((a, b) => {
+    if (valname[a].KRNAIM > valname[b].KRNAIM) {
+        return 1;
+    }
+    if (valname[a].KRNAIM < valname[b].KRNAIM) {
+        return -1;
+    }
+    return 0;
+})
+
+const ValutaSelect = (props) => {
+    return (
+        <div className={classNames({
+            [ccs_class("form-item")]: true,
+            [ccs_contract("select")]: true
+        })}>
+            <select
+                className={classNames({
+                    "form-control form-control-sm": true,
+                })}
+                onChange={(e) => props.onChange(e)}
+                value={props.value}
+            >
+                {valname_codes.map((key, i) => {
+                    return (
+                        <option key={key} value={key}>{valname[key].KRNAIM}</option>
+                    )
+                })}
+            </select>
+        </div>
+    )
 }
 
 
-class OksmtSelect extends React.Component {
-    constructor (props) {
-        super(props);
-        this.values = nsi.oksmt();
-        this.state = {
-            value: props.value
-        }
-    }
-
-    dovaluechange = (e) => {
-        this.setState({value: e.target.value});
-        this.props.onChange(e);
-    };
-
-    render () {
-        return (
-            <div className={classNames({
-                [ccs_class("form-item")]: true,
-                [ccs_contract("select")]: true
-            })}>
-                <select
-                    className={classNames({
-                        [this.props.className]: !!this.props.className,
-                        "form-control form-control-sm": true,
-                    })}
-                    onChange={this.dovaluechange}
-                    value={this.state.value}
-                >
-                    {Object.keys(this.values).sort((a, b) => {
-                        if (a === b) {
-                            return 0
-                        }
-                        if (a === '000' && b !== '000') {
-                            return -1
-                        }
-                        if (a !== '000' && b === '000') {
-                            return 1
-                        }
-                        if (this.values[a].KRNAIM > this.values[b].KRNAIM) {
-                            return 1
-                        }
-                        if (this.values[a].KRNAIM < this.values[b].KRNAIM) {
-                            return -1
-                        }
-                        return 0
-                    }).map((key, i) => {
-                        return (
-                            <option key={key} value={key}>{this.values[key].KRNAIM}</option>
-                        )
-                    })}
-                </select>
-            </div>
-        )
-    }
+const OksmtSelect = (props) => {
+    return (
+        <div className={classNames({
+            [ccs_class("form-item")]: true,
+            [ccs_contract("select")]: true
+        })}>
+            <select
+                className={classNames({
+                    "form-control form-control-sm": true,
+                })}
+                onChange={(e) => props.onChange(e)}
+                value={props.value}
+            >
+                {oksmt_codes.map((key, i) => {
+                    return (
+                        <option key={key} value={key}>{oksmt[key].KRNAIM}</option>
+                    )
+                })}
+            </select>
+        </div>
+    )
 }
 
 const ValutaEdit = (props) => {

@@ -28,36 +28,31 @@ const ContractData = (props) => {
     const fieldconfig = [
         {
             edittype: CT_TYPEEDIT,
+            layout: get_layout_config('-sm', '-sm-4', '-sm-8')
         },
         {
             edittype: CT_VALUTA,
+            layout: get_layout_config('-sm', '-sm-4', '-sm-8')
         },
         {
             edittype: CT_OKSMT,
+            layout: get_layout_config('-sm', '-sm-4', '-sm-8')
         }
     ];
 
-    const factory = new ControlFactory();
     return (
         <div className={cls}>
-            <div className="row">
-                {fieldconfig.map((field) => factory.create({
-                    key: field.edittype,
-                    layout: get_layout_config('-sm', '-sm-4', '-sm-8'),
-                    ...field,
-                    ...props
-                }))}
-            </div>
+            {new ControlFactory().render({fields: fieldconfig, ...props})}
         </div>
     )
 }
 
 /* Данные по товару */
 const ContractDopData = (props) => {
-    let kontdop = props.manager.getSourceData((props.g32 || 1) - 1)
-    const { isclasses } = props
+    let kontdop = props.manager.getSourceData((props.g32 || 1) - 1);
+    const { isclasses } = props;
     if (!kontdop) {
-        return <></>
+        return null;
     }
     return (
         <div

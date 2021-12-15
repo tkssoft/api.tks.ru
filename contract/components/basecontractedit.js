@@ -31,27 +31,7 @@ const FormLabel = (props) => {
 */
 class BaseContractEdit extends React.Component {
 
-    constructor (props) {
-        super(props)
-        this.state = {
-            value: BaseContractEdit.get_field_value(props)
-        }
-    }
-
-    static getDerivedStateFromProps(props, state) {
-        const { readOnly, value, modified, fieldname } = props;
-        // modified как и readOnly здесь используются для того, чтобы была возможность
-        // менять значение, которое выдает get_field_value извне,
-        // если не ставить условие, то например код товара в форме расчета констракта не работает
-        if (modified || readOnly || (value !== undefined && value !== state.value)) {
-            return {
-                value: BaseContractEdit.get_field_value(props)
-            }
-        }
-        return null;
-    }
-
-    static get_field_value(props) {
+    get_field_value(props) {
         return props.value === undefined ?
             props.manager.getFieldData(props.fieldname, props.g32) :
             props.value
@@ -100,10 +80,11 @@ class BaseContractEdit extends React.Component {
         const checkbox = type === 'checkbox'
         /* Возможность не показывать поле  */
         if (![undefined, true].includes(fieldconfig.visible)) {
-            return <></>
+            return null;
         }
         let cls = classNames({
             [this.props.className]: !!this.props.className,
+            [this.props.classNamePrefix]: !!this.props.classNamePrefix,
             [ccs_class('form-group')]: [undefined, true].includes(formgroup),
             'form-group': isclasses && [undefined, true].includes(formgroup),
             'form-check': isclasses && checkbox,
@@ -117,7 +98,7 @@ class BaseContractEdit extends React.Component {
                         ...this.props,
                         onChange: this.onchange.bind(this),
                         onSelect: this.onselect.bind(this),
-                        value: this.state.value
+                        value: this.get_field_value(this.props),
                     }) : this.props.children }
                 </IfRow>
             </div>
@@ -202,11 +183,9 @@ const ContractInput = (props) => {
                                 ...getcold(prs, is_horz(prs), 'button')
                             })}
                         >
-                            {/* <div className='row'> */}
                             { isFunction(children) ? children(
                                     {...prs, formgroup: false}
                                 ) : children }
-                            {/* </div> */}
                         </div>
                     )}
                 </>
@@ -283,6 +262,9 @@ new ControlFactory()
 export {
     BaseContractEdit,
     BaseContractInput,
+    ContractInput,
+    ContractNumericInput,
+    ContractNotEmptyNumericEdit,
     CT_CONTRACTINPUT,
     CT_NUMERICINPUT,
     CT_NOTNULLNUMERIC,

@@ -19,17 +19,12 @@ const getcol = (props, cond) => {
 }
 
 const getcold = (props, cond, part) => {
-    const { layout, insiderow } = props
+    const { layout } = props;
     if (layout) {
-        if (part in layout) {
+        if ((part in layout) && layout[part]) {
             return {
                 ['col' + layout[part]]: cond
             }
-        }
-    }
-    if (insiderow) {
-        return {
-            'col-sm' : true
         }
     }
     return {}

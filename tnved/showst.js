@@ -12,6 +12,7 @@ const { ModalButton } = require('../common/modalbutton');
 const { ShowPrim, przdesc } = require('./shprim');
 const { get_stavka, get_tnvedcc_rec } = require('./stavka');
 const { TYPE_IM, TYPE_EK, TYPE_DEPOSIT } = require('../common/consts');
+const { getcold } = require('../common/bs');
 
 import { ccs_contract } from '../common/ccs';
 import { isEmptyAll } from '../common/utils';
@@ -39,7 +40,7 @@ class ShowStItem extends React.Component {
             return (<></>)
         } else {
             return (
-                <div className={ccs_contract("ShowStItem") + " list-group-item"}>
+                <li className={ccs_contract("ShowStItem") + " list-group-item"}>
                     <div className={"ccs-contract-strong ccs-contract-ShowStItem-name"}>{this.state.name + ':'}</div>
                     <div className={"ccs-contract-ShowStItem-value"}>{this.props.value}</div>
                     {this.state.pr && (
@@ -56,7 +57,7 @@ class ShowStItem extends React.Component {
                             />
                         </ModalButton>
                     )}
-                </div>
+                </li>
             )
         }
     }
@@ -98,20 +99,22 @@ class ShowSt extends React.Component {
 
     render () {
 
-        const { className, isclasses } = this.props;
+        const { className, isclasses, classNamePrefix } = this.props;
         const cls = classNames({
             [className]: !!className,
+            [classNamePrefix]: !!classNamePrefix,
             [ccs_contract('ShowSt')]: true,
             'list-group': isclasses,
+            ...getcold(this.props, true, 'group')
         })
 
         const przarr = get_type_priznak(this.state.typ, this.props.expertmode);
 
         if (!isEmptyAll(this.props.data) && !isEmptyAll(this.props.tnved)) {
             return (
-                <div className={cls}>
+                <ul className={cls}>
                     {this.props.showTitle && (
-                        <div className={'ccs-contract-title ccs-contract-ShowSt-title'}><div>Ставки признаки по товару</div></div>
+                        <li className={'ccs-contract-title ccs-contract-ShowSt-title'}><div>Ставки признаки по товару</div></li>
                     )}
                     {[undefined, false].includes(this.props.skipName) && (
                         <ShowStItem name={"Наименование"} value={this.props.G312}/>
@@ -119,7 +122,7 @@ class ShowSt extends React.Component {
                     {przarr.map((prz, index) => {
                         return <ShowStItem
                                     prz={prz}
-                                    key={prz}
+                                    key={`priznak-${prz}`}
                                     value={this.state.stavkas[prz]}
                                     data={this.props.tnved}
                                     tnvedcc={this.state.tnvedcc_rec}
@@ -129,7 +132,7 @@ class ShowSt extends React.Component {
                                     prButtonLabel={this.props.prButtonLabel}
                                 />
                     })}
-                </div>
+                </ul>
             )
         } else {
             return (<></>)

@@ -2,9 +2,9 @@
 
 const React  = require('react');
 
-const { BaseContractEdit } = require('./basecontractedit')
-const { BaseSelectEdit } = require('./baseselectedit')
-const { calctype } = require('../../common/consts')
+const { BaseContractEdit } = require('./basecontractedit');
+const { BaseSelectEdit } = require('./baseselectedit');
+const { calctype } = require('../../common/consts');
 
 const { ControlFactory, ContractControlCreation } = require('./controlfactory');
 
@@ -12,7 +12,7 @@ const CT_TYPEEDIT = 'ТипРасчетов';
 const CT_TYPEEDIT_DATA = 'СписокТиповРасчетов';
 
 const ContractTypeEdit = (props) => {
-    const { fieldname, displayLabel } = props
+    const { fieldname, displayLabel } = props;
     return (
         <BaseContractEdit
             fieldname={fieldname || "TYPE"}

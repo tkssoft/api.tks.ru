@@ -10,7 +10,7 @@ const { GoodsSelect } = require('../../tnved/goods');
 const { ccs_contract } = require('../../common/ccs');
 
 const CT_TNVEDCODE = 'КодТНВЭД';
-const { ControlFactory, ContractControlCreation } = require('./controlfactory');
+const { ControlFactory } = require('./controlfactory');
 
 
 const is_show_window = (b) => {
@@ -70,7 +70,7 @@ const G33EditButtons = (props) => {
 
 
 const G33Edit = (props) => {
-    const { fieldname, displayLabel, kontdop } = props
+    const { fieldname, displayLabel, kontdop } = props;
     return (
         <ContractInput
             fieldname={fieldname || "G33"}
@@ -96,20 +96,12 @@ const G33Edit = (props) => {
     )
 }
 
-class G33EditFactory extends ContractControlCreation {
-
-    type () {
-        return CT_TNVEDCODE
-    }
-
-    create (props) {
-        return <G33Edit {...props} />
-    }
-
-}
-
-new ControlFactory().register_control(new G33EditFactory({}));
+new ControlFactory().register({
+    type: CT_TNVEDCODE,
+    onCreate: (props) => <G33Edit {...props} />
+});
 
 export {
-    CT_TNVEDCODE
+    CT_TNVEDCODE,
+    G33Edit
 }

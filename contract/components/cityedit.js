@@ -14,6 +14,7 @@ const CityEdit = (props) => {
             {...props}
         >
             {(prs) => {
+                //console.log('CityEdit', prs.fieldname, prs.value, prs.save);
                 return <CitiesSelect {...prs} />
             }}
         </BaseContractEdit>

@@ -2,10 +2,9 @@
 
 import React from 'react';
 import { Row } from '../../common/bs';
+import { isEmptyAll } from '../../common/utils';
 
-class CreateControlError extends Error {
-
-}
+const FK_CALCULATED = 'Вычисляемое';
 
 class ContractControlCreation {
 
@@ -22,7 +21,7 @@ class ContractControlCreation {
         if (this._onCreate) {
             return this._onCreate(props);
         }
-        return <></>;
+        return null;
     }
 
 }
@@ -40,19 +39,27 @@ class ControlFactory {
 
     create ( { edittype, ...props } ) {
         const controlcreation = this.controltypes[edittype];
-        return controlcreation.create( { edittype, ...props } );
+        if (controlcreation) {
+            return controlcreation.create( { edittype, ...props } );
+        }
+        console.error('ControlFactory.create. creation not found', edittype);
+        return null;
     }
 
     get_data ( dsname ) {
-        if (!(dsname in Object.keys(this.datasources))) {
+        if (!(dsname in this.datasources)) {
             return {};
         }
         return this.datasources[dsname];
     }
 
+    register (props) {
+        return this.register_control(new ContractControlCreation(props));
+    }
+
     register_control (creation) {
         const ctype = creation.type();
-        if (!(ctype in Object.keys(this.controltypes))) {
+        if (!(ctype in this.controltypes)) {
             this.controltypes[ctype] = creation;
         }
         return this;
@@ -64,7 +71,7 @@ class ControlFactory {
         return this;
     }
 
-    render ( { fields, ...props } ) {
+    render ( { fields, onCreate, ...props } ) {
         var sfields = [...fields];
         var rows = sfields.sort(function (a, b) {
             const row1 = parseInt(a.row) || 0;
@@ -78,16 +85,36 @@ class ControlFactory {
             arr[row].push(field);
             return arr;
         }, {});
-        return Object.keys(rows).map((row, index) => {
+        return Object.keys(rows).map((row, ind) => {
             return (
-                <Row key={index} {...props}>
+                <Row key={`row-${ind}`} {...props}>
                     {rows[row].map((field, index) => {
-                        return this.create({
-                            key: `field${index}`,
-                            insiderow: true,
+                        const akey = `field_${ind * 100 + index}`;
+                        let params = {
+                            key: akey,
                             ...field,
                             ...props
-                        });
+                        }
+                        if (field.layout === undefined) {
+                            params['layout'] = {group: '-sm'};
+                        } else if (typeof field.layout === 'string') {
+                            params['layout'] = {group: field.layout};
+                        }
+                        if (field.fieldkind === FK_CALCULATED) {
+                            params['readOnly'] = true;
+                        }
+                        if (onCreate) {
+                            params = onCreate(params);
+                        }
+                        if (isEmptyAll(params) || (params.visible == 0)) {
+                            return null;
+                        }
+                        const component_to_render = this.create(params);
+                        if (component_to_render) {
+                            return component_to_render;
+                        }
+                        console.error('ControlFactory.render. nothing to render!', field);
+                        return null;
                     })}
                 </Row>
             )
@@ -99,5 +126,6 @@ class ControlFactory {
 
 export {
     ContractControlCreation,
-    ControlFactory
+    ControlFactory,
+    FK_CALCULATED
 }

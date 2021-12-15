@@ -1,34 +1,34 @@
 /* тест react-select для выбора городов */
 
-import React, { Component } from 'react'
-import AsyncSelect from 'react-select/async'
-import classNames from 'classnames'
+import React, { Component } from 'react';
+import AsyncSelect from 'react-select/async';
+import classNames from 'classnames';
 
 const fetchData = (term, mode) => {
     try {
-        const eterm = encodeURIComponent(term)
-        const url = `https://w7.tks.ru:5002/?term=${eterm}&mode=${mode}`
+        const eterm = encodeURIComponent(term);
+        const url = `https://w7.tks.ru:5002/?term=${eterm}&mode=${mode}`;
         return fetch(url).then(response => {
             if (response.ok) {
-                return response.json()
+                return response.json();
             } else {
                 let err = new Error(response.statusText);
                 err.code = response.status;
-                throw err
+                throw err;
             }
         })
     } catch (e) {
-        throw e
+        throw e;
     }
 }
 
 const get_item = (akey, avalue) => {
-    return {value: akey, label: akey}
+    return {value: akey, label: akey};
 }
 
 const get_items = avalues => {
     return avalues.map((value, index) => {
-        return get_item(value)
+        return get_item(value);
     })
 }
 
@@ -36,14 +36,14 @@ const promiseOptions = mode => {
     return inputValue => {
         return new Promise((resolve, reject) => {
             if (!inputValue) {
-                return resolve([])
+                return resolve([]);
             }
             fetchData(inputValue, mode).then(data => {
-                let r = get_items(data)
+                let r = get_items(data);
                 return resolve(r);
             }).catch(
                 error => {
-                    reject(error)
+                    reject(error);
                 }
             )
         })
@@ -65,7 +65,7 @@ class CitiesSelect extends Component {
             this.props.onChange({
                 target: {
                     name: this.props.name,
-                    value: selectedOption.value
+                    value: selectedOption === null ? '' : selectedOption.value
                 }
             })
         }
@@ -73,18 +73,23 @@ class CitiesSelect extends Component {
 
     render() {
 
-        const { selectedOption } = this.state;
+        // const { selectedOption } = this.state;
+
+        const v = {value: this.props.value, label: this.props.value};
+
+        // console.log('selectedOption', v, selectedOption);
+
         const cls = classNames({
-            [this.props.className]: this.props.className,
-            'ccs-city-select': true
+            'ccs-city-select': true,
+            'ccs-select': true,
         })
 
         return (
-           <AsyncSelect value={selectedOption}
+           <AsyncSelect value={v}
                         onChange={this.handleChange}
                         loadOptions={promiseOptions(this.props.mode)}
-                        placeholder={this.props.placeholder}
-                        classNamePrefix={this.props.classNamePrefix}
+                        placeholder={this.props.placeholder || ''}
+                        classNamePrefix={this.props.classNamePrefix || 'ccs-select-sm'}
                         noOptionsMessage={inputValue => {
                             // console.log('noOptionsMessage', inputValue)
                             return "Нет подходящих названий..."
