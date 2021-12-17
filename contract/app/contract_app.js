@@ -23,7 +23,7 @@ class BaseContractApp extends React.Component {
     }
 
     get_storage_section () {
-        return 'ContractApp'
+        return 'CcsContract'
     }
 
     get_init_state () {
@@ -122,7 +122,10 @@ class BaseContractApp extends React.Component {
     filter_saved_data (tblname, data, saveddata) {
         const saved_fields = this.state.saved_fields[tblname];
         return saved_fields.reduce((r, fieldname) => {
-            r[fieldname] = saveddata[fieldname];
+            const fieldvalue = saveddata[fieldname];
+            if (fieldvalue !== undefined) {
+                r[fieldname] = saveddata[fieldname];
+            }
             return r;
         }, data)
     }
