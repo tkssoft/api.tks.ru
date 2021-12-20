@@ -1,9 +1,13 @@
 /* Редактирование ставок/признаков для структур из contract_manager */
 
 import React from "react"
-import { ShowSt } from '../../tnved/showst'
-import { get_stavka } from "../../tnved/stavka"
-import { isError } from "../../common/utils"
+import { ShowSt } from '../../tnved/showst';
+import { get_stavka } from "../../tnved/stavka";
+import { isError } from "../../common/utils";
+
+import { ControlFactory } from "./controlfactory";
+
+const CT_STAVKA = 'Ставки';
 
 const StavkaEditor = (props) => {
     const { manager, kontdop, skipName, skipIfEmpty } = props;
@@ -26,10 +30,18 @@ const StavkaEditor = (props) => {
             {...props}
         />
     } else {
-        return <></>
+        return null;
     }
 }
 
+new ControlFactory().register({
+    type: CT_STAVKA,
+    onCreate: (props) => {
+        return <StavkaEditor {...props} />
+    }
+})
+
 export {
-    StavkaEditor
+    StavkaEditor,
+    CT_STAVKA
 }

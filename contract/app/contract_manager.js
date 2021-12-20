@@ -29,33 +29,64 @@ const tbl_kontrakt = 'kontrakt';
 const get_edizm_displayLabel = (edi, index) => {
     switch (edi) {
         case "166":
-        case "168": return "Вес";
-        case "113": return "Объем";
+        case "168":
+            return "Вес";
+        case "112":
+        case "113":
+            return "Объем";
         case nsi.POWER_CODES[0]:
-        case nsi.POWER_CODES[1]: return "Мощность";
+        case nsi.POWER_CODES[1]:
+            return "Мощность";
         default:
             return `Количество ${index}`;
     }
 };
 
+const get_edizm_fieldname = (edi, edi2) => {
+    switch(edi) {
+        case "166":
+        case "168":
+            return 'G38';
+        case edi2:
+            return 'GEDI1';
+        case nsi.POWER_CODES[0]:
+        case nsi.POWER_CODES[1]:
+            return 'GEDI3';
+        default:
+            return 'GEDI2';
+    }
+}
+
+const get_edizm_name = (edi) => {
+    return edi in edizm ? edizm[edi].KRNAIM : '';
+}
+
+const update_default_values = (data, olddefs, newdefs) => {
+    return {
+        ...data,
+        ...newdefs
+    };
+}
+
 /* Товарная часть контракта */
 class kontdop extends stateobject {
 
-    constructor (props) {
+    constructor ({ manager, tn, data, ...props }) {
         super(props);
-        const { tn, data, addedizm } = props;
+        // contract_manager
+        this.manager = manager;
         // tnved_manager
         this.tn = tn;
         this.update_count = 0;
-        /* дополнительные количества, единицы измерения и их поля */
-        this.addedizm = {
-            ...addedizm
-        };
         this.state = {
             data: {...data},
             errors: {},
             debug: false,
         };
+    }
+
+    can_update () {
+        return !this.manager.state.update_count;
     }
 
     register_delay (deman) {
@@ -139,37 +170,17 @@ class kontdop extends stateobject {
         }
     };
 
-    get_edizm_list = (data) => {
-        const d = data ? data : this.state.data
-        const addedizm = Object.keys(this.addedizm)
-        return get_edizm_list(d, this.props.typ, addedizm);
-    }
-
-    is_field_editable = (fieldname) => {
-        const edizm_list = this.get_edizm_list()
-        let r = false
-        for (let edi of edizm_list) {
-            let fldname = this.get_edizm_fieldname(edi)
-            if (fldname === fieldname) {
-                return true
-            }
-        }
-        return false
-    }
-
-    validateEdizmAll = (data, tnved) => {
-        let r = {
+    validateEdizmAll = (data) => {
+        const fieldnames = this.manager.get_edizm_fieldnames(data, this.getEdi2());
+        return fieldnames.reduce((r, fieldname) => {
+            r[fieldname] = this.validateNotEmptyNumber(data[fieldname]);
+            return r
+        }, {
             G38 : '',
             GEDI1 : '',
             GEDI2 : '',
             GEDI3 : ''
-        };
-        const edizm_list = this.get_edizm_list(data)
-        for (let edi of edizm_list) {
-            let fieldname = this.get_edizm_fieldname(edi)
-            r[fieldname] = this.validateNotEmptyNumber(data[fieldname])
-        }
-        return r
+        });
     };
 
     get_additional_values = (data, tnved) => {
@@ -180,7 +191,14 @@ class kontdop extends stateobject {
     };
 
     get_edizm_values = (data, tnved) => {
-        let r = {
+        const edizm_list = this.manager.get_edizm_list(data);
+        const edi2 = this.getEdi2();
+        return edizm_list.reduce((r, edi) => {
+            const fieldname = this.manager.get_edizm_fieldname(edi, edi2);
+            r[fieldname + 'C'] = edi;
+            r[fieldname + 'CN'] = this.manager.get_edizm_name(edi);
+            return r;
+        }, {
             G38C : '',
             GEDI1C : '',
             GEDI2C : '',
@@ -189,14 +207,7 @@ class kontdop extends stateobject {
             GEDI1CN : '',
             GEDI2CN : '',
             GEDI3CN : ''
-        };
-        let edizm_list = this.get_edizm_list(data);
-        for (let edi of edizm_list) {
-            let fieldname = this.get_edizm_fieldname(edi)
-            r[fieldname + 'C'] = edi
-            r[fieldname + 'CN'] = this.get_edizm_name(edi)
-        }
-        return r
+        });
     };
 
     get_stavka_value = (fieldname) => {
@@ -332,7 +343,7 @@ class kontdop extends stateobject {
                     },
                     errors: {
                         ...this.state.errors,
-                        ...this.validateEdizmAll(this.state.data, this.state.tnved),
+                        ...this.validateEdizmAll(this.state.data),
                         G33: null
                     },
                     modified: true
@@ -347,7 +358,8 @@ class kontdop extends stateobject {
                 ...this.state.data,
                 [fieldname]: fieldvalue
             },
-            modified: modified && ['', undefined].includes(error || delayname),
+            // modified: modified && ['', undefined].includes(error || delayname),
+            modified: modified,
             errors: {
                 ...this.state.errors,
                 [fieldname]: error || (delayname ? 'Обработка...' : '')
@@ -356,7 +368,7 @@ class kontdop extends stateobject {
     }
 
     setG33 = (code, modified=true) => {
-        this.setFieldData('G33', code, validate_code_error(code), DELAY_TNVED, undefined, modified);
+        return this.setFieldData('G33', code, validate_code_error(code), DELAY_TNVED, undefined, modified);
     }
 
     parseFloat(value, def='') {
@@ -388,66 +400,9 @@ class kontdop extends stateobject {
         return this.state.tnved !== undefined ? this.state.tnved.TNVED.EDI2 : this.state.data.GEDI1C || def;
     }
 
-    getEdiValue = (edi) => {
-        let edi2 = this.getEdi2();
-        switch(edi) {
-            case "166":
-                return this.state.data.G38;
-            case "168":
-                return this.state.data.G38 / 1000;
-            case edi2:
-                return this.state.data.GEDI1;
-            case nsi.POWER_CODES[0]:
-            case nsi.POWER_CODES[1]:
-                return this.state.data.GEDI3;
-            default:
-                return this.state.data.GEDI2;
-        }
-    };
-
-    getEdiError = (edi) => {
-        const fieldname = this.get_edizm_fieldname(edi);
-        return this.state.errors[fieldname];
-    };
-
-    get_edizm_displayLabel = (edi, index) => {
-        if (edi in this.addedizm) {
-            return this.addedizm[edi].displayLabel
-        }
-        return get_edizm_displayLabel(edi, index)
-    }
-
-    /* Наименование единицы измерения */
-    get_edizm_name = (edi) => {
-        if (edi in this.addedizm) {
-            return this.addedizm[edi].name;
-        }
-        return edi in edizm ? edizm[edi].KRNAIM : '';
-    }
-
-    /* Имя поля, в котором хранится значение */
-    get_edizm_fieldname = (edi) => {
-        if (edi in this.addedizm) {
-            return this.addedizm[edi].fieldname
-        }
-        let edi2 = this.getEdi2();
-        switch(edi) {
-            case "166":
-            case "168":
-                return 'G38';
-            case edi2:
-                return 'GEDI1';
-            case nsi.POWER_CODES[0]:
-            case nsi.POWER_CODES[1]:
-                return 'GEDI3';
-            default:
-                return 'GEDI2';
-        }
-    }
-
     doEdizmChange = (value, edi, modified=true) => {
         const error = this.validateNotEmptyNumber(value);
-        const fieldname = this.get_edizm_fieldname(edi);
+        const fieldname = this.manager.get_edizm_fieldname(edi, this.getEdi2());
         return this.setFieldData(fieldname, this.parseFloat(value), error, '', undefined, modified);
     }
 
@@ -470,7 +425,7 @@ class kontdop extends stateobject {
             },
             errors: {
                 ...this.state.errors,
-                ...this.validateEdizmAll(data, this.state.tnved)
+                ...this.validateEdizmAll(data)
             },
             modified: true
         })
@@ -478,6 +433,14 @@ class kontdop extends stateobject {
 
     get_field_value_def(fieldname, def) {
         return ['', undefined, null].includes(this.state.data[fieldname])? def: this.state.data[fieldname]
+    }
+
+    update_field_config (olddefs, newdefs) {
+        const data = update_default_values(this.state.data, olddefs, newdefs);
+        this.state.data = {
+            ...data,
+            ...this.get_edizm_values(data, this.state.tnved),
+        }
     }
 
 }
@@ -526,11 +489,10 @@ class contract_manager extends stateobject {
         this.num = NUM;
         this.kontrakt = {
             ...default_kontrakt(),
-            ...this.get_default_values(tbl_kontrakt),
             NUM: this.num
         }
         this.kontdop = [];
-        this.append(1);
+        this.append(1, false, false);
     }
 
     register_delay(deman) {
@@ -571,21 +533,22 @@ class contract_manager extends stateobject {
     }
 
     /**Добавление товара */
-    append = (G32, change=true) => {
+    append = (G32, change=true, defvalues=true) => {
+        const cfg_defs = defvalues ? this.get_default_values(tbl_kontdop) : {};
         var data = {
             ...default_kontdop(),
-            ...this.get_default_values(tbl_kontdop),
+            ...cfg_defs,
         };
         data.G34 = this.kontrakt.G34 || data.G34;
         const r = new kontdop({
+            manager: this,
             tn: this.tn,
-            onChange: this.kondopchange,
+            onChange: this.kondopchange.bind(this),
             onCalcFields: this.props.onCalcFields,
             data: {
                 G32: G32,
                 NUM: this.num
-            },
-            addedizm: this.props.addedizm ? {...this.props.addedizm} : {}
+            }
         });
         r.setAttrs({
             ...data,
@@ -712,6 +675,7 @@ class contract_manager extends stateobject {
             let poshl_pr = false
             let akciz_pr = false
             let nds_pr = false
+            let editables = this.get_edizm_fieldnames(kontdop.state.data, kontdop.getEdi2());
             if (kontdop.state.tnved) {
                 has_prim = has_pr(kontdop.state.tnved.TNVED, that.kontrakt.TYPE)
                 poshl_pr = is_pr(kontdop.state.tnved.TNVED, PRIZNAK_IMPORTDUTY)
@@ -723,26 +687,25 @@ class contract_manager extends stateobject {
                 G312: this.getFieldValue(kontdop.state.data.G312),
                 G45: this.getFieldValue(kontdop.state.data.G45),
                 // Вес
-                // ToDo: возможно оптимизировать вызов is_field_editable
                 G38: this.getFieldValue(kontdop.state.data.G38),
                 G38C: this.getFieldValue(kontdop.state.data.G38C),
                 G38CN: this.getFieldValue(kontdop.state.data.G38CN),
-                G38EDIT: kontdop.is_field_editable('G38'),
+                G38EDIT: editables.includes('G38'),
                 // Количество
                 GEDI1: this.getFieldValue(kontdop.state.data.GEDI1),
                 GEDI1C: this.getFieldValue(kontdop.state.data.GEDI1C),
                 GEDI1CN: this.getFieldValue(kontdop.state.data.GEDI1CN),
-                GEDI1EDIT: kontdop.is_field_editable('GEDI1'),
+                GEDI1EDIT: editables.includes('GEDI1'),
                 // Физ. объем
                 GEDI2: this.getFieldValue(kontdop.state.data.GEDI2),
                 GEDI2C: this.getFieldValue(kontdop.state.data.GEDI2C),
                 GEDI2CN: this.getFieldValue(kontdop.state.data.GEDI2CN),
-                GEDI2EDIT: kontdop.is_field_editable('GEDI2'),
+                GEDI2EDIT: editables.includes('GEDI2'),
                 // Мощность
                 GEDI3: this.getFieldValue(kontdop.state.data.GEDI3),
                 GEDI3C: this.getFieldValue(kontdop.state.data.GEDI3C),
                 GEDI3CN: this.getFieldValue(kontdop.state.data.GEDI3CN),
-                GEDI3EDIT: kontdop.is_field_editable('GEDI3'),
+                GEDI3EDIT: editables.includes('GEDI3'),
                 // Итого
                 TOTAL: this.round(this.state.sums.g32[index]) || 0,
                 // Ошибки
@@ -857,7 +820,7 @@ class contract_manager extends stateobject {
     }
 
     loadCalcResults(procinfo) {
-        const error = this.any_errors()
+        const error = this.any_errors();
         if (error) {
             this.setState({
                 errors: {
@@ -865,11 +828,11 @@ class contract_manager extends stateobject {
                     calc: null
                 }
             })
-            return false
+            return false;
         }
         const calcdata = this.getCalcData();
-        const url = this.get_calc_url()
-        fetch(url, {
+        const url = this.get_calc_url();
+        return fetch(url, {
             method: 'post',
             headers: new Headers({
                 'Content-Type': 'application/json'
@@ -891,8 +854,7 @@ class contract_manager extends stateobject {
                     calc: `Ошибка расчета. ${this.get_calc_error_msg(error)}`
                 }
             })
-        })
-        return true
+        });
     }
 
     getCalcData = () => {
@@ -931,6 +893,68 @@ class contract_manager extends stateobject {
             return this.props.onGetFieldConfig(props)
         }
         return {}
+    }
+
+// Обновление значений по умолчанию после получения настроек из ЛК.
+    update_field_config () {
+        this.kontrakt = update_default_values(
+            this.kontrakt, default_kontrakt(), this.get_default_values(tbl_kontrakt)
+        );
+        const olddefs = default_kontdop();
+        const newdefs = this.get_default_values(tbl_kontdop);
+        this.kontdop = this.kontdop.map((kontdop) => {
+            kontdop.update_field_config(olddefs, newdefs);
+            return kontdop;
+        });
+    }
+
+    // Список едниц измерения, которые отображаются независимо от списка,
+    // сформированного по ставкам
+    get_edizm () {
+        if (this.props.onGetEdizm) {
+            return this.props.onGetEdizm();
+        }
+        return {};
+    }
+
+    get_edizm_list = (data, include=true) => {
+        const addedizm = Object.keys(this.get_edizm());
+        if (include) {
+            return get_edizm_list(data, this.props.typ, addedizm);
+        }
+        return get_edizm_list(data, this.props.typ, [], addedizm);
+    }
+
+    get_edizm_displayLabel = (edi, index) => {
+        const addedizm = this.get_edizm();
+        if (edi in addedizm) {
+            return addedizm[edi].displayLabel;
+        }
+        return get_edizm_displayLabel(edi, index)
+    }
+
+    /* Наименование единицы измерения */
+    get_edizm_name = (edi) => {
+        const addedizm = this.get_edizm();
+        if (edi in addedizm) {
+            return addedizm[edi].name;
+        }
+        return get_edizm_name(edi);
+    }
+
+    /* Имя поля, в котором хранится значение */
+    get_edizm_fieldname = (edi, edi2, addedizm) => {
+        const _addedizm = addedizm || this.get_edizm();
+        if (edi in _addedizm) {
+            return _addedizm[edi].fieldname;
+        }
+        return get_edizm_fieldname(edi, edi2);
+    }
+
+    get_edizm_fieldnames = (data, edi2) => {
+        const addedizm = this.get_edizm();
+        const edizm_list = get_edizm_list(data, this.props.typ);
+        return edizm_list.map((edi) => this.get_edizm_fieldname(edi, edi2, addedizm));
     }
 
 }

@@ -11,7 +11,7 @@ import { ScrollContainer } from '../../common/container';
 class SimpleContractApp extends BaseContractApp {
 
     get_storage_section () {
-        return 'ContractApp'
+        return 'CssContract'
     }
 
     render () {

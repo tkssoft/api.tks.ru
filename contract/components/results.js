@@ -84,7 +84,7 @@ const ConfigResults = (props) => {
             </div>
         )
     } else {
-        return (<></>)
+        return null;
     }
 }
 

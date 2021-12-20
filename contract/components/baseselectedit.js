@@ -5,13 +5,17 @@ const classNames = require('classnames');
 
 const { ccs_class, ccs_contract } = require('../../common/ccs');
 
-import { CT_SELECT, register_control } from './controlfactory';
+const CT_SELECT = 'Список';
+const { BaseContractEdit } = require('./basecontractedit');
+const { ControlFactory, ContractControlCreation } = require('./controlfactory');
 
 const BaseSelectEdit = (props) =>  {
+    const { datasource, data, className, fieldname } = props;
+    let _data = data || new ControlFactory().get_data(datasource);
     return (
         <div className={classNames({
             [ccs_contract("input")]: true,
-            [ccs_contract("select")]: true
+            [ccs_contract("select")]: true,
         })}>
             <select id={props.id}
                     value={props.value}
@@ -19,9 +23,9 @@ const BaseSelectEdit = (props) =>  {
                     className={'form-control form-control-sm'}
             >
                 {
-                    Object.keys(props.data).map((key) => {
+                    Object.keys(_data).map((key) => {
                         return (
-                            <option key={key} value={key}>{props.data[key]}</option>
+                            <option key={`option-${key}`} value={key}>{_data[key]}</option>
                         )
                     })
                 }
@@ -30,8 +34,29 @@ const BaseSelectEdit = (props) =>  {
     )
 }
 
-register_control(CT_SELECT, BaseSelectEdit);
+const SelectEdit = (props) => {
+    return (
+        <BaseContractEdit
+            {...props}
+        >
+            {(prs) => {
+                return <BaseSelectEdit {...prs} />
+            }}
+        </BaseContractEdit>
+    )
+}
+
+
+new ControlFactory()
+    .register_control(new ContractControlCreation({
+        type: CT_SELECT,
+        onCreate: function (props) {
+            return <SelectEdit {...props}/>
+        }
+    }))
 
 export {
-    BaseSelectEdit
+    CT_SELECT,
+    BaseSelectEdit,
+    SelectEdit
 }

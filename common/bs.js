@@ -19,9 +19,9 @@ const getcol = (props, cond) => {
 }
 
 const getcold = (props, cond, part) => {
-    const { layout } = props
+    const { layout } = props;
     if (layout) {
-        if (part in layout) {
+        if ((part in layout) && layout[part]) {
             return {
                 ['col' + layout[part]]: cond
             }

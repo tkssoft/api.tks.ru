@@ -519,7 +519,7 @@ const has_pr = (tbl, typ, expertmode) => {
 }
 
 /* Список единиц измерения */
-const get_edizm_list = (data, type=TYPE_IM, addedizm=[]) => {
+const get_edizm_list = (data, type=TYPE_IM, include=[], exclude=[]) => {
 
     let a;
     if (type === TYPE_EK) {
@@ -545,20 +545,19 @@ const get_edizm_list = (data, type=TYPE_IM, addedizm=[]) => {
         ]
     }
 
-    let init = [];
-    if (addedizm !== undefined && addedizm.length > 0) {
-        init = init.concat(addedizm)
-    }
-
     return a.reduce((r, v) => {
         if (v && (v.length > 1)) {
             let edi = v.slice(0, 3);
+            // Исключаем из списка единицы измерения, которые редактируются где-то еще
+            if (exclude && exclude.includes(edi)) {
+                return r
+            }
             if (r.indexOf(edi) === -1) {
-                r.push(edi)
+                r.push(edi);
             }
         }
         return r
-    }, init)
+    }, include);
 };
 
 const validate_code = (code) => {
