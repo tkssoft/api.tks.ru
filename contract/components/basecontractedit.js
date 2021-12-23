@@ -31,6 +31,32 @@ const FormLabel = (props) => {
 */
 class BaseContractEdit extends React.Component {
 
+    constructor (props) {
+        super(props);
+        this.inputref = React.createRef();
+        this.selection = {
+            start: false,
+            end: false
+        };
+    }
+
+    componentDidUpdate() {
+
+        // Восстанавливаем выделение после обновления.
+        if (this.inputref.current) {
+            const { selectionStart, selectionEnd } = this.inputref.current;
+            const update = (this.selection.start !== false && this.selection.start !== selectionStart)
+            || (this.selection.end !== false && this.selection.end !== selectionEnd);
+
+            if (update) {
+                this.inputref.current.selectionStart = this.selection.start;
+                this.inputref.current.selectionEnd = this.selection.end;
+            }
+
+        }
+
+    }
+
     get_field_value(props) {
         return props.value === undefined ?
             props.manager.getFieldData(props.fieldname, props.g32) :
@@ -57,6 +83,13 @@ class BaseContractEdit extends React.Component {
     }
 
     onchange(e) {
+        const input = this.inputref.current;
+        if (input) {
+            this.selection = {
+                start: input.selectionStart,
+                end: input.selectionEnd
+            };
+        }
         this.set_field_value(this.props.type === 'checkbox' ? e.target.checked : e.target.value, (value) => {
             if (this.props.onChange) {
                 this.props.onChange(e)
@@ -99,6 +132,7 @@ class BaseContractEdit extends React.Component {
                         onChange: this.onchange.bind(this),
                         onSelect: this.onselect.bind(this),
                         value: this.get_field_value(this.props),
+                        inputref: this.inputref
                     }) : this.props.children }
                 </IfRow>
             </div>
@@ -118,7 +152,7 @@ const get_input_className = (props) => {
 
 /* Базовый input с указанием ошибок */
 const BaseContractInput = (props) => {
-    const { isclasses, fieldname, errors, onError, value, type, status, onInputGroup } = props
+    const { isclasses, fieldname, errors, onError, value, type, status, onInputGroup, inputref } = props
     const errormsg = errors ? errors[fieldname] : ''
     const error = errormsg || (onError ? onError(value) : '')
     var p = {}
@@ -148,6 +182,7 @@ const BaseContractInput = (props) => {
                         [errorClass(error)]: isclasses}
                         )}
                     onChange={props.onChange}
+                    ref={inputref}
                     {...p}
                 />
                 { type === 'checkbox' && (<FormLabel {...props} />) }
