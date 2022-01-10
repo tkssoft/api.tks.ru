@@ -12,6 +12,9 @@ const { ModalButton } = require('../common/modalbutton');
 const { ShowPrim, przdesc } = require('./shprim');
 const { get_stavka, get_tnvedcc_rec } = require('./stavka');
 const { TYPE_IM, TYPE_EK, TYPE_DEPOSIT } = require('../common/consts');
+
+const { Alert } = require('../common/alert');
+
 const { getcold } = require('../common/bs');
 
 import { ccs_contract } from '../common/ccs';
@@ -66,13 +69,42 @@ class ShowStItem extends React.Component {
 
 const getState = (data, tnved, g34, typ) => {
     const tnvedcc_rec = get_tnvedcc_rec(g34, tnved === undefined? {} : tnved.TNVEDCC);
+    var code_error = "";
+    if (!isEmptyAll(tnved)) {
+        code_error = check_dates(tnved.DSTART, tnved.DEND);
+    }
     return {
         stavkas: calctxt(data, tnvedcc_rec),
         data: {...data},
         G33: data.G33,
         typ: typ,
         tnvedcc_rec: tnvedcc_rec,
+        code_error
     }
+};
+
+
+const trunc_date = (n) => {
+    const oneday = 60 * 60 * 24 * 1000;
+    return n - (n % oneday);
+};
+
+
+const check_dates = (dstart, dend) => {
+    var now = trunc_date(new Date().valueOf());
+    if (dstart) {
+        var ds = trunc_date(new Date(dstart).valueOf());
+        if (ds > now) {
+            return "Действие кода товара еще не началось."
+        }
+    }
+    if (dend) {
+        var ds = trunc_date(new Date(dend).valueOf());
+        if (ds < now) {
+            return "Код товара недействителен на текущую дату."
+        }
+    }
+    return "";
 };
 
 
@@ -119,7 +151,17 @@ class ShowSt extends React.Component {
                     {[undefined, false].includes(this.props.skipName) && (
                         <ShowStItem name={"Наименование"} value={this.props.G312}/>
                     )}
-                    {przarr.map((prz, index) => {
+                    {isEmptyAll(this.props.tnved.TNVED) && (
+                        <Alert type="danger" isclasses={isclasses}>
+                            <div>Информация о ставках/признаках на товар отсутствует.</div>
+                        </Alert>
+                    )}
+                    {this.state.code_error && (
+                        <Alert type="danger" isclasses={isclasses}>
+                            <div>{this.state.code_error}</div>
+                        </Alert>
+                    )}
+                    {!isEmptyAll(this.props.tnved.TNVED) && przarr.map((prz, index) => {
                         return <ShowStItem
                                     prz={prz}
                                     key={`priznak-${prz}`}
