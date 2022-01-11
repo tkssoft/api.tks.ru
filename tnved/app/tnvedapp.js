@@ -116,6 +116,9 @@ const TnvedApp = (props) => {
             if (result.length > 0) {
                 const first = result[0];
                 tree.current.setInitId(first.ID);
+            } else {
+                // ToDo: сделать модульное окно с инфомацией об ошибке.
+                alert('Внимание! Информация по коду не найдена.');
             }
         },
         [ setCurrent ]
