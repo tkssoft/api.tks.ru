@@ -38,7 +38,7 @@ class ShowStItem extends React.Component {
     }
 
     render () {
-        const { value, prButtonLabel } = this.props
+        const { value, prButtonLabel, windowclassName } = this.props
         if ([undefined, true].includes(this.props.skipIfEmpty) && !this.state.pr && [undefined, null, '', 'Нет', 'Беспошлинно', 'Отсутствует'].includes(value)) {
             return (<></>)
         } else {
@@ -52,6 +52,7 @@ class ShowStItem extends React.Component {
                                      title={`Примечания по ${przdesc(this.props.prz)}`}
                                      btnClassName={'btn btn-sm btn-block btn-danger'}
                                      isclasses={this.props.isclasses}
+                                     windowclassName={windowclassName}
                         >
                             <ShowPrim prz={this.props.prz}
                                       data={this.props.data}
@@ -172,6 +173,7 @@ class ShowSt extends React.Component {
                                     skipIfEmpty={this.props.skipIfEmpty}
                                     isclasses={this.props.isclasses}
                                     prButtonLabel={this.props.prButtonLabel}
+                                    windowclassName={this.props.windowclassName}
                                 />
                     })}
                 </ul>

@@ -11,7 +11,7 @@ import { getTreeData } from '../tnved_search';
 import { tnved_manager } from '../tnved_manager';
 
 const ShowStWindow = (props) => {
-    const { code, data, isclasses } = props
+    const { code, data, isclasses, windowclassName } = props
     return (
         <div className="ccs-codeinfo">
             {code.length < 10 && (
@@ -30,6 +30,7 @@ const ShowStWindow = (props) => {
                     prButtonLabel='Варианты'
                     isclasses={isclasses}
                     expertmode={true}
+                    windowclassName={windowclassName}
                 />
             )}
         </div>
@@ -152,6 +153,7 @@ const TnvedApp = (props) => {
                     <ShowStWindow
                         code={code}
                         data={data}
+                        windowclassName={'tnvedapp-prim-window'}
                         {...props}
                     />
                 </div>
