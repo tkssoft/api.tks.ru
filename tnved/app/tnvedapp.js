@@ -92,7 +92,7 @@ const TnvSearchForm = (props) => {
 
 const TnvedApp = (props) => {
 
-    const { isclasses, manager } = props
+    const { isclasses, manager, search } = props
 
     if (!manager) {
         manager = new tnved_manager({})
@@ -137,6 +137,13 @@ const TnvedApp = (props) => {
 
     return (
         <div className={cls}>
+            {search && (
+                <Row {...props}>
+                    <div className="col ccs-tnvedapp-search">
+                        <TnvSearchForm />
+                    </div>
+                </Row>
+            )}
             <Row className='' {...props}>
                 <div className="col-sm-8">
                     <TnvTree

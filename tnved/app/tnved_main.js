@@ -11,4 +11,4 @@ const TnvedAppConfig = {
 
 const target = document.querySelector('#ccs-app')
 
-ReactDOM.render(<TnvedApp {...TnvedAppConfig} />, target)
+ReactDOM.render(<TnvedApp search={true} {...TnvedAppConfig} />, target)
