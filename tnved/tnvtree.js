@@ -3,7 +3,7 @@
 const React  = require('react');
 const { debug } = require('../common/debug');
 const keys = require('../common/keys');
-const { get_api_tks_ru } = require('../common/consts')
+const { get_api_tks_ru } = require('../common/consts');
 
 const format_id = (nodeid) => ('00000000' + nodeid.toString()).slice(-8);
 const clientid = encodeURIComponent(calc_tks_ru_license.split('\n').join(''));
@@ -12,28 +12,57 @@ const clientid = encodeURIComponent(calc_tks_ru_license.split('\n').join(''));
 const get_tree_url = (nodeid) => `${get_api_tks_ru()}/tree.json/json/${clientid}/${nodeid}.json`;
 const get_code_url = (code) => `${get_api_tks_ru()}/tree.json/json/${clientid}/search/?code=${code}`;
 
-import classNames from 'classnames'
-import { ccs_class } from '../common/ccs'
+import classNames from 'classnames';
+import { ccs_class, ccs_contract } from '../common/ccs';
 
 
 const LASTNEXTID = 200000000;
 
 
-const TreeItem = ({code, text}) => {
-    if (code !== null) {
-        let clsname = 'ccs-contract-code-' + code.length;
+const formatdate = (d) => {
+    return new Date(d).toLocaleDateString('ru-RU');
+}
+
+
+// Предупреждение о сроке действия кода
+const DateWarning = ({ DBEGIN, DEND, isclasses }) => {
+    const cls = classNames({
+        [ccs_contract('treedate')]: true,
+        'alert-danger': isclasses
+    })
+    let dates = [];
+    if (DBEGIN) {
+        dates.push(<span>с {formatdate(DBEGIN)}</span>);
+    }
+    if (DEND) {
+        dates.push(<span>по {formatdate(DEND)}</span>);
+    }
+    if (dates.length > 0) {
+        return (<div className={cls}>Код действует: {dates}.</div>);
+    }
+    return null;
+}
+
+
+const TreeItem = (props) => {
+    const { CODE, TEXT } = props;
+    if (CODE !== null) {
+        let clsname = 'ccs-contract-code-' + CODE.length;
         return (
-            <div className={'ccs-contract-treeitem'}>
-                <div className={'ccs-contract-treecode'}><span className={clsname}>{code}</span></div>
-                <div className={'ccs-contract-treetext ccs-contract-text_with_code'}>{text}</div>
+            <div className={'ccs-contract-treeitem w-100'}>
+                <div className={'ccs-contract-treecode'}><span className={clsname}>{CODE}</span></div>
+                <div className={'ccs-contract-treetext ccs-contract-text_with_code w-100'}>
+                    <div>{TEXT}</div>
+                    <DateWarning {...props}/>
+                </div>
             </div>
-        )
+        );
     } else {
         return (
             <div className={'ccs-contract-treeitem'}>
-                <div className={'ccs-contract-treetext ccs-contract-text_only'}>{text}</div>
+                <div className={'ccs-contract-treetext ccs-contract-text_only'}>{TEXT}</div>
             </div>
-        )
+        );
     }
 };
 
@@ -304,7 +333,7 @@ class TnvTree extends React.Component {
         return (
             <div className={cls} role="tablist" ref={this.list} >
                 {this.state.items.map((item, i) => {
-                    const {ID, CODE, TEXT, level} = item;
+                    const { ID, level } = item;
                     const active = i === this.state.selected ? "active" : "";
                     let style = {};
                     if (level > 0) {
@@ -319,7 +348,7 @@ class TnvTree extends React.Component {
                            ref={active ? this.selected : ""}
                         >
                             <div className={"row"}>
-                                <TreeItem code={CODE} text={TEXT} />
+                                <TreeItem {...this.props} {...item} />
                             </div>
                         </a>
                     )
