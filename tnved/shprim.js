@@ -11,11 +11,11 @@ const keys = require('../common/keys');
 const przdesc = (prz) => {
     switch (prz) {
         case 0: return "экспортной пошлине";
-        case tnv_const.PRIZNAK_IMPORTDUTY: return 'импортной пошлине';
-        case tnv_const.PRIZNAK_EXCISEDUTY: return 'ставкам акциза';
-        case tnv_const.PRIZNAK_VAT: return 'ставкам НДС';
+        case tnv_const.PRIZNAK_IMPORTDUTY: return 'импортной пошлине'; // 1
+        case tnv_const.PRIZNAK_EXCISEDUTY: return 'ставкам акциза'; // 2
+        case tnv_const.PRIZNAK_VAT: return 'ставкам НДС'; // 3
         case 4: return 'ставкам обеспечения';
-        case 5: return 'льготам по стране происхождения';
+        case 5: return 'преференциям по РС';
         case 6: return 'лицензированию на экспорт';
         case 7: return 'лицензированию на импорт';
         case 8: return 'квотированию на экспорт';
@@ -24,19 +24,31 @@ const przdesc = (prz) => {
         case 11: return 'сертификации';
         case 12: return 'стратегическим товарам';
         case 13: return 'товарам двойного применения';
-        case tnv_const.PRIZNAK_IMPORTSPECDUTY: return 'временной импортной пошлине';
-        case tnv_const.PRIZNAK_IMPORTANTIDUMP: return 'антидемпинговой пошлине';
+        case tnv_const.PRIZNAK_OTHER_LIC_IMP: return 'прочим разрешительным импорт'; //14
+        case 15: return "прочим особенностям"
+        case tnv_const.PRIZNAK_IMPORTSPECDUTY: return 'временной импортной пошлине'; //16
         case 17: return 'дополнительной импортной пошлине';
+        case tnv_const.PRIZNAK_IMPORTANTIDUMP: return 'антидемпинговой пошлине';
         case 20: return 'компенсационной пошлине';
         case 21: return 'товарам двойного применения';
-        case tnv_const.PRIZNAK_IMPORTDUTY_OTHER: return 'пошлине по др. странам';
-        case 32: return 'преференциям для наименее развитых стран';
-        case 28: return 'маркировке КИЗ';
         case tnv_const.PRIZNAK_OTHER_LIC_EXP: return 'прочим разрешительным экспорт';
-        case tnv_const.PRIZNAK_OTHER_LIC_IMP: return 'прочим разрешительным импорт';
-        default: return "прочим особенностям";
+        case 28: return 'маркировке';
+        case tnv_const.PRIZNAK_IMPORTDUTY_OTHER: return 'пошлине по др. странам'; // 30
+        case 32: return 'преференциям по НРС';
+        case 33: return 'прослеживаемости';
+        case 34: return 'переченю запретов других стран на экспорт';
+        case 35: return 'переченю запретов других стран на импорт';
+        default: return 'неизвестному признаку';
     }
 };
+
+const tr_note = (note) => {
+    if (note) {
+        var rexp = /((http|https|ftp):\/\/[\w?=&.\/-;#~%-]+(?![\w\s?&.\/;#~%"=-]*>))/g;
+        return note.replace('\n', '<br />').replace(rexp, "<a href='$1' target='_blank'>$1</a>");
+    }
+    return null;
+}
 
 class ShowPrim extends React.Component {
     constructor (props) {
@@ -62,7 +74,7 @@ class ShowPrim extends React.Component {
                             '',
                             v.CU
                             ),
-                        note: v.NOTE && v.NOTE.replace('\n', '<br />')
+                        note: v.NOTE && tr_note(v.NOTE)
                     });
                     return a
                 }, [15, 30].includes(this.props.prz)? [] :[{stavka: calc_get5(TNVED, this.props.prz) + ' - (БАЗОВАЯ)'}]

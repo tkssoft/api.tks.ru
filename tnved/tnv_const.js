@@ -54,11 +54,14 @@ export const PRIZNAK_IMPORTDUTY_OTHER = 30; // Импортная пошлина
 export const PRIZNAK_EXPORTDUTY_EA = 31; // Экспортная пошлина стран ЕАЭС
 export const PRIZNAK_PREF_92 = 32; // Преференциальные для наименее развитых стран
 export const PRIZNAK_TRACE = 33; // Прослеживаемость
+export const PRIZNAK_PENEXP = 34; // Перечень запретов других стран - экспорт
+export const PRIZNAK_PENIMP = 35; // Перечень запретов других стран - импорт
+
 
 const PRIZNAK_NONE = 99;
 
 export const PRIZNAK_EA = [PRIZNAK_IMPORTDUTY_EA, PRIZNAK_EXCISEDUTY_EA, PRIZNAK_VAT_EA];
-const PRIZNAK_MAX = 32;
+const PRIZNAK_MAX = 35;
 
 export const CNTR_RUSSIA = '643';
 
@@ -140,6 +143,11 @@ export const przname = (prz) => {
             return  "Преф-ный режим для НРС";
         case "33":
             return "Прослеживаемость";
+        case "34":
+            return 'Перечень запретов других стран - экспорт';
+        case "35":
+            return 'Перечень запретов других стран - импорт';
+
     }
 };
 

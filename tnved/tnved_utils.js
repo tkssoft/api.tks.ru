@@ -285,7 +285,13 @@ const calc_get5 = (TBL, prz, acountry=tnv_const.CNTR_RUSSIA) => {
         case 28:
             return get5(28, null, TBL.MARK, null, null, null, null, null, null, null, 'Нет');
         case 33:
-            return get5(28, null, TBL.TRACE, null, null, null, null, null, null, null, 'Нет');
+            return get5(33, null, TBL.TRACE, null, null, null, null, null, null, null, 'Нет');
+        case 34:
+            return get5(34, null, TBL.PENEXP, null, null, null, null, null, null, null, 'Нет');
+        case 35:
+            const res = get5(35, null, TBL.PENIMP, null, null, null, null, null, null, null, 'Нет');
+            console.log(35, TBL.PENIMP, res);
+            return res;
         default:
             return '';
     }
@@ -354,6 +360,10 @@ const is_pr = (TBL, prz, TBLCC, acountry=tnv_const.CNTR_RUSSIA) => {
         // Отслеживание
         case 33:
             return TBL.TRACE_PR > 0;
+        case 34:
+            return TBL.PENEXP_PR > 0;
+        case 35:
+            return TBL.PENIMP_PR > 0;
         // Прочие
         case 15:
             return TBL.OTHER_PR > 0;
@@ -437,7 +447,9 @@ const calctxt = (Tnved, TnvedCC, acountry=tnv_const.CNTR_RUSSIA) => {
         28: b_is_ru ?  calc_get5(Tnved, 28) : '',
         30: b_is_ru ?  calc_get5_cc(TnvedCC, 30) : '',
         32: b_is_ru ?  calc_get5(Tnved, 32) : '',
-        33: b_is_ru ?  calc_get5(Tnved, 33) : ''
+        33: b_is_ru ?  calc_get5(Tnved, 33) : '',
+        34: b_is_ru ?  calc_get5(Tnved, 34) : '',
+        35: b_is_ru ?  calc_get5(Tnved, 35) : ''
     }
 };
 
@@ -453,6 +465,7 @@ const get_type_priznak = (typ, expertmode=false) => {
                     tnv_const.PRIZNAK_EXPORTQUOTA, // 8 квортирование - экспорт
                     // ToDo проверить правильность постановки признака. в импорте тоже самое
                     tnv_const.PRIZNAK_OTHER_LIC_EXP, // 27 прочие разрешительные документы
+                    tnv_const.PRIZNAK_PENEXP, // 34
                 ]
             } else {
                 return [
@@ -487,6 +500,7 @@ const get_type_priznak = (typ, expertmode=false) => {
 
                     tnv_const.PRIZNAK_SAFETY, // 11 сертификация
                     tnv_const.PRIZNAK_OTHER_LIC_IMP, // 14 прочие разрешительные документы
+                    tnv_const.PRIZNAK_PENIMP, // 35
                     tnv_const.PRIZNAK_OTHER, // 15 прочие особенности
 
                 ]
