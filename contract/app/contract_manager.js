@@ -105,13 +105,18 @@ class kontdop extends stateobject {
         // Передача в kontrakt части по ставкам из TNVEDCC в зависимости от страны G34
         let cc = {};
         if (this.state.tnved) {
-            cc = get_tnvedcc_rec(this.state.data.G34, this.state.tnved.TNVEDCC);
+            // ToDo: исправить механизм передачи значения G34 в товары.
+            // cc = get_tnvedcc_rec(this.state.data.G34, this.state.tnved.TNVEDCC);
+            cc = get_tnvedcc_rec(this.manager.kontrakt.G34, this.state.tnved.TNVEDCC);
+            updated = {
+                ...updated,
+                cc
+            };
         }
         if (!isEmpty(updated)) {
             this.state.data = {
                 ...this.state.data,
-                ...updated,
-                cc: cc
+                ...updated
             };
         }
     }
@@ -506,7 +511,8 @@ class contract_manager extends stateobject {
 
     get_default_values (tblname) {
         if (this.props.onGetDefaultValues) {
-            return this.props.onGetDefaultValues(tblname)
+            let r = this.props.onGetDefaultValues(tblname);
+            return r;
         }
         return {}
     }
@@ -785,7 +791,7 @@ class contract_manager extends stateobject {
     }
 
     get_api_calc_tks_ru() {
-        return window.api_calc_tks_ru === undefined ? 'https://calc.tks.ru' : window.api_calc_tks_ru
+        return this.props.api_calc_tks_ru === undefined ? 'https://calc.tks.ru' : this.props.api_calc_tks_ru
     }
 
     get_calc_method() {
