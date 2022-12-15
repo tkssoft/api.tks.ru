@@ -3,17 +3,11 @@
 * Средства отладки скриптов
 * */
 
-const React = require('react')
 
-const debugmode = () => true;
+const debugmode = () => process.env.TKS_NODE_DEBUG === 'debug';
 
 const debug = (...args) => debugmode() && console.log(...args);
 
-const Dummy = (props) => {
-    return (<div {...props}>Dummy</div>)
-}
-
 export {
-    debug,
-    Dummy
+    debug
 }

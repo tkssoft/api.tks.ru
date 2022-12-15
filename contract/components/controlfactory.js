@@ -3,8 +3,11 @@
 import React from 'react';
 import { Row } from '../../common/bs';
 import { isEmptyAll } from '../../common/utils';
+import { debug } from '../../common/debug';
+import { eval_value } from './clientcalc';
 
 const FK_CALCULATED = 'Вычисляемое';
+const CT_CONTRACTINPUT = 'Текст';
 
 class ContractControlCreation {
 
@@ -71,7 +74,7 @@ class ControlFactory {
         return this;
     }
 
-    render ( { fields, onCreate, ...props } ) {
+    render ( { fields, variables, onCreate, ...props } ) {
         var sfields = [...fields];
         var rows = sfields.sort(function (a, b) {
             const row1 = parseInt(a.row) || 0;
@@ -103,11 +106,20 @@ class ControlFactory {
                         if (field.fieldkind === FK_CALCULATED) {
                             params['readOnly'] = true;
                         }
+                        if (field.visible !== undefined && typeof field.visible === 'string') {
+                            params['visible'] = eval_value(field.visible, variables);
+                        }
+                        if (field.data !== undefined && typeof field.data === 'string') {
+                            params['data'] = eval_value(field.data, variables);
+                        }
                         if (onCreate) {
                             params = onCreate(params);
                         }
                         if (isEmptyAll(params) || (params.visible == 0)) {
                             return null;
+                        }
+                        if (!field.edittype) {
+                            params.edittype = CT_CONTRACTINPUT;
                         }
                         const component_to_render = this.create(params);
                         if (component_to_render) {
@@ -127,5 +139,6 @@ class ControlFactory {
 export {
     ContractControlCreation,
     ControlFactory,
-    FK_CALCULATED
+    FK_CALCULATED,
+    CT_CONTRACTINPUT
 }

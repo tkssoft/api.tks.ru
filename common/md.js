@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import marked from 'marked';
+import { marked } from 'marked';
 
 const Markdown = (props) => {
     const { markdown, src } = props;

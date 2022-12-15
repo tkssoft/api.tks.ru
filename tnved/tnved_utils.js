@@ -290,7 +290,6 @@ const calc_get5 = (TBL, prz, acountry=tnv_const.CNTR_RUSSIA) => {
             return get5(34, null, TBL.PENEXP, null, null, null, null, null, null, null, 'Нет');
         case 35:
             const res = get5(35, null, TBL.PENIMP, null, null, null, null, null, null, null, 'Нет');
-            console.log(35, TBL.PENIMP, res);
             return res;
         default:
             return '';
