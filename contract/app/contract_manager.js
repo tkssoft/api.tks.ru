@@ -85,6 +85,10 @@ class kontdop extends stateobject {
         };
     }
 
+    getG32() {
+        return this.state.data.G32;
+    }
+
     can_update () {
         return !this.manager.state.update_count;
     }
@@ -258,8 +262,7 @@ class kontdop extends stateobject {
 
     calcfields () {
         if (this.props.onCalcFields) {
-            const r = this.props.onCalcFields(this);
-            return r;
+            return this.props.onCalcFields(this);
         }
         return {}
     }
@@ -501,18 +504,26 @@ class contract_manager extends stateobject {
     }
 
     register_delay(deman) {
-        super.register_delay(deman)
+        super.register_delay(deman);
         deman.add({
             name: DELAY_CALC,
             action: this.loadCalcResults.bind(this),
             delay: 1000,
-        })
+        });
     }
 
     get_default_values (tblname) {
         if (this.props.onGetDefaultValues) {
             let r = this.props.onGetDefaultValues(tblname);
             return r;
+        }
+        return {}
+    }
+
+    calcfields () {
+        if (this.props.onCalcFields) {
+            // Тут вызываем с undefined, потому что осноные данные
+            return this.props.onCalcFields();
         }
         return {}
     }
@@ -625,20 +636,31 @@ class contract_manager extends stateobject {
 
     getFieldData = (fieldname, g32) => {
         if (g32 === undefined) {
-            return this.getKontraktData(fieldname)
+            return this.getKontraktData(fieldname);
         }
-        const index = g32 - 1
-        let dop = this.getSourceData(index)
+        const index = g32 - 1;
+        let dop = this.getSourceData(index);
         if (dop) {
-            return dop.state.data[fieldname]
+            return dop.state.data[fieldname];
         }
-        return undefined
+        return undefined;
+    }
+
+    update_calc_fields = () => {
+        const calcfields = this.calcfields();
+        if (calcfields) {
+            this.setKontraktData(calcfields);
+        }
     }
 
     setKontraktData = (data) => {
         this.kontrakt = {
             ...this.kontrakt,
             ...data
+        }
+        this.kontrakt = {
+            ...this.kontrakt,
+            ...this.calcfields()
         }
         if ('G34' in data) {
             this.kontdop.map((kontdop) => {
@@ -906,6 +928,7 @@ class contract_manager extends stateobject {
         this.kontrakt = update_default_values(
             this.kontrakt, default_kontrakt(), this.get_default_values(tbl_kontrakt)
         );
+        this.update_calc_fields();
         const olddefs = default_kontdop();
         const newdefs = this.get_default_values(tbl_kontdop);
         this.kontdop = this.kontdop.map((kontdop) => {

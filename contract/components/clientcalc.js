@@ -76,17 +76,32 @@ function create_context_function_template(eval_string, context) {
 }
 
 function make_context_evaluator(eval_string, context) {
-    let template = create_context_function_template(eval_string, context)
-    let functor = Function(template)
-    return functor()
+    try {
+        let template = create_context_function_template(eval_string, context)
+        let functor = Function(template)
+        return functor()
+    } catch (e) {
+        return null;
+    }
 }
 
-const eval_value = (value, vars, def=0) => {
+const eval_value = (value, vars, def=0, debug=false) => {
     let r = def;
     if (value) {
         try {
             let evaluator = make_context_evaluator(value, vars);
-            r = evaluator(vars);
+            if (evaluator) {
+                try {
+                    r = evaluator(vars);
+                } catch (e) {
+                    r = def;
+                }
+            } else {
+                r = def;
+            }
+            if (debug) {
+                console.log(r, value, vars);
+            }
         } catch(error) {
             console.error('clientcalc.eval_value', error);
             r = def;

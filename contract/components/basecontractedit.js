@@ -9,7 +9,7 @@ const { ccs_contract, ccs_class } = require('../../common/ccs');
 const { isFunction } = require('../../common/utils');
 const { HorzRow, Column, getcold, is_horz, IfRow } = require('../../common/bs');
 
-const { ControlFactory, ContractControlCreation } = require('./controlfactory');
+const { ControlFactory, ContractControlCreation, CT_CONTRACTINPUT } = require('./controlfactory');
 
 const FormLabel = (props) => {
     const { type, isclasses } = props
@@ -107,7 +107,7 @@ class BaseContractEdit extends React.Component {
     render () {
         const { formgroup, isclasses, type, debug } = this.props;
         if (debug) {
-            console.log('value', this.state.value);
+            //console.log('value', this.state.value);
         }
         let fieldconfig = this.props.manager.get_field_config(this.props)
         const checkbox = type === 'checkbox'
@@ -170,7 +170,7 @@ const BaseContractInput = (props) => {
     }
     const cls = get_input_className(props);
     if (props.debug) {
-        console.log('BaseContractInput', fieldname, value);
+        debug('BaseContractInput', fieldname, value);
     }
     return (
         <div className={cls}>
@@ -270,7 +270,6 @@ const ContractNotEmptyNumericEdit = (props) => {
     )
 }
 
-const CT_CONTRACTINPUT = 'Текст';
 const CT_NUMERICINPUT = 'Число';
 const CT_NOTNULLNUMERIC = 'НеПустоеЧисло';
 
