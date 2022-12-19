@@ -251,6 +251,7 @@ class TnvTree extends React.Component {
         if (!this.state.updatecount) {
             // все компоненты обновлены
             if (this.selected.current !== null) {
+<<<<<<< HEAD
                 scrollIntoView(this.selected.current, document.body, this.getTopScrollMargin(), this.getBottomScrollMargin(), {});
                 // let currect = this.selected.current.getBoundingClientRect();
                 // let offset = getOffset(this.selected.current);
@@ -275,6 +276,34 @@ class TnvTree extends React.Component {
                 //     document.body.scrollBy(0, currect.top);
                 //     console.log('scroll to start');
                 // }
+=======
+                if (this.list.current !== null) {
+                    let rootelement = this.list.current.parentElement.parentElement
+                    let rootrect = rootelement.getBoundingClientRect();
+                    let currect = this.selected.current.getBoundingClientRect();
+                    const rbottom = Math.min(window.innerHeight - this.getBottomScrollMargin(), rootrect.bottom)
+                    const rtop = Math.max(this.getTopScrollMargin(), rootrect.top)
+                    console.log('rootelement', rootelement);
+                    console.log('rootrect', rootrect);
+                    console.log('currect', currect);
+                    console.log('rbottom', rbottom);
+                    console.log('rtop', rtop);
+                    console.log('bottonscrollmargin', this.getBottomScrollMargin());
+                    console.log('topscrollmargin', this.getTopScrollMargin());
+                    if (currect.bottom <= rbottom && currect.top >= rtop) {
+                        console.log('no scroll');
+                        return
+                    }
+                };
+                console.log('condition check', prevState.selected, this.state.selected);
+                if (prevState.selected < this.state.selected) {
+                    this.selected.current.scrollIntoView({block: "end", behavior: "instant"});
+                    console.log('scroll to end');
+                } else {
+                    this.selected.current.scrollIntoView({block: "start", behavior: "instant"});
+                    console.log('scroll to start');
+                }
+>>>>>>> 80f25e4 (partial)
             }
         }
     }
