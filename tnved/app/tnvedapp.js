@@ -46,7 +46,29 @@ const fire_result_event = (data) => {
         }
     });
     document.dispatchEvent(tnvsearchresults);
-}
+};
+
+
+function FocusedInput(props) {
+    const ref = useRef();
+    const [hasFocus, setFocus] = useState(false);
+
+    useEffect(() => {
+        if (document.hasFocus() && ref.current.contains(document.activeElement)) {
+            setFocus(true);
+        }
+    }, []);
+
+    return (
+        <input
+            {...props}
+            ref={ref}
+            onFocus={() => setFocus(true)}
+            onBlur={() => setFocus(false)}
+        />
+    );
+};
+
 
 const TnvSearchForm = (props) => {
 
@@ -56,6 +78,7 @@ const TnvSearchForm = (props) => {
 
     useEffect(() => {
         if (search) {
+            console.log('setSearch', search);
             getTreeData(search).then((data) => {
                 if (onSearchResults) {
                     onSearchResults(data)
@@ -64,7 +87,14 @@ const TnvSearchForm = (props) => {
                 }
             })
         }
-    }, [search])
+    }, [search]);
+
+    const handleEnter = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            setSearch(value);
+        }
+    };
 
     return (
         <form className="mt-2 mt-md-0 form-inline mb-md-0">
@@ -76,6 +106,7 @@ const TnvSearchForm = (props) => {
                 onChange={(e) => {
                     setValue(e.target.value)
                 }}
+                onKeyDown={ handleEnter }
             />
             <button
                 className="btn btn-sm btn-outline-success my-2 my-sm-0"
@@ -114,6 +145,7 @@ const TnvedApp = (props) => {
     const searchresults_handler = useCallback(
         (customevent) => {
             const result = customevent.detail.results;
+            console.log('searchresults_handler', result);
             if (result.length > 0) {
                 const first = result[0];
                 tree.current.setInitId(first.ID);
@@ -153,8 +185,10 @@ const TnvedApp = (props) => {
                         }}
                         initid={2074000 || 10}
                         ref={tree}
+                        bottomScrollMargin={140}
                         {...props}
                     />
+                    <div className={"footerdummy"} style={{height: '150px', backgroundColor: 'red'}}></div>
                 </div>
                 <div className="col-sm-4">
                     <ShowStWindow
