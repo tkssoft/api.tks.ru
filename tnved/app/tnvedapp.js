@@ -176,7 +176,7 @@ const TnvedApp = (props) => {
                     </div>
                 </Row>
             )}
-            <Row className='' {...props}>
+            <Row className='scrollroot' {...props}>
                 <div className="col-sm-8">
                     <TnvTree
                         className="ccs-scroll-container"
@@ -185,7 +185,7 @@ const TnvedApp = (props) => {
                         }}
                         initid={2074000 || 10}
                         ref={tree}
-                        bottomScrollMargin={140}
+                        bottomScrollMargin={160}
                         {...props}
                     />
                     <div className={"footerdummy"} style={{height: '150px', backgroundColor: 'red'}}></div>

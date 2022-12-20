@@ -2,6 +2,7 @@
 
 const React  = require('react');
 const { debug } = require('../common/debug');
+const { getOffset, scrollIntoView } = require('../common/elements');
 const keys = require('../common/keys');
 const { get_api_tks_ru } = require('../common/consts');
 
@@ -250,32 +251,30 @@ class TnvTree extends React.Component {
         if (!this.state.updatecount) {
             // все компоненты обновлены
             if (this.selected.current !== null) {
-                if (this.list.current !== null) {
-                    let rootelement = this.list.current.parentElement.parentElement
-                    let rootrect = rootelement.getBoundingClientRect();
-                    let currect = this.selected.current.getBoundingClientRect();
-                    const rbottom = Math.min(window.innerHeight - this.getBottomScrollMargin(), rootrect.bottom)
-                    const rtop = Math.max(this.getTopScrollMargin(), rootrect.top)
-                    console.log('rootelement', rootelement);
-                    console.log('rootrect', rootrect);
-                    console.log('currect', currect);
-                    console.log('rbottom', rbottom);
-                    console.log('rtop', rtop);
-                    console.log('bottonscrollmargin', this.getBottomScrollMargin());
-                    console.log('topscrollmargin', this.getTopScrollMargin());
-                    if (currect.bottom <= rbottom && currect.top >= rtop) {
-                        console.log('no scroll');
-                        return
-                    }
-                };
-                console.log('condition check', prevState.selected, this.state.selected);
-                if (prevState.selected < this.state.selected) {
-                    this.selected.current.scrollIntoView({block: "end", behavior: "instant"});
-                    console.log('scroll to end');
-                } else {
-                    this.selected.current.scrollIntoView({block: "start", behavior: "instant"});
-                    console.log('scroll to start');
-                }
+                scrollIntoView(this.selected.current, document.body, this.getTopScrollMargin(), this.getBottomScrollMargin(), {});
+                // let currect = this.selected.current.getBoundingClientRect();
+                // let offset = getOffset(this.selected.current);
+                // console.log('offset', offset.top, document.body.scrollTop);
+                // if (this.list.current !== null) {
+                //     let rootelement = this.list.current.parentElement.parentElement
+                //     let rootrect = rootelement.getBoundingClientRect();
+                //     const rbottom = Math.min(window.innerHeight - this.getBottomScrollMargin(), rootrect.bottom)
+                //     const rtop = Math.max(this.getTopScrollMargin(), rootrect.top)
+                //     if (currect.bottom <= rbottom && currect.top >= rtop) {
+                //         console.log('no scroll');
+                //         return
+                //     }
+                // };
+                // console.log('condition check', prevState.selected, this.state.selected);
+                // if (prevState.selected <= this.state.selected) {
+                //     console.log('end', document.body.getBoundingClientRect());
+                //     console.log('end', document.body.scrollTop);
+                //     document.body.scrollBy(0, -1 * currect.top);
+                //     console.log('scroll to end');
+                // } else {
+                //     document.body.scrollBy(0, currect.top);
+                //     console.log('scroll to start');
+                // }
             }
         }
     }
