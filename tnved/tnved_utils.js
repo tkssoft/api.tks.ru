@@ -19,6 +19,10 @@ const EncodeSign = (s) => {
             return ' плюс ';
         case '-':
             return ' минус ';
+        case '|':
+            return ' или ';
+        case '~':
+            return ' для ТС более ';
         default:
             return ' ';
     }
