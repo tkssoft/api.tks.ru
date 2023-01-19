@@ -19,6 +19,10 @@ const EncodeSign = (s) => {
             return ' плюс ';
         case '-':
             return ' минус ';
+        case '|':
+            return ' или ';
+        case '~':
+            return ' для ТС более ';
         default:
             return ' ';
     }
@@ -535,7 +539,8 @@ const has_pr = (tbl, typ, expertmode) => {
 const get_edizm_list = (data, type=TYPE_IM, include=[], exclude=[]) => {
 
     let a;
-    if (type === TYPE_EK) {
+
+    if (type == TYPE_EK) {
         a = [
             data.EXPEDI,
             data.EXPEDI2,

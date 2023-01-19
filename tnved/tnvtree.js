@@ -283,25 +283,14 @@ class TnvTree extends React.Component {
                     let currect = this.selected.current.getBoundingClientRect();
                     const rbottom = Math.min(window.innerHeight - this.getBottomScrollMargin(), rootrect.bottom)
                     const rtop = Math.max(this.getTopScrollMargin(), rootrect.top)
-                    console.log('rootelement', rootelement);
-                    console.log('rootrect', rootrect);
-                    console.log('currect', currect);
-                    console.log('rbottom', rbottom);
-                    console.log('rtop', rtop);
-                    console.log('bottonscrollmargin', this.getBottomScrollMargin());
-                    console.log('topscrollmargin', this.getTopScrollMargin());
                     if (currect.bottom <= rbottom && currect.top >= rtop) {
-                        console.log('no scroll');
                         return
                     }
                 };
-                console.log('condition check', prevState.selected, this.state.selected);
                 if (prevState.selected < this.state.selected) {
                     this.selected.current.scrollIntoView({block: "end", behavior: "instant"});
-                    console.log('scroll to end');
                 } else {
                     this.selected.current.scrollIntoView({block: "start", behavior: "instant"});
-                    console.log('scroll to start');
                 }
 >>>>>>> 80f25e4 (partial)
             }

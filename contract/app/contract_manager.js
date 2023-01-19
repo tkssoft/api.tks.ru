@@ -254,7 +254,7 @@ class kontdop extends stateobject {
 
     updatestavka = () => {
         return {
-            ...updatestavka(this.props.typ, this.state.data),
+            ...updatestavka(this.manager.get_calc_type(), this.state.data),
             ...this.calcfields()
         }
 
@@ -949,9 +949,9 @@ class contract_manager extends stateobject {
     get_edizm_list = (data, include=true) => {
         const addedizm = Object.keys(this.get_edizm());
         if (include) {
-            return get_edizm_list(data, this.props.typ, addedizm);
+            return get_edizm_list(data, this.get_calc_type(), addedizm);
         }
-        return get_edizm_list(data, this.props.typ, [], addedizm);
+        return get_edizm_list(data, this.get_calc_type(), [], addedizm);
     }
 
     get_edizm_displayLabel = (edi, index) => {
@@ -982,8 +982,12 @@ class contract_manager extends stateobject {
 
     get_edizm_fieldnames = (data, edi2) => {
         const addedizm = this.get_edizm();
-        const edizm_list = get_edizm_list(data, this.props.typ);
+        const edizm_list = get_edizm_list(data, this.get_calc_type());
         return edizm_list.map((edi) => this.get_edizm_fieldname(edi, edi2, addedizm));
+    }
+
+    get_calc_type() {
+        return this.kontrakt.TYPE;
     }
 
 }
