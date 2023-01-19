@@ -11,7 +11,7 @@ import { getTreeData } from '../tnved_search';
 import { tnved_manager } from '../tnved_manager';
 
 const ShowStWindow = (props) => {
-    const { code, data, isclasses, windowclassName } = props
+    const { code, data, isclasses, windowclassName, typ=0 } = props
     return (
         <div className="ccs-codeinfo">
             {code.length < 10 && (
@@ -19,7 +19,7 @@ const ShowStWindow = (props) => {
             )}
             {code.length === 10 && !isEmptyAll(data) && (
                 <ShowSt
-                    typ={0}
+                    typ={typ}
                     data={data.TNVED}
                     tnved={data}
                     G33={code}
@@ -188,16 +188,17 @@ const TnvedApp = (props) => {
                         bottomScrollMargin={160}
                         {...props}
                     />
-                    <div className={"footerdummy"} style={{height: '150px', backgroundColor: 'red'}}></div>
+                    <div className={"footerdummy"} style={{height: '130px', backgroundColor: 'red'}}></div>
                 </div>
-                <div className="col-sm-4">
+                {/* <div className="col-sm-4">
                     <ShowStWindow
+                        typ='1'
                         code={code}
                         data={data}
                         windowclassName={'tnvedapp-prim-window'}
                         {...props}
                     />
-                </div>
+                </div> */}
             </Row>
         </div>
     )

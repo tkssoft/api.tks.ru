@@ -1,4 +1,6 @@
 
+import { debug } from './debug';
+
 
 const getOffset = function (element) {
     var top = 0,
@@ -34,20 +36,27 @@ const scrollIntoView = function (element, container, margintop, marginbottom, op
     const height = container.clientHeight;
     const top = (margintop || 0);
     const bottom = height - (marginbottom || 0);
-    console.log('scrollIntoView offset', offset);
-    console.log('scrollIntoView container.offset', containeroffset);
-    console.log('scrollIntoView top', top);
-    console.log('scrollIntoView bottom', bottom);
-    let scrolltop = container.scrollTop;
-    if (offset.top < top) {
-        console.log('1');
-        scrolltop = top;
-    } else if (offset.top + offset.height > bottom) {
-        console.log('2');
-        scrolltop = bottom - offset.height;
+    const down = offset.y + offset.height > bottom;
+    const is_visible = (offset.y > 0) && !down;
+    // debug('scrollIntoView is_visible', is_visible, offset.y, containeroffset.y, bottom, offset.height);
+    if (!is_visible) {
+        // debug('scrollIntoView offset', offset);
+        // debug('scrollIntoView container.offset', containeroffset);
+        // debug('scrollIntoView height', height);
+        // debug('scrollIntoView margintop', margintop);
+        // debug('scrollIntoView marginbottom', marginbottom);
+        // debug('scrollIntoView top', top);
+        // debug('scrollIntoView bottom', bottom);
+        // debug('scrollIntoView down', down);
+        let scrolltop = container.scrollTop;
+        if (down) {
+            scrolltop += offset.y + offset.height - bottom;
+        } else {
+            scrolltop += offset.y - top;
+        }
+        // debug('scrollIntoView scrolltop', scrolltop, container.scrollTop);
+        container.scrollTo(0, scrolltop);
     }
-    console.log('scrollIntoView scrolltop', scrolltop, container.scrollTop);
-    container.scrollTo(0, scrolltop);
 }
 
 export { getOffset, scrollIntoView };

@@ -16,6 +16,8 @@ const get_code_url = (code) => `${get_api_tks_ru()}/tree.json/json/${clientid}/s
 import classNames from 'classnames';
 import { ccs_class, ccs_contract } from '../common/ccs';
 
+import { isNullStr } from '../common/utils';
+
 
 const LASTNEXTID = 200000000;
 
@@ -46,13 +48,23 @@ const DateWarning = ({ DBEGIN, DEND, isclasses }) => {
 
 
 const TreeItem = (props) => {
-    const { CODE, TEXT } = props;
-    if (CODE !== null) {
-        let clsname = 'ccs-contract-code-' + CODE.length;
+    let { CODE, TEXT, level } = props;
+    const cls = classNames(ccs_contract('treeitem'), ccs_contract('level-' + level));
+    // Разделение кода и текста
+    const re = /^(РАЗДЕЛ.*)\.(.*)$/;
+    const r = re.exec(TEXT);
+    let clen = CODE.length;
+    if (r) {
+        CODE = CODE || r[1];
+        TEXT = r[2];
+        clen = 0;
+    }
+    if (!isNullStr(CODE)) {
+        let clsname = 'ccs-contract-code-' + clen;
         return (
-            <div className={'ccs-contract-treeitem w-100'}>
-                <div className={'ccs-contract-treecode'}><span className={clsname}>{CODE}</span></div>
-                <div className={'ccs-contract-treetext ccs-contract-text_with_code w-100'}>
+            <div className={classNames(cls, 'w-100')}>
+                <div className={ccs_contract('treecode')}><span className={clsname}>{CODE}</span></div>
+                <div className={classNames(ccs_contract('treetext'), ccs_contract('text_with_code'), 'w-100')}>
                     <div>{TEXT}</div>
                     <DateWarning {...props}/>
                 </div>
@@ -60,8 +72,8 @@ const TreeItem = (props) => {
         );
     } else {
         return (
-            <div className={'ccs-contract-treeitem'}>
-                <div className={'ccs-contract-treetext ccs-contract-text_only'}>{TEXT}</div>
+            <div className={cls}>
+                <div className={classNames(ccs_contract('treetext'), ccs_contract('text_only'))}>{TEXT}</div>
             </div>
         );
     }
@@ -224,7 +236,8 @@ class TnvTree extends React.Component {
 
     componentDidMount() {
         window.addEventListener(this.eventname, this.bindedHandle);
-        if (![undefined, ''].includes(this.props.code)) {
+        debug('componentDidMount', this.props.code);
+        if (!isNullStr(this.props.code)) {
             this.getCodeID(this.props.code).then((data) => {
                 this.setInitId(data.length > 0 ? data[0].ID : this.state.initid)
             })
@@ -247,52 +260,25 @@ class TnvTree extends React.Component {
         return topScrollMargin
     }
 
-    componentDidUpdate(prevProps, prevState) {
+    getSnapshotBeforeUpdate(prevProps, prevState) {
+        const container = document.body;
+        return container.scrollTop;
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (snapshot !== null) {
+            const container = document.body;
+            container.scrollTop = snapshot;
+        }
         if (!this.state.updatecount) {
             // все компоненты обновлены
             if (this.selected.current !== null) {
-<<<<<<< HEAD
-                scrollIntoView(this.selected.current, document.body, this.getTopScrollMargin(), this.getBottomScrollMargin(), {});
-                // let currect = this.selected.current.getBoundingClientRect();
-                // let offset = getOffset(this.selected.current);
-                // console.log('offset', offset.top, document.body.scrollTop);
-                // if (this.list.current !== null) {
-                //     let rootelement = this.list.current.parentElement.parentElement
-                //     let rootrect = rootelement.getBoundingClientRect();
-                //     const rbottom = Math.min(window.innerHeight - this.getBottomScrollMargin(), rootrect.bottom)
-                //     const rtop = Math.max(this.getTopScrollMargin(), rootrect.top)
-                //     if (currect.bottom <= rbottom && currect.top >= rtop) {
-                //         console.log('no scroll');
-                //         return
-                //     }
-                // };
-                // console.log('condition check', prevState.selected, this.state.selected);
-                // if (prevState.selected <= this.state.selected) {
-                //     console.log('end', document.body.getBoundingClientRect());
-                //     console.log('end', document.body.scrollTop);
-                //     document.body.scrollBy(0, -1 * currect.top);
-                //     console.log('scroll to end');
-                // } else {
-                //     document.body.scrollBy(0, currect.top);
-                //     console.log('scroll to start');
-                // }
-=======
-                if (this.list.current !== null) {
-                    let rootelement = this.list.current.parentElement.parentElement
-                    let rootrect = rootelement.getBoundingClientRect();
-                    let currect = this.selected.current.getBoundingClientRect();
-                    const rbottom = Math.min(window.innerHeight - this.getBottomScrollMargin(), rootrect.bottom)
-                    const rtop = Math.max(this.getTopScrollMargin(), rootrect.top)
-                    if (currect.bottom <= rbottom && currect.top >= rtop) {
-                        return
-                    }
-                };
-                if (prevState.selected < this.state.selected) {
-                    this.selected.current.scrollIntoView({block: "end", behavior: "instant"});
-                } else {
-                    this.selected.current.scrollIntoView({block: "start", behavior: "instant"});
-                }
->>>>>>> 80f25e4 (partial)
+                scrollIntoView(
+                    this.selected.current,
+                    document.body,
+                    this.getTopScrollMargin(),
+                    this.getBottomScrollMargin()
+                );
             }
         }
     }
@@ -327,6 +313,9 @@ class TnvTree extends React.Component {
     };
 
     itemClick(i, e) {
+        if (e) {
+            e.preventDefault();
+        }
         const node = this.state.items[i];
         if (node.CODE === null || node.CODE.length !== 10) {
             if (this.state.updatecount === 0) {
@@ -366,14 +355,9 @@ class TnvTree extends React.Component {
                 {this.state.items.map((item, i) => {
                     const { ID, level } = item;
                     const active = i === this.state.selected ? "active" : "";
-                    let style = {};
-                    if (level > 0) {
-                        style.paddingLeft = `${level*3}em`
-                    }
                     return (
                         <a className={"list-group-item list-group-item-action " + active}
                            key={ID}
-                           style={style}
                            href="#"
                            onClick={this.itemClick.bind(this, i)}
                            ref={active ? this.selected : ""}

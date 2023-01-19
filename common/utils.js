@@ -32,8 +32,16 @@ const isEmpty = function(obj) {
     return Object.getOwnPropertyNames(obj).length === 0
 }
 
+const isNull = function(obj) {
+    return [undefined, null].includes(obj)
+}
+
+const isNullStr = function(obj) {
+    return [undefined, null, ''].includes(obj)
+}
+
 const isEmptyAll = function(obj) {
-    return [undefined, null].includes(obj) || isEmpty(obj)
+    return isNull(obj) || isEmpty(obj)
 }
 
 const isError = (error) => {
@@ -64,6 +72,8 @@ export {
     isEmpty,
     isError,
     isEmptyAll,
+    isNull,
+    isNullStr,
     get_fetch_error_msg,
     filter_dict
 }
