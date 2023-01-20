@@ -37,7 +37,7 @@ const scrollIntoView = function (element, container, margintop, marginbottom, op
     const top = (margintop || 0);
     const bottom = height - (marginbottom || 0);
     const down = offset.y + offset.height > bottom;
-    const is_visible = (offset.y > 0) && !down;
+    const is_visible = (offset.y > top) && !down;
     // debug('scrollIntoView is_visible', is_visible, offset.y, containeroffset.y, bottom, offset.height);
     if (!is_visible) {
         // debug('scrollIntoView offset', offset);

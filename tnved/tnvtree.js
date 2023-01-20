@@ -168,7 +168,7 @@ class TnvTree extends React.Component {
 
     insertData = (id, index, level, nextid, selected) => {
         let that = this
-        this.begin_update(() => {
+        return this.begin_update(() => {
             this.loadData(format_id(id)).then((data) => {
                 let rest = that.state.items.slice(index, that.state.items.length);
                 let prior = null;
@@ -207,7 +207,9 @@ class TnvTree extends React.Component {
                         const node = that.state.items[that.state.selected];
                     }
                 })
-            }).then(() => {that.end_update()}).catch(() => {that.end_update()})
+            }).then(() => {
+                that.end_update(() => {})
+            }).catch(() => {that.end_update()})
         })
     };
 
@@ -231,18 +233,19 @@ class TnvTree extends React.Component {
     };
 
     insertRoot() {
-        this.insertData(10, 0, 0, LASTNEXTID, 0);
+        return this.insertData(10, 0, 0, LASTNEXTID, 0);
     }
 
     componentDidMount() {
         window.addEventListener(this.eventname, this.bindedHandle);
-        debug('componentDidMount', this.props.code);
         if (!isNullStr(this.props.code)) {
             this.getCodeID(this.props.code).then((data) => {
                 this.setInitId(data.length > 0 ? data[0].ID : this.state.initid)
             })
         } else {
-            this.insertRoot()
+            this.insertRoot().than(() => {
+                this.state.initid = -1
+            })
         }
     }
 

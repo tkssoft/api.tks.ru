@@ -10,6 +10,8 @@ import { ShowSt } from '../showst';
 import { getTreeData } from '../tnved_search';
 import { tnved_manager } from '../tnved_manager';
 
+import { HeightObserver } from '../../common/mimic';
+
 const ShowStWindow = (props) => {
     const { code, data, isclasses, windowclassName, typ=0 } = props
     return (
@@ -121,9 +123,36 @@ const TnvSearchForm = (props) => {
     )
 }
 
+
+const NavMenu = (props) => {
+    return (
+        <nav className="navbar navbar-expand-sm header navbar-light">
+            <a className="navbar-brand" href="#">ТКС СОФТ</a>
+            <button
+                className="navbar-toggler"
+                type="button"
+                data-toggle="collapse"
+                data-target="#appNavbar"
+                aria-controls="navbarSupportedContent"
+                aria-expanded="false"
+                aria-label="Toggle navigation"
+            >
+                <span className="navbar-toggler-icon"></span>
+            </button>
+            <div className="collapse navbar-collapse" id="appNavbar">
+                <ul className="navbar-nav mr-auto">
+                    <li className="nav-item">
+                        <TnvSearchForm />
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    );
+}
+
 const TnvedApp = (props) => {
 
-    const { isclasses, manager, search } = props
+    const { isclasses, manager, search, header_css, footer_css } = props
 
     if (!manager) {
         manager = new tnved_manager({})
@@ -168,16 +197,12 @@ const TnvedApp = (props) => {
     useEventListener(event_searchresults, searchresults_handler, document);
 
     return (
+        <>
+        {search && (<NavMenu />)}
         <div className={cls}>
-            {search && (
-                <Row {...props}>
-                    <div className="col ccs-tnvedapp-search">
-                        <TnvSearchForm />
-                    </div>
-                </Row>
-            )}
             <Row className='scrollroot' {...props}>
                 <div className="col-sm-8">
+                    <HeightObserver element_css={header_css}/>
                     <TnvTree
                         className="ccs-scroll-container"
                         onChange={(node) => {
@@ -185,12 +210,13 @@ const TnvedApp = (props) => {
                         }}
                         initid={2074000 || 10}
                         ref={tree}
+                        topScrollMargin={160}
                         bottomScrollMargin={160}
                         {...props}
                     />
-                    <div className={"footerdummy"} style={{height: '130px', backgroundColor: 'red'}}></div>
+                    <HeightObserver element_css={footer_css}/>
                 </div>
-                {/* <div className="col-sm-4">
+                <div className="col-sm-4">
                     <ShowStWindow
                         typ='1'
                         code={code}
@@ -198,9 +224,11 @@ const TnvedApp = (props) => {
                         windowclassName={'tnvedapp-prim-window'}
                         {...props}
                     />
-                </div> */}
+                </div>
             </Row>
         </div>
+
+        </>
     )
 }
 

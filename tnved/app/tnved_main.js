@@ -11,4 +11,11 @@ const TnvedAppConfig = {
 
 const target = document.querySelector('#ccs-app');
 
-createRoot(target).render(<TnvedApp search={true} {...TnvedAppConfig} />);
+createRoot(target).render(
+    <TnvedApp
+        search={true}
+        header_css='.navbar'
+        footer_css='.footer'
+        {...TnvedAppConfig}
+    />
+);
