@@ -90,7 +90,6 @@ class TnvTree extends React.Component {
         this.state = {
             items: [],
             selected: 0,
-            initid: props.initid || 10,
             updatecount: 0,
         };
         this.bindedHandle = this.handleKeyPress.bind(this)
@@ -98,10 +97,9 @@ class TnvTree extends React.Component {
 
     setInitId (initid) {
         this.setState({
-            initid: initid || 10,
             items: []
         }, () => {
-            this.insertRoot()
+            this.insertRoot(initid)
         })
     }
 
@@ -166,7 +164,7 @@ class TnvTree extends React.Component {
         }
     };
 
-    insertData = (id, index, level, nextid, selected) => {
+    insertData = (id, index, level, nextid, selected, initid=10) => {
         let that = this
         return this.begin_update(() => {
             this.loadData(format_id(id)).then((data) => {
@@ -180,17 +178,17 @@ class TnvTree extends React.Component {
                     items: data.reduce((obj, item) => {
                         if (prior !== null) {
                             prior.nextid = item.ID;
-                            if (next !== null && that.state.initid > prior.nextid) {
+                            if (next !== null && initid > prior.nextid) {
                                 next = null;
                             }
                         }
                         prior = {...item, parentid: id, level: level, nextid: nextid};
                         nextindex = obj.push(prior);
-                        if (id !== that.state.initid) {
-                            if (prior.ID === that.state.initid) {
+                        if (id !== initid) {
+                            if (prior.ID === initid) {
                                 sel = nextindex - 1;
                                 found = true;
-                            } else if (that.state.initid > prior.ID && that.state.initid < prior.nextid) {
+                            } else if (initid > prior.ID && initid < prior.nextid) {
                                 next = {
                                     ...prior,
                                     parentindex: nextindex
@@ -202,7 +200,7 @@ class TnvTree extends React.Component {
                     selected: sel
                 }, () => {
                     if (next !== null && !found) {
-                        that.insertData(next.ID, next.parentindex, next.level + 1, next.nextid, next.parentindex);
+                        that.insertData(next.ID, next.parentindex, next.level + 1, next.nextid, next.parentindex, initid);
                     } else {
                         const node = that.state.items[that.state.selected];
                     }
@@ -232,20 +230,18 @@ class TnvTree extends React.Component {
         return node.ID === this.state.items[index + 1].parentid;
     };
 
-    insertRoot() {
-        return this.insertData(10, 0, 0, LASTNEXTID, 0);
+    insertRoot(initid) {
+        return this.insertData(10, 0, 0, LASTNEXTID, 0, initid);
     }
 
     componentDidMount() {
         window.addEventListener(this.eventname, this.bindedHandle);
         if (!isNullStr(this.props.code)) {
             this.getCodeID(this.props.code).then((data) => {
-                this.setInitId(data.length > 0 ? data[0].ID : this.state.initid)
+                this.setInitId(data.length > 0 ? data[0].ID : this.props.initid);
             })
         } else {
-            this.insertRoot().than(() => {
-                this.state.initid = -1
-            })
+            this.insertRoot(this.props.initid);
         }
     }
 
@@ -298,7 +294,7 @@ class TnvTree extends React.Component {
                 }
             })
             .then((data)=>{
-                //debug(`fetch time is: ${(Date.now() - starttime) / 1000} sec`)
+                debug(`${url} fetch time is: ${(Date.now() - starttime) / 1000} sec`)
                 return data
             })
     };
