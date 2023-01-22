@@ -16,6 +16,10 @@ createRoot(target).render(
         search={true}
         header_css='.navbar'
         footer_css='.footer'
+        onSearchResults={(data) => {
+            // collapse navbar
+            $('.navbar-collapse').collapse('hide');
+        }}
         {...TnvedAppConfig}
     />
 );

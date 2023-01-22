@@ -9,7 +9,7 @@ import { useEventListener } from '../../common/hooks';
 import { ShowSt } from '../showst';
 import { getTreeData } from '../tnved_search';
 import { tnved_manager } from '../tnved_manager';
-
+import { debug } from '../../common/debug';
 import { HeightObserver } from '../../common/mimic';
 
 const ShowStWindow = (props) => {
@@ -141,8 +141,18 @@ const NavMenu = (props) => {
             </button>
             <div className="collapse navbar-collapse" id="appNavbar">
                 <ul className="navbar-nav mr-auto">
+                    <TnvSearchForm />
                     <li className="nav-item">
-                        <TnvSearchForm />
+                        <a className='nav-link'  href='http://github.com/tkssoft'>Документация 1</a>
+                    </li>
+                    <li className="nav-item">
+                        <a className='nav-link' href='http://github.com/tkssoft'>Документация 2</a>
+                    </li>
+                    <li className="nav-item">
+                        <a  className='nav-link' href='http://github.com/tkssoft'>Документация 3</a>
+                    </li>
+                    <li className="nav-item">
+                        <a  className='nav-link' href='http://github.com/tkssoft'>Документация 4</a>
                     </li>
                 </ul>
             </div>
@@ -152,7 +162,7 @@ const NavMenu = (props) => {
 
 const TnvedApp = (props) => {
 
-    const { isclasses, manager, search, header_css, footer_css } = props
+    const { isclasses, manager, search, header_css, footer_css, onSearchResults } = props
 
     if (!manager) {
         manager = new tnved_manager({})
@@ -174,13 +184,16 @@ const TnvedApp = (props) => {
     const searchresults_handler = useCallback(
         (customevent) => {
             const result = customevent.detail.results;
-            console.log('searchresults_handler', result);
+            debug('searchresults_handler', result);
             if (result.length > 0) {
                 const first = result[0];
                 tree.current.setInitId(first.ID);
             } else {
                 // ToDo: сделать модульное окно с инфомацией об ошибке.
                 alert('Внимание! Информация по коду не найдена.');
+            }
+            if (onSearchResults) {
+                onSearchResults(result)
             }
         },
         [ setCurrent ]
