@@ -60,7 +60,8 @@ class ModalWindow extends React.Component {
     render() {
         const {
             onCloseRequest,
-            children
+            children,
+            isclasses
         } = this.props;
 
         return (
@@ -68,7 +69,7 @@ class ModalWindow extends React.Component {
                 <div className={"modalbutton-modal " + this.get_className()} ref={node => (this.modal = node)}>
                     <div className={'modalbutton-caption'}>
                         <div className={'modalbutton-title'}>{this.props.title}</div>
-                        <button type="button" className={"close border modalbutton-close px-1"} onClick={onCloseRequest}>
+                        <button type="button" className={classNames("close border modalbutton-close",{"px-2": isclasses})} onClick={onCloseRequest}>
                             <span>&times;</span>
                         </button>
                     </div>
@@ -120,7 +121,12 @@ class ModalButton extends React.Component {
                     {buttonLabel}
                 </button>
                 {showModal &&
-                <ModalWindow onCloseRequest={() => this.handleToggleModal()} title={this.props.title} className={this.props.windowclassName}>
+                <ModalWindow
+                    onCloseRequest={() => this.handleToggleModal()}
+                    title={this.props.title}
+                    className={this.props.windowclassName}
+                    isclasses={isclasses}
+                >
                     {children}
                 </ModalWindow>}
             </div>
