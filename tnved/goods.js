@@ -29,6 +29,7 @@ const fetch_goods_data = (g312, pageno) => {
 * Информация по наименованию с группировкой по кодам без разбивки по страницам
 * */
 const fetch_goods_codes = (g312) => {
+    debug('fetch_goods_codes', g312);
     const clientid = encodeURIComponent(calc_tks_ru_license.split('\n').join(''));
     const name = encodeURI(g312);
     const url = `${get_api_tks_ru()}/goods.json/json/${clientid}/?searchstr=${name}&group=code`;
@@ -47,6 +48,7 @@ const fetch_goods_codes = (g312) => {
 * Информация по наименованию и коду без разбивки по страницам
 * */
 const fetch_goods_code = (g312, pageno, code) => {
+    debug('fetch_goods_code', g312, code);
     const clientid = encodeURIComponent(calc_tks_ru_license.split('\n').join(''));
     const name = encodeURI(g312);
     const url = `${get_api_tks_ru()}/goods.json/json/${clientid}/?searchstr=${name}&code=${code}`
@@ -169,11 +171,17 @@ class GoodsResult extends React.Component {
         return 0
     }
 
+    processing (params) {
+        if (this.props.onProcessing) {
+            this.props.onProcessing(params);
+        }
+    }
+
     stateUpdated(props, state, source) {
         const { pending, loading, skipitems, itemindex } = this.state;
         const hm = this.get_recordcount(this.state);
         if (state.loading !== this.state.loading || this.get_recordcount(state) !== hm) {
-            this.props.onProcessing({
+            this.processing({
                 loading: loading,
                 hm: hm
             })
@@ -522,5 +530,6 @@ class GoodsSelect extends React.Component {
 
 
 export {
-    GoodsSelect
+    GoodsSelect,
+    GoodsResult
 }

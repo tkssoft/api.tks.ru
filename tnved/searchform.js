@@ -5,8 +5,8 @@ import { getTreeData } from './tnved_search';
 
 const event_searchresults = 'tnvsearchresults';
 
-const fire_result_event = (data) => {
-    let tnvsearchresults = new CustomEvent(event_searchresults, {
+const fire_result_event = (eventname, data) => {
+    let tnvsearchresults = new CustomEvent(eventname, {
         detail: {
             results: data,
         }
@@ -14,22 +14,18 @@ const fire_result_event = (data) => {
     document.dispatchEvent(tnvsearchresults);
 };
 
-const TnvSearchForm = (props) => {
+const SearchForm = (props) => {
 
-    const { isclasses, onSearchResults, code } = props
+    const { isclasses, onSearchResults, code, onSearch, placeholder="Введите код..." } = props
     const [ value, setValue ] = useState(code || '')
     const [ search, setSearch ] = useState('')
 
     useEffect(() => {
         if (search) {
             debug('setSearch', search);
-            getTreeData(search).then((data) => {
-                if (onSearchResults) {
-                    onSearchResults(data)
-                } else {
-                    fire_result_event(data)
-                }
-            })
+            if (onSearch) {
+                onSearch(search, onSearchResults)
+            }
         }
     }, [search]);
 
@@ -41,11 +37,11 @@ const TnvSearchForm = (props) => {
     };
 
     return (
-        <form className="mt-2 mt-md-0 form-inline mb-md-0">
+        <form className="mt-2 mt-md-0 form-inline mb-md-0 ccs-searchform">
             <input
                 className="form-control-sm mr-sm-2"
                 type="text"
-                placeholder="Введите код..."
+                placeholder = {placeholder}
                 value={value}
                 onChange={(e) => {
                     setValue(e.target.value)
@@ -65,7 +61,27 @@ const TnvSearchForm = (props) => {
     )
 }
 
+const TnvSearchForm = (props) => {
+    const { eventname=event_searchresults } = props
+    return (
+        <SearchForm
+            onSearch={(search, onSearchResults) => {
+                getTreeData(search).then((data) => {
+                    if (onSearchResults) {
+                        onSearchResults(data)
+                    } else {
+                        fire_result_event(eventname, data)
+                    }
+                })
+            }}
+            {...props}
+        />
+    )
+}
+
 module.exports = {
     TnvSearchForm,
+    SearchForm,
+    fire_result_event,
     event_searchresults
 }
