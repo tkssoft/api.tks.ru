@@ -16,7 +16,7 @@ const fire_result_event = (eventname, data) => {
 
 const SearchForm = (props) => {
 
-    const { isclasses, onSearchResults, code, onSearch, placeholder="Введите код..." } = props
+    const { isclasses, onSearchResults, code, onSearch, placeholder="Введите код...", onClick } = props
     const [ value, setValue ] = useState(code || '')
     const [ search, setSearch ] = useState('')
 
@@ -31,9 +31,16 @@ const SearchForm = (props) => {
 
     const handleEnter = (e) => {
         if (e.key === 'Enter') {
-            e.preventDefault();
-            setSearch(value);
+            handleSearch(e);
         }
+    };
+
+    const handleSearch = (e) => {
+        e.preventDefault();
+        if (onClick) {
+            onClick(e);
+        }
+        setSearch(value);
     };
 
     return (
@@ -43,17 +50,12 @@ const SearchForm = (props) => {
                 type="text"
                 placeholder = {placeholder}
                 value={value}
-                onChange={(e) => {
-                    setValue(e.target.value)
-                }}
+                onChange={(e) => setValue(e.target.value)}
                 onKeyDown={ handleEnter }
             />
             <button
                 className="btn btn-sm btn-outline-success my-2 my-sm-0"
-                onClick={(e) => {
-                    e.preventDefault();
-                    setSearch(value);
-                }}
+                onClick={handleSearch}
             >
                 Поиск
             </button>
