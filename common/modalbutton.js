@@ -29,6 +29,7 @@ class ModalWindow extends React.Component {
         const keys = {
             27: () => {
                 e.preventDefault();
+                e.stopPropagation();
                 onCloseRequest();
                 window.removeEventListener('keyup', this.handleKeyUp, false);
             },
@@ -69,7 +70,14 @@ class ModalWindow extends React.Component {
                 <div className={"modalbutton-modal " + this.get_className()} ref={node => (this.modal = node)}>
                     <div className={'modalbutton-caption'}>
                         <div className={'modalbutton-title'}>{this.props.title}</div>
-                        <button type="button" className={classNames("close border modalbutton-close",{"px-2": isclasses})} onClick={onCloseRequest}>
+                        <button
+                            type="button"
+                            className={classNames("close border modalbutton-close",{"px-2": isclasses})}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                onCloseRequest();
+                            }}>
                             <span>&times;</span>
                         </button>
                     </div>
@@ -93,12 +101,13 @@ class ModalButton extends React.Component {
     }
 
     handleToggleModal() {
-        let that = this
+        debug('handleToggleModal');
+        let that = this;
         setTimeout(
             that.setState({
                 showModal: !that.state.showModal
             }), 100
-        )
+        );
     }
 
     render() {
