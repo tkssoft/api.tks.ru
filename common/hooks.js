@@ -49,6 +49,27 @@ const useMutationObserver = (
         }, [callback, options]);
 };
 
+
+function FocusedInput(props) {
+    const ref = useRef();
+    const [hasFocus, setFocus] = useState(false);
+
+    useEffect(() => {
+        if (document.hasFocus() && ref.current.contains(document.activeElement)) {
+            setFocus(true);
+        }
+    }, []);
+
+    return (
+        <input
+            {...props}
+            ref={ref}
+            onFocus={() => setFocus(true)}
+            onBlur={() => setFocus(false)}
+        />
+    );
+};
+
 export {
     useEventListener,
     useMutationObserver
