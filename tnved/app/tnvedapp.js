@@ -12,15 +12,37 @@ import { debug } from '../../common/debug';
 import { HeightObserver } from '../../common/mimic';
 import { event_searchresults } from '../searchform';
 import { ModalButton } from '../../common/modalbutton';
+import { isNumeric } from '../../common/numbers';
+
+const isCode = (code) => {
+    return code && isNumeric(code) && code.length === 10;
+}
 
 const ShowStWindow = (props) => {
-    const { code, data, isclasses, windowclassName, typ=0, windowClassName } = props
+    const { code, manager, isclasses, windowclassName, typ=0, windowClassName } = props;
+    const [ data, setData ] = useState({});
+    const [ loading, setLoading ] = useState(false);
+
+    useEffect(() => {
+        if (isCode(code)) {
+            setLoading(true);
+            debug('Загрузка данных для кода', code, '...');
+            manager.getData(code).then((data) => {
+                setData(data);
+                setLoading(false);
+            });
+        }
+    }, [code]);
+
     return (
         <div className={classNames("ccs-codeinfo", windowClassName)}>
-            {code.length < 10 && (
+            {!isCode(code) && (
                 <div>Для просмотра информации по коду, выберете полный код</div>
             )}
-            {code.length === 10 && !isEmptyAll(data) && (
+            {loading && (
+                <div>Идет загрузка данных для кода {code}</div>
+            )}
+            {!loading && isCode(code) && !isEmptyAll(data) && (
                 <ShowSt
                     typ={typ}
                     data={data.TNVED}
@@ -43,12 +65,11 @@ const ShowStWindow = (props) => {
 
 const ShowStButton = (props) => {
     const { code } = props;
-    if (code && code.length === 10) {
+    if (isCode(code)) {
         return (
             <div className="ccs-code d-sm-block d-md-none">
                 <ModalButton btnClassName="btn-sm" buttonLabel="Ставки" title="Ставки / признаки">
-
-                    <h1>Ставки</h1>
+                    <ShowStWindow windowClassName="ccs-codeinfo-modal" {...props} />
                 </ModalButton>
             </div>
         )
@@ -67,11 +88,10 @@ const TnvedApp = (props) => {
 
     const cls = classNames({
         'ccs-tnvedapp': true,
-        'container': isclasses
+        'container-fluid': isclasses
     });
 
     const [ current, setCurrent ] = useState();
-    const [ data, setData ] = useState({});
 
     const tree = useRef(null);
 
@@ -96,25 +116,16 @@ const TnvedApp = (props) => {
         [ setCurrent ]
     );
 
-    useEffect(() => {
-        if (code && data.CODE !== code) {
-            manager.getData(code).then((data) => {
-                setData(data)
-            })
-        }
-    });
-
     useEventListener(event_searchresults, searchresults_handler, document);
 
     const treecls = classNames({
-        'col-md-8': isclasses && stavkas,
+        'col-md': isclasses && stavkas,
         'col' : isclasses && !stavkas
     });
 
     const showst_props = {
         typ: '1',
         code: code,
-        data: data,
         windowclassName: 'tnvedapp-prim-window',
     }
 
@@ -132,24 +143,22 @@ const TnvedApp = (props) => {
                         topScrollMargin={160}
                         bottomScrollMargin={160}
                         onCodeRender={(acode, text) => {
-                            if (acode === code) {
-                                return (
-                                    <ShowStButton
-                                        {...showst_props}
-                                        {...props}
-                                    />
-                                );
-                            }
-                            return null;
+                            return (
+                                <ShowStButton
+                                    {...showst_props}
+                                    {...props}
+                                    code={acode}
+                                />
+                            );
                         }}
                         {...props}
                     />
                     <HeightObserver element_css={footer_css}/>
                 </div>
                 {stavkas && (
-                    <div className="col-md-4">
+                    <div className="col-md">
                         <ShowStWindow
-                            windowClassName="d-none d-sm-none d-md-block"
+                            windowClassName="ccs-codeinfo-fixed d-none d-sm-none d-md-block"
                             {...showst_props}
                             {...props}
                         />
