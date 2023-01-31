@@ -11,11 +11,12 @@ import { tnved_manager } from '../tnved_manager';
 import { debug } from '../../common/debug';
 import { HeightObserver } from '../../common/mimic';
 import { event_searchresults } from '../searchform';
+import { ModalButton } from '../../common/modalbutton';
 
 const ShowStWindow = (props) => {
-    const { code, data, isclasses, windowclassName, typ=0 } = props
+    const { code, data, isclasses, windowclassName, typ=0, windowClassName } = props
     return (
-        <div className="ccs-codeinfo">
+        <div className={classNames("ccs-codeinfo", windowClassName)}>
             {code.length < 10 && (
                 <div>Для просмотра информации по коду, выберете полный код</div>
             )}
@@ -40,25 +41,20 @@ const ShowStWindow = (props) => {
 }
 
 
-function FocusedInput(props) {
-    const ref = useRef();
-    const [hasFocus, setFocus] = useState(false);
+const ShowStButton = (props) => {
+    const { code } = props;
+    if (code && code.length === 10) {
+        return (
+            <div className="ccs-code d-sm-block d-md-none">
+                <ModalButton btnClassName="btn-sm" buttonLabel="Ставки" title="Ставки / признаки">
 
-    useEffect(() => {
-        if (document.hasFocus() && ref.current.contains(document.activeElement)) {
-            setFocus(true);
-        }
-    }, []);
-
-    return (
-        <input
-            {...props}
-            ref={ref}
-            onFocus={() => setFocus(true)}
-            onBlur={() => setFocus(false)}
-        />
-    );
-};
+                    <h1>Ставки</h1>
+                </ModalButton>
+            </div>
+        )
+    }
+    return null;
+}
 
 
 const TnvedApp = (props) => {
@@ -111,9 +107,16 @@ const TnvedApp = (props) => {
     useEventListener(event_searchresults, searchresults_handler, document);
 
     const treecls = classNames({
-        'col-sm-8': isclasses && stavkas,
+        'col-md-8': isclasses && stavkas,
         'col' : isclasses && !stavkas
     });
+
+    const showst_props = {
+        typ: '1',
+        code: code,
+        data: data,
+        windowclassName: 'tnvedapp-prim-window',
+    }
 
     return (
         <div className={cls}>
@@ -128,17 +131,26 @@ const TnvedApp = (props) => {
                         ref={tree}
                         topScrollMargin={160}
                         bottomScrollMargin={160}
+                        onCodeRender={(acode, text) => {
+                            if (acode === code) {
+                                return (
+                                    <ShowStButton
+                                        {...showst_props}
+                                        {...props}
+                                    />
+                                );
+                            }
+                            return null;
+                        }}
                         {...props}
                     />
                     <HeightObserver element_css={footer_css}/>
                 </div>
                 {stavkas && (
-                    <div className="col-sm-4">
+                    <div className="col-md-4">
                         <ShowStWindow
-                            typ='1'
-                            code={code}
-                            data={data}
-                            windowclassName={'tnvedapp-prim-window'}
+                            windowClassName="d-none d-sm-none d-md-block"
+                            {...showst_props}
                             {...props}
                         />
                     </div>

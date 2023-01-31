@@ -48,7 +48,7 @@ const DateWarning = ({ DBEGIN, DEND, isclasses }) => {
 
 
 const TreeItem = (props) => {
-    let { CODE, TEXT, level } = props;
+    let { CODE, TEXT, level, onCodeRender } = props;
     const cls = classNames(ccs_contract('treeitem'), ccs_contract('level-' + level));
     // Разделение кода и текста
     const re = /^(РАЗДЕЛ.*)\.(.*)$/;
@@ -68,6 +68,7 @@ const TreeItem = (props) => {
                     <div>{TEXT}</div>
                     <DateWarning {...props}/>
                 </div>
+                {onCodeRender && onCodeRender(CODE, TEXT)}
             </div>
         );
     } else {
@@ -312,6 +313,7 @@ class TnvTree extends React.Component {
     };
 
     itemClick(i, e) {
+        debug('itemClick', i, e);
         if (e) {
             e.preventDefault();
         }
