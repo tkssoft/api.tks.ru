@@ -67,7 +67,14 @@ class ModalWindow extends React.Component {
 
         return (
             <div className={"modalbutton-overlay " + this.get_className()}>
-                <div className={"modalbutton-modal " + this.get_className()} ref={node => (this.modal = node)}>
+                <div
+                    className={"modalbutton-modal " + this.get_className()}
+                    ref={node => (this.modal = node)}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }}
+                >
                     <div className={'modalbutton-caption'}>
                         <div className={'modalbutton-title'}>{this.props.title}</div>
                         <button
