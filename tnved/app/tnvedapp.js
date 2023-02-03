@@ -80,7 +80,7 @@ const ShowStButton = (props) => {
 
 const TnvedApp = (props) => {
 
-    const { isclasses, manager, search, header_css, footer_css, onSearchResults, stavkas } = props;
+    const { isclasses, manager, search, header_css, footer_css, onSearchResults, show_stavkas } = props;
 
     if (!manager) {
         manager = new tnved_manager({});
@@ -119,8 +119,8 @@ const TnvedApp = (props) => {
     useEventListener(event_searchresults, searchresults_handler, document);
 
     const treecls = classNames({
-        'col-md': isclasses && stavkas,
-        'col' : isclasses && !stavkas
+        'col-md': isclasses && show_stavkas,
+        'col' : isclasses && !show_stavkas
     });
 
     const showst_props = {
@@ -141,21 +141,24 @@ const TnvedApp = (props) => {
                         }}
                         ref={tree}
                         topScrollMargin={160}
-                        bottomScrollMargin={160}
+                        bottomScrollMargin={20}
                         onCodeRender={(acode, text) => {
-                            return (
-                                <ShowStButton
-                                    {...showst_props}
-                                    {...props}
-                                    code={acode}
-                                />
-                            );
+                            if (show_stavkas) {
+                                return (
+                                    <ShowStButton
+                                        {...showst_props}
+                                        {...props}
+                                        code={acode}
+                                    />
+                                );
+                            }
+                            return null;
                         }}
                         {...props}
                     />
                     <HeightObserver element_css={footer_css}/>
                 </div>
-                {stavkas && (
+                {show_stavkas && (
                     <div className="col-md">
                         <ShowStWindow
                             windowClassName="ccs-codeinfo-fixed d-none d-sm-none d-md-block"
