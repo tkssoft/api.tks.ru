@@ -19,10 +19,11 @@ const is_show_window = (b) => {
 
 
 const G33EditButtons = (props) => {
-    const g33ref = React.createRef()
-    const goodsref = React.createRef()
-    const { isclasses, show_tnved_button, show_goods_button } = props
-    const btnClassName = 'btn btn-sm btn-primary mb-2'
+    const g33ref = React.createRef();
+    const goodsref = React.createRef();
+    const contentref = React.createRef();
+    const { isclasses, show_tnved_button, show_goods_button } = props;
+    const btnClassName = 'btn btn-sm btn-primary mb-2';
     return (<div className="row">
         {is_show_window(show_tnved_button) && (
             <ModalButton
@@ -35,6 +36,7 @@ const G33EditButtons = (props) => {
                 title={"Товарная номенклатура ВЭД"}
                 isclasses={isclasses}
                 btnClassName={btnClassName}
+                contentref={contentref}
             >
                 <TnvTree
                     onSelect={props.onSelect}
@@ -42,6 +44,7 @@ const G33EditButtons = (props) => {
                         g33ref.current.handleToggleModal()
                     }}
                     code={props.value}
+                    container={contentref}
                 />
             </ModalButton>
         )}

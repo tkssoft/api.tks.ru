@@ -117,7 +117,7 @@ class TnvTree extends React.Component {
     begin_update = (cb) => {
         this.setState({updatecount : this.state.updatecount + 1}, () => {
             if (cb !== undefined) {
-                cb()
+                return cb()
             }
         })
     }
@@ -125,7 +125,8 @@ class TnvTree extends React.Component {
     end_update = (cb) => {
         this.setState({updatecount : Math.max(this.state.updatecount - 1, 0)}, () => {
             if (!this.state.updatecount) {
-                this.setSelected(this.state.selected)
+                debug('end_update', this.state.selected);
+                this.setSelected(this.state.selected);
                 if (cb !== undefined) {
                     cb()
                 }
@@ -251,13 +252,13 @@ class TnvTree extends React.Component {
     }
 
     getBottomScrollMargin() {
-        const { bottomScrollMargin=0 } = this.props
-        return bottomScrollMargin
+        const { bottomScrollMargin=0 } = this.props;
+        return bottomScrollMargin;
     }
 
     getTopScrollMargin() {
-        const { topScrollMargin=0 } = this.props
-        return topScrollMargin
+        const { topScrollMargin=0 } = this.props;
+        return topScrollMargin;
     }
 
     getSnapshotBeforeUpdate(prevProps, prevState) {
@@ -273,11 +274,17 @@ class TnvTree extends React.Component {
         if (!this.state.updatecount) {
             // все компоненты обновлены
             if (this.selected.current !== null) {
+                let relative = false;
+                if (this.props.container !== undefined) {
+                    relative = true;
+                }
+                const container = this.props.container?.current || document.body;
                 scrollIntoView(
                     this.selected.current,
-                    document.body,
+                    container,
                     this.getTopScrollMargin(),
-                    this.getBottomScrollMargin()
+                    this.getBottomScrollMargin(),
+                    relative
                 );
             }
         }
