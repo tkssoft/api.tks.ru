@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { debug } from "../common/debug";
 import { getTreeData } from './tnved_search';
+import classNames from "classnames";
 
 const event_searchresults = 'tnvsearchresults';
 
@@ -44,9 +45,9 @@ const SearchForm = (props) => {
     };
 
     return (
-        <form className="mt-2 mt-md-0 form-inline mb-md-0 ccs-searchform">
+        <form className="form-inline ccs-searchform my-2">
             <input
-                className="form-control-sm mr-sm-2"
+                className={classNames("form-control-sm mr-2", {[props.inputClassName] : props.inputClassName})}
                 type="text"
                 placeholder = {placeholder}
                 value={value}
@@ -54,7 +55,7 @@ const SearchForm = (props) => {
                 onKeyDown={ handleEnter }
             />
             <button
-                className="btn btn-sm btn-outline-success my-2 my-sm-0"
+                className="btn btn-sm btn-outline-success my-2"
                 onClick={handleSearch}
             >
                 Поиск

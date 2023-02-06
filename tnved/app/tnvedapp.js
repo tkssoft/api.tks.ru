@@ -13,6 +13,8 @@ import { HeightObserver } from '../../common/mimic';
 import { event_searchresults } from '../searchform';
 import { ModalButton } from '../../common/modalbutton';
 import { isNumeric } from '../../common/numbers';
+import { Alert } from '../../common/alert';
+import { TnvSearchForm } from '../searchform';
 
 const isCode = (code) => {
     return code && isNumeric(code) && code.length === 10;
@@ -37,7 +39,9 @@ const ShowStWindow = (props) => {
     return (
         <div className={classNames("ccs-codeinfo", windowClassName)}>
             {!isCode(code) && (
-                <div>Для просмотра информации по коду, выберете полный код</div>
+                <Alert type="warning" isclasses={isclasses}>
+                    <div>Для просмотра информации по коду, выберете полный код</div>
+                </Alert>
             )}
             {loading && (
                 <div>Идет загрузка данных для кода {code}</div>
@@ -131,9 +135,14 @@ const TnvedApp = (props) => {
 
     return (
         <div className={cls}>
+            {props.onInfo && props.onInfo(props)}
+            <Row className="row position-sticky top-40 z-5 background-color-light">
+                <div className="col-md">
+                    <TnvSearchForm />
+                </div>
+            </Row>
             <Row className='scrollroot' {...props}>
                 <div className={treecls}>
-                    <HeightObserver element_css={header_css}/>
                     <TnvTree
                         className="ccs-scroll-container"
                         onChange={(node) => {
@@ -156,12 +165,11 @@ const TnvedApp = (props) => {
                         }}
                         {...props}
                     />
-                    <HeightObserver element_css={footer_css}/>
                 </div>
                 {show_stavkas && (
                     <div className="col-md">
                         <ShowStWindow
-                            windowClassName="ccs-codeinfo-fixed d-none d-sm-none d-md-block"
+                            windowClassName="ccs-codeinfo-fixed d-none d-sm-none d-md-block position-sticky top-100 z-5"
                             {...showst_props}
                             {...props}
                         />

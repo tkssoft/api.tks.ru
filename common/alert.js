@@ -5,6 +5,7 @@ import { ccs_class } from './ccs';
 const Alert = ({ isclasses, type, children }) => {
     const cls = classNames({
         'alert': isclasses,
+        'mb-0': isclasses,
         [`alert-${type}`]: isclasses,
     });
     return (

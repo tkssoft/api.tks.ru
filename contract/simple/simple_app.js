@@ -20,6 +20,7 @@ class SimpleContractApp extends BaseContractApp {
 
         return (
             <ScrollContainer {...props}>
+                {this.props.onInfo && this.props.onInfo(this.props)}
                 <Errors errors={this.state.errors} toshow="calc" {...props}/>
                 <ContractData manager={manager} {...props} />
                 <ContractDopData manager={manager} g32={1} {...props} />

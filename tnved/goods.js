@@ -4,16 +4,11 @@ const React  = require('react');
 const Loading = require('../common/loading');
 const { debug } = require('../common/debug');
 const keys = require('../common/keys');
-const { get_api_tks_ru } = require('../common/consts')
+const { get_api_tks_ru } = require('../common/consts');
+const { scrollIntoView } = require('../common/elements');
 
 
-/*
-* Информация по наименованию с разбивкой по страницам
-* */
-const fetch_goods_data = (g312, pageno) => {
-    const clientid = encodeURIComponent(calc_tks_ru_license.split('\n').join(''));
-    const name = encodeURI(g312);
-    const url = `${get_api_tks_ru()}/goods.json/json/${clientid}/?searchstr=${name}&page=${pageno}`
+const fetch_url = (url) => {
     return fetch(url).then(response => {
         if (response.ok) {
             return response.json()
@@ -24,6 +19,7 @@ const fetch_goods_data = (g312, pageno) => {
         }
     })
 }
+
 
 /*
 * Информация по наименованию с группировкой по кодам без разбивки по страницам
@@ -33,34 +29,18 @@ const fetch_goods_codes = (g312) => {
     const clientid = encodeURIComponent(calc_tks_ru_license.split('\n').join(''));
     const name = encodeURI(g312);
     const url = `${get_api_tks_ru()}/goods.json/json/${clientid}/?searchstr=${name}&group=code`;
-    return fetch(url).then(response => {
-        if (response.ok) {
-            return response.json()
-        } else {
-            let err = new Error(response.statusText);
-            err.code = response.status;
-            throw err
-        }
-    })
+    return fetch_url(url);
 }
 
 /*
 * Информация по наименованию и коду без разбивки по страницам
 * */
-const fetch_goods_code = (g312, pageno, code) => {
+const fetch_goods_code = (g312, code) => {
     debug('fetch_goods_code', g312, code);
     const clientid = encodeURIComponent(calc_tks_ru_license.split('\n').join(''));
     const name = encodeURI(g312);
     const url = `${get_api_tks_ru()}/goods.json/json/${clientid}/?searchstr=${name}&code=${code}`
-    return fetch(url).then(response => {
-        if (response.ok) {
-            return response.json()
-        } else {
-            let err = new Error(response.statusText);
-            err.code = response.status;
-            throw err
-        }
-    })
+    return fetch_url(url);
 }
 
 
@@ -101,21 +81,43 @@ class GoodsResult extends React.Component {
         document.removeEventListener('keyup', this.bindhandle);
     }
 
+    getBottomScrollMargin() {
+        const { bottomScrollMargin=0 } = this.props;
+        return bottomScrollMargin;
+    }
+
+    getTopScrollMargin() {
+        const { topScrollMargin=0 } = this.props;
+        return topScrollMargin;
+    }
+
     componentDidUpdate(prevProps, prevState) {
         this.stateUpdated(prevProps, prevState, 'componentDidUpdate')
         if (this.selected.current !== null) {
-            if (this.list.current !== null) {
-                let listrect = this.list.current.getBoundingClientRect();
-                let currect = this.selected.current.getBoundingClientRect();
-                if (currect.bottom <= listrect.bottom && currect.top >= listrect.top) {
-                    return
-                }
+            // if (this.list.current !== null) {
+            //     let listrect = this.list.current.getBoundingClientRect();
+            //     let currect = this.selected.current.getBoundingClientRect();
+            //     if (currect.bottom <= listrect.bottom && currect.top >= listrect.top) {
+            //         return
+            //     }
+            // }
+            // if (prevState.itemindex < this.state.itemindex) {
+            //     this.selected.current.scrollIntoView({block: "end", behavior: "instant"})
+            // } else {
+            //     this.selected.current.scrollIntoView({block: "start", behavior: "instant"})
+            // }
+            let relative = false;
+            if (this.props.container !== undefined) {
+                relative = true;
             }
-            if (prevState.itemindex < this.state.itemindex) {
-                this.selected.current.scrollIntoView({block: "end", behavior: "instant"})
-            } else {
-                this.selected.current.scrollIntoView({block: "start", behavior: "instant"})
-            }
+            const container = this.props.container?.current || document.body;
+            scrollIntoView(
+                this.selected.current,
+                container,
+                this.getTopScrollMargin(),
+                this.getBottomScrollMargin(),
+                relative
+            );
         }
     }
 
@@ -285,7 +287,7 @@ class GoodsResult extends React.Component {
 
     insertGroupData = (itemindex, parentindex, pageno, code, cb) => {
         const d = this.state.data
-        fetch_goods_code(this.state.G312, pageno, code).then((data) => {
+        fetch_goods_code(this.state.G312, code).then((data) => {
             if (data.data !== undefined) {
                 let first = d.slice(0, itemindex)
                 let rest = d.slice(itemindex + 1, d.length)
@@ -407,6 +409,7 @@ class GoodsResult extends React.Component {
     render () {
         return (
             <>
+                {this.props.onInfo && this.props.onInfo(this.props)}
                 <div className={"list-group ccs-contract-goodsrow ccs-contract-goodscontent w-100"} role="tablist" ref={this.list} onClick={() => {}}>
                     {this.state.data.map((item, i) => {
                         const {CODE, KR_NAIM, CNT, loading, groupitem, opened} = item;
@@ -499,6 +502,7 @@ class GoodsSelect extends React.Component {
     }
 
     render () {
+        console.log(this.props.onInfo);
         return (
             <div className={'ccs-contract-goodsbox'}>
                 <div className={'ccs-contract-goodsrow ccs-contract-goodsheader container-fluid'}>
@@ -522,6 +526,7 @@ class GoodsSelect extends React.Component {
                     onSelect={this.props.onSelect}
                     onAfterSelect={this.props.onAfterSelect}
                     onProcessing={this.processing}
+                    onInfo={this.props.onInfo}
                 />
             </div>
         )

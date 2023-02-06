@@ -2,7 +2,7 @@
 
 const React  = require('react');
 const { debug } = require('../common/debug');
-const { getOffset, scrollIntoView } = require('../common/elements');
+const { scrollIntoView } = require('../common/elements');
 const keys = require('../common/keys');
 const { get_api_tks_ru } = require('../common/consts');
 
