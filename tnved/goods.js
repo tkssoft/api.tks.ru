@@ -417,7 +417,7 @@ class GoodsResult extends React.Component {
                         const classname = groupitem ? 'ccs-contract-goodsitem-groupitem' : 'ccs-contract-goodsitem-codeitem'
                         const linkclass = active ? 'text-white' : 'ccs-contract-text-link'
                         return (
-                            <div className={"list-group-item list-group-item-action ccs-contract-goods-list-group-item " + active + ' ccs-contract-goodsitem ' + classname}
+                            <div className={"list-group-item list-group-item-action ccs-contract-goods-list-group-item no-border" + active + ' ccs-contract-goodsitem ' + classname}
                                key={i}
                                href="#"
                                onClick={this.itemClick.bind(this, i)}

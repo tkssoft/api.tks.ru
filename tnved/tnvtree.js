@@ -17,6 +17,7 @@ import classNames from 'classnames';
 import { ccs_class, ccs_contract } from '../common/ccs';
 
 import { isNullStr } from '../common/utils';
+import { IconCaretRightFill, IconCaretDownFill } from '../common/icons';
 
 
 const LASTNEXTID = 200000000;
@@ -60,10 +61,13 @@ const TreeItem = (props) => {
         clen = 0;
     }
     if (!isNullStr(CODE)) {
-        let clsname = 'ccs-contract-code-' + clen;
+        let clsname = 'text-bold ccs-contract-code-' + clen;
         return (
             <div className={classNames(cls, 'w-100')}>
-                <div className={ccs_contract('treecode')}><span className={clsname}>{CODE}</span></div>
+                <div className={classNames(ccs_contract('treecode'), {})}>
+                    {/* {clen < 10 && <IconCaretRightFill className={ccs_contract('treeicon')}/> } */}
+                    <span className={clsname}>{CODE}</span>
+                </div>
                 <div className={classNames(ccs_contract('treetext'), ccs_contract('text_with_code'), 'w-100')}>
                     <div>{TEXT}</div>
                     <DateWarning {...props}/>
@@ -364,7 +368,7 @@ class TnvTree extends React.Component {
                     const { ID, level } = item;
                     const active = i === this.state.selected ? "active" : "";
                     return (
-                        <a className={"list-group-item list-group-item-action " + active}
+                        <a className={"list-group-item list-group-item-action no-border " + active}
                            key={ID}
                            href="#"
                            onClick={this.itemClick.bind(this, i)}

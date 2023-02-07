@@ -11,7 +11,7 @@ import { tnved_manager } from '../tnved_manager';
 import { debug } from '../../common/debug';
 import { HeightObserver } from '../../common/mimic';
 import { event_searchresults } from '../searchform';
-import { ModalButton } from '../../common/modalbutton';
+import { DotsModalButtonVertical } from '../../common/modalbutton';
 import { isNumeric } from '../../common/numbers';
 import { Alert } from '../../common/alert';
 import { TnvSearchForm } from '../searchform';
@@ -72,9 +72,9 @@ const ShowStButton = (props) => {
     if (isCode(code)) {
         return (
             <div className="ccs-code d-sm-block d-md-none">
-                <ModalButton btnClassName="btn-sm" buttonLabel="Ставки" title="Ставки / признаки">
+                <DotsModalButtonVertical btnClassName="btn btn-sm btn-light" buttonLabel="Ставки" title="Ставки / признаки" {...props}>
                     <ShowStWindow windowClassName="ccs-codeinfo-modal" {...props} />
-                </ModalButton>
+                </DotsModalButtonVertical>
             </div>
         )
     }

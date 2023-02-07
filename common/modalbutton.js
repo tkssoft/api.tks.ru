@@ -1,8 +1,9 @@
 /*кнопка, окрывающая модальное окно*/
 
-const React  = require('react')
-const { debug } = require('./debug')
-const classNames = require('classnames')
+const React  = require('react');
+const { debug } = require('./debug');
+const classNames = require('classnames');
+const { IconX, IconThreeDots, IconThreeDotsVertical } = require('./icons');
 
 class ModalWindow extends React.Component {
     constructor(props) {
@@ -80,13 +81,13 @@ class ModalWindow extends React.Component {
                         <div className={'modalbutton-title'}>{this.props.title}</div>
                         <button
                             type="button"
-                            className={classNames("close border modalbutton-close",{"px-2": isclasses})}
+                            className={classNames("close border modalbutton-close")}
                             onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 onCloseRequest();
                             }}>
-                            <span>&times;</span>
+                            <span><IconX /></span>
                         </button>
                     </div>
                     <div className={'modalbutton-content'} ref={contentref}>
@@ -119,8 +120,9 @@ class ModalButton extends React.Component {
     }
 
     render() {
-        const {buttonLabel, children, isclasses, btnClassName, contentref} = this.props;
+        const {buttonLabel, children, isclasses, btnClassName, contentref, onIcon} = this.props;
         const {showModal} = this.state;
+        debug('ModalButton render', btnClassName);
         return (
             <div className={this.props.className}>
                 <button
@@ -135,7 +137,7 @@ class ModalButton extends React.Component {
                         this.handleToggleModal();
                     } : undefined}
                 >
-                    {buttonLabel}
+                    {onIcon && onIcon(this.props) || buttonLabel}
                 </button>
                 {showModal &&
                 <ModalWindow
@@ -152,7 +154,21 @@ class ModalButton extends React.Component {
     }
 }
 
+const DotsModalButton = (props) => {
+    return (
+        <ModalButton {...props} onIcon={() => <IconThreeDots />} />
+    )
+};
+
+const DotsModalButtonVertical = (props) => {
+    return (
+        <ModalButton {...props} onIcon={() => <IconThreeDotsVertical />} />
+    )
+};
+
 module.exports = {
     ModalWindow,
     ModalButton,
+    DotsModalButton,
+    DotsModalButtonVertical
 };
