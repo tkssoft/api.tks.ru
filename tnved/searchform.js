@@ -17,18 +17,18 @@ const fire_result_event = (eventname, data) => {
 
 const SearchForm = (props) => {
 
-    const { isclasses, onSearchResults, code, onSearch, placeholder="Введите код...", onClick } = props
-    const [ value, setValue ] = useState(code || '')
-    const [ search, setSearch ] = useState('')
+    const { isclasses, onSearchResults, code, onSearch, placeholder="Введите код...", onClick } = props;
+    const [ value, setValue ] = useState(code || '');
+    const [ state, setState ] = useState({'count' : 0, 'search' : ''});
+    const [count, setCount] = useState(0);
 
     useEffect(() => {
-        if (search) {
-            debug('setSearch', search);
+        if (state.search) {
             if (onSearch) {
-                onSearch(search, onSearchResults)
+                onSearch(state.search, onSearchResults)
             }
         }
-    }, [search]);
+    }, [state]);
 
     const handleEnter = (e) => {
         if (e.key === 'Enter') {
@@ -38,10 +38,11 @@ const SearchForm = (props) => {
 
     const handleSearch = (e) => {
         e.preventDefault();
+        e.stopPropagation();
         if (onClick) {
             onClick(e);
         }
-        setSearch(value);
+        setState({'count' : state.count + 1, 'search' : value});
     };
 
     return (
@@ -50,7 +51,7 @@ const SearchForm = (props) => {
                 className={classNames("form-control-sm mr-2", {[props.inputClassName] : props.inputClassName})}
                 type="text"
                 placeholder = {placeholder}
-                value={value}
+                value={state.value}
                 onChange={(e) => setValue(e.target.value)}
                 onKeyDown={ handleEnter }
             />

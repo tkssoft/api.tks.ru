@@ -20,6 +20,7 @@ function useEventListener(eventName, handler, element = window) {
             // Create event listener that calls handler function stored in ref
             const eventListener = (event) => savedHandler.current(event);
             // Add event listener
+            console.log('useEventListener', eventName);
             element.addEventListener(eventName, eventListener);
             // Remove event listener on cleanup
             return () => {

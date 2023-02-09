@@ -47,7 +47,6 @@ const ContractCalcEdizmInput = (props) => {
 const EdizmEdit = (props) => {
     const { kontdop, manager } = props;
     const edizm_list = manager.get_edizm_list(kontdop.state.data, false);
-    debug("EdizmEdit", edizm_list);
     return edizm_list.map((edi, index) => {
         let numqty = index + 1;
         let fieldname = manager.get_edizm_fieldname(edi, kontdop.getEdi2());

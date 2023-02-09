@@ -5,7 +5,8 @@ const classNames = require('classnames');
 
 const { ModalButton, ModalWindow } = require('../../common/modalbutton');
 const { ContractInput } = require('./basecontractedit');
-const TnvTree = require('../../tnved/tnvtree');
+const { SearchTnvTree } = require('../../tnved/searchtnvtree');
+const { TnvSearchForm } = require('../../tnved/searchform');
 const { GoodsSelect } = require('../../tnved/goods');
 const { ccs_contract } = require('../../common/ccs');
 
@@ -36,9 +37,13 @@ const G33EditButtons = (props) => {
                 title={"Товарная номенклатура ВЭД"}
                 isclasses={isclasses}
                 btnClassName={btnClassName}
+                contentClassName={"display-flex flex-column position-sticky top-0"}
                 contentref={contentref}
+                onAfterTitle={(props) => {
+                    return (<div className="px-3"><TnvSearchForm /></div>)
+                }}
             >
-                <TnvTree
+                <SearchTnvTree
                     onSelect={props.onSelect}
                     onAfterSelect={() => {
                         g33ref.current.handleToggleModal()

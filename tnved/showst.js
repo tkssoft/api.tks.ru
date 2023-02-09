@@ -40,15 +40,23 @@ class ShowStItem extends React.Component {
         if ([undefined, true].includes(this.props.skipIfEmpty) && !this.state.pr && [undefined, null, '', 'Нет', 'Беспошлинно', 'Отсутствует'].includes(value)) {
             return (<></>)
         } else {
+            const cls = classNames(
+                ccs_contract("ShowStItem"),
+                {
+                    "list-group-item": true,
+                    "no-border": !is_name,
+                    "name-bottom-border": is_name
+                }
+            )
             return (
-                <li className={ccs_contract("ShowStItem") + " list-group-item no-border"}>
-                    <div className={"ccs-contract-strong ccs-contract-ShowStItem-name"}>{this.state.name + ':'}</div>
-                    <div className={classNames("ccs-contract-ShowStItem-value", {"text-align-right mr-0": is_name})}>{this.props.value}</div>
+                <li className={cls}>
+                    {!is_name && <div className={"ccs-contract-strong ccs-contract-ShowStItem-name"}>{this.state.name + ':'}</div>}
+                    <div className={classNames("ccs-contract-ShowStItem-value", {"mr-0  w-100": is_name})}>{this.props.value}</div>
                     {this.state.pr && (
                         <DotsModalButton buttonLabel={prButtonLabel || "Выбрать"} ref={this.modalref} data={this.props.data}
                                      className={"ccs-contract-ShowStItem-button"}
                                      title={`Примечания по ${przdesc(this.props.prz)}`}
-                                     btnClassName={'btn btn-sm btn-light'}
+                                     btnClassName={'btn btn-sm btn-outline-danger display-flex'}
                                      isclasses={this.props.isclasses}
                                      windowclassName={windowclassName}
                         >

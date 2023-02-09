@@ -1,4 +1,6 @@
-/*Генерация дерева ТН ВЭД*/
+/*
+    Генерация дерева ТН ВЭД
+*/
 
 const React  = require('react');
 const { debug } = require('../common/debug');
@@ -63,12 +65,12 @@ const TreeItem = (props) => {
     if (!isNullStr(CODE)) {
         let clsname = 'text-bold ccs-contract-code-' + clen;
         return (
-            <div className={classNames(cls, 'w-100')}>
+            <div className={classNames(cls, '')}>
                 <div className={classNames(ccs_contract('treecode'), {})}>
                     {/* {clen < 10 && <IconCaretRightFill className={ccs_contract('treeicon')}/> } */}
                     <span className={clsname}>{CODE}</span>
                 </div>
-                <div className={classNames(ccs_contract('treetext'), ccs_contract('text_with_code'), 'w-100')}>
+                <div className={classNames(ccs_contract('treetext'), ccs_contract('text_with_code'), '')}>
                     <div>{TEXT}</div>
                     <DateWarning {...props}/>
                 </div>
@@ -101,6 +103,7 @@ class TnvTree extends React.Component {
     }
 
     setInitId (initid) {
+        debug('setInitId', initid);
         this.setState({
             items: []
         }, () => {
@@ -129,7 +132,7 @@ class TnvTree extends React.Component {
     end_update = (cb) => {
         this.setState({updatecount : Math.max(this.state.updatecount - 1, 0)}, () => {
             if (!this.state.updatecount) {
-                debug('end_update', this.state.selected);
+                // debug('end_update', this.state.selected);
                 this.setSelected(this.state.selected);
                 if (cb !== undefined) {
                     cb()
@@ -306,7 +309,7 @@ class TnvTree extends React.Component {
                 }
             })
             .then((data)=>{
-                debug(`${url} fetch time is: ${(Date.now() - starttime) / 1000} sec`)
+                // debug(`${url} fetch time is: ${(Date.now() - starttime) / 1000} sec`)
                 return data
             })
     };
@@ -354,7 +357,7 @@ class TnvTree extends React.Component {
 
     render () {
 
-        const { isclasses, className } = this.props
+        const { isclasses, className, onToolbar } = this.props
 
         const cls = classNames({
             'list-group': isclasses,
@@ -363,6 +366,8 @@ class TnvTree extends React.Component {
         })
 
         return (
+            <>
+            {onToolbar && onToolbar(this.props)}
             <div className={cls} role="tablist" ref={this.list} >
                 {this.state.items.map((item, i) => {
                     const { ID, level } = item;
@@ -374,17 +379,18 @@ class TnvTree extends React.Component {
                            onClick={this.itemClick.bind(this, i)}
                            ref={active ? this.selected : ""}
                         >
-                            <div className={"row"}>
-                                <TreeItem {...this.props} {...item} />
-                            </div>
+                            <TreeItem {...this.props} {...item} />
                         </a>
                     )
                 })}
             </div>
+            </>
         )
 
     };
 
 }
 
-module.exports = TnvTree;
+export {
+    TnvTree
+};

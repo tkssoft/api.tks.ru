@@ -60,13 +60,15 @@ class ModalWindow extends React.Component {
     }
 
     render() {
+
         const {
             onCloseRequest,
             children,
             isclasses,
-            contentref
+            contentref,
+            onTitle,
+            onAfterTitle
         } = this.props;
-
         return (
             <div className={"modalbutton-overlay " + this.get_className()}>
                 <div
@@ -79,6 +81,7 @@ class ModalWindow extends React.Component {
                 >
                     <div className={'modalbutton-caption'}>
                         <div className={'modalbutton-title'}>{this.props.title}</div>
+                        {onTitle && onTitle(this.props)}
                         <button
                             type="button"
                             className={classNames("close border modalbutton-close")}
@@ -90,7 +93,8 @@ class ModalWindow extends React.Component {
                             <span><IconX /></span>
                         </button>
                     </div>
-                    <div className={'modalbutton-content'} ref={contentref}>
+                    {onAfterTitle && onAfterTitle(this.props)}
+                    <div className={classNames('modalbutton-content', {[this.props.contentClassName]: this.props.contentClassName})} ref={contentref}>
                         {children}
                     </div>
                 </div>
@@ -120,9 +124,8 @@ class ModalButton extends React.Component {
     }
 
     render() {
-        const {buttonLabel, children, isclasses, btnClassName, contentref, onIcon} = this.props;
+        const {buttonLabel, children, isclasses, btnClassName, contentref, onIcon, onTitle, onAfterTitle} = this.props;
         const {showModal} = this.state;
-        debug('ModalButton render', btnClassName);
         return (
             <div className={this.props.className}>
                 <button
@@ -144,8 +147,11 @@ class ModalButton extends React.Component {
                     onCloseRequest={() => this.handleToggleModal()}
                     title={this.props.title}
                     className={this.props.windowclassName}
+                    contentClassName={this.props.contentClassName}
                     isclasses={isclasses}
                     contentref={contentref}
+                    onTitle={onTitle}
+                    onAfterTitle={onAfterTitle}
                 >
                     {children}
                 </ModalWindow>}
@@ -154,17 +160,24 @@ class ModalButton extends React.Component {
     }
 }
 
-const DotsModalButton = (props) => {
-    return (
-        <ModalButton {...props} onIcon={() => <IconThreeDots />} />
-    )
-};
 
-const DotsModalButtonVertical = (props) => {
-    return (
-        <ModalButton {...props} onIcon={() => <IconThreeDotsVertical />} />
-    )
-};
+class DotsModalButton extends ModalButton {
+    render() {
+        return (
+            <ModalButton {...this.props} onIcon={() => <IconThreeDots />} />
+        )
+    }
+}
+
+
+class DotsModalButtonVertical extends ModalButton {
+    render() {
+        return (
+            <ModalButton {...this.props} onIcon={() => <IconThreeDotsVertical />} />
+        )
+    }
+}
+
 
 module.exports = {
     ModalWindow,

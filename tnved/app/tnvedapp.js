@@ -3,9 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import classNames from 'classnames';
 import { Row } from '../../common/bs';
-import TnvTree from '../tnvtree';
 import { isEmptyAll, isEmpty } from '../../common/utils';
-import { useEventListener } from '../../common/hooks';
 import { ShowSt } from '../showst';
 import { tnved_manager } from '../tnved_manager';
 import { debug } from '../../common/debug';
@@ -15,6 +13,7 @@ import { DotsModalButtonVertical } from '../../common/modalbutton';
 import { isNumeric } from '../../common/numbers';
 import { Alert } from '../../common/alert';
 import { TnvSearchForm } from '../searchform';
+import { SearchTnvTree } from '../searchtnvtree';
 
 const isCode = (code) => {
     return code && isNumeric(code) && code.length === 10;
@@ -84,7 +83,7 @@ const ShowStButton = (props) => {
 
 const TnvedApp = (props) => {
 
-    const { isclasses, manager, search, header_css, footer_css, onSearchResults, show_stavkas } = props;
+    const { isclasses, manager, show_stavkas } = props;
 
     if (!manager) {
         manager = new tnved_manager({});
@@ -97,30 +96,8 @@ const TnvedApp = (props) => {
 
     const [ current, setCurrent ] = useState();
 
-    const tree = useRef(null);
-
     const notvalid = isEmptyAll(current) || isEmptyAll(current.CODE) || (current.CODE.length !== 10);
     const code = notvalid ? '' : current.CODE;
-
-    const searchresults_handler = useCallback(
-        (customevent) => {
-            const result = customevent.detail.results;
-            debug('searchresults_handler', result);
-            if (result.length > 0) {
-                const first = result[0];
-                tree.current.setInitId(first.ID);
-            } else {
-                // ToDo: сделать модульное окно с инфомацией об ошибке.
-                alert('Внимание! Информация по коду не найдена.');
-            }
-            if (onSearchResults) {
-                onSearchResults(result)
-            }
-        },
-        [ setCurrent ]
-    );
-
-    useEventListener(event_searchresults, searchresults_handler, document);
 
     const treecls = classNames({
         'col-md': isclasses && show_stavkas,
@@ -143,14 +120,13 @@ const TnvedApp = (props) => {
             </Row>
             <Row className='scrollroot' {...props}>
                 <div className={treecls}>
-                    <TnvTree
+                    <SearchTnvTree
                         className="ccs-scroll-container"
                         onChange={(node) => {
                             setCurrent(node)
                         }}
-                        ref={tree}
-                        topScrollMargin={160}
-                        bottomScrollMargin={20}
+                        topScrollMargin={0}
+                        bottomScrollMargin={0}
                         onCodeRender={(acode, text) => {
                             if (show_stavkas) {
                                 return (
