@@ -70,7 +70,7 @@ const ShowStButton = (props) => {
     const { code } = props;
     if (isCode(code)) {
         return (
-            <div className="ccs-code d-sm-block d-md-none">
+            <div className="ccs-code d-sm-block d-md-none margin-left-auto">
                 <DotsModalButtonVertical btnClassName="btn btn-sm btn-light" buttonLabel="Ставки" title="Ставки / признаки" {...props}>
                     <ShowStWindow windowClassName="ccs-codeinfo-modal" {...props} />
                 </DotsModalButtonVertical>
@@ -113,7 +113,7 @@ const TnvedApp = (props) => {
     return (
         <div className={cls}>
             {props.onInfo && props.onInfo(props)}
-            <Row className="row position-sticky top-40 z-5 background-color-light">
+            <Row className="row position-sticky top-0 z-5 background-color-light">
                 <div className="col-md">
                     <TnvSearchForm />
                 </div>
