@@ -114,24 +114,22 @@ class TnvTree extends React.Component {
     }
 
     handleKeyPress = (e) => {
-        if (this.state.updatecount === 0) {
-            if (e.keyCode === keys.VK_BACK) {
-                // Закрываем дерево на один уровень
-            } else if (e.keyCode === keys.VK_RETURN) {
-                e.preventDefault();
-                this.itemClick(this.state.selected, null);
-            } else if (e.keyCode === keys.VK_DOWN) {
-                // Стрелка вниз
-                e.preventDefault();
-                if (this.state.selected !== this.state.items.length - 1) {
-                    this.setSelected(this.state.selected + 1);
-                }
-            } else if (e.keyCode === keys.VK_UP) {
-                // Стрелка вверх
-                e.preventDefault();
-                if (this.state.selected > 0) {
-                    this.setSelected(this.state.selected - 1);
-                }
+        if (e.keyCode === keys.VK_BACK) {
+            // Закрываем дерево на один уровень
+        } else if (e.keyCode === keys.VK_RETURN) {
+            e.preventDefault();
+            this.itemClick(this.state.selected, null);
+        } else if (e.keyCode === keys.VK_DOWN) {
+            // Стрелка вниз
+            e.preventDefault();
+            if (this.state.selected !== this.state.items.length - 1) {
+                this.setSelected(this.state.selected + 1);
+            }
+        } else if (e.keyCode === keys.VK_UP) {
+            // Стрелка вверх
+            e.preventDefault();
+            if (this.state.selected > 0) {
+                this.setSelected(this.state.selected - 1);
             }
         }
     }
