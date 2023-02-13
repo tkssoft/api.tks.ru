@@ -100,7 +100,6 @@ class TnvTree extends React.Component {
     }
 
     setInitId (initid) {
-        debug('setInitId', initid);
         return this.insertRoot(initid);
     }
 
@@ -144,18 +143,15 @@ class TnvTree extends React.Component {
     get_index_by_code = (items, code) => {
         for (let i = 0; i < items.length; i++) {
             if (items[i].CODE === code) {
-                debug('get_index_by_code', i);
                 return i;
             }
         };
-        debug('get_index_by_code', 0);
         return 0;
     }
 
     get_index_by_id = (items, id) => {
         for (let i = 0; i < items.length; i++) {
             if (items[i].ID == id) {
-                debug('get_index_by_id found', i);
                 return i;
             }
         }

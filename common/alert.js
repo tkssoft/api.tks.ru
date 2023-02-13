@@ -17,7 +17,12 @@ const Alert = ({ isclasses, type, children }) => {
     )
 }
 
+const AlertDanger = ({ isclasses, children }) => {
+    return (<Alert isclasses={isclasses} type={'danger'}>{children}</Alert>);
+}
+
 export {
-    Alert
+    Alert,
+    AlertDanger
 }
 
