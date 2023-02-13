@@ -66,7 +66,7 @@ const TreeItem = (props) => {
     }
     return (
         <a className={cls} onClick={onClick} {...p}>
-            {!isNullStr(CODE) && (
+            {!isNullStr(CODE) ? (
                 <>
                     <div className={classNames(ccs_contract('treecode'), clsname)}>
                         {CODE}
@@ -77,7 +77,7 @@ const TreeItem = (props) => {
                     </div>
                     {onCodeRender && onCodeRender(CODE, TEXT)}
                 </>
-            ) || (
+            ) : (
                 <div className={classNames(ccs_contract('treetext'), ccs_contract('text_only'))}>{TEXT}</div>
             )}
         </a>

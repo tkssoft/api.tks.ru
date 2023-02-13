@@ -21,13 +21,13 @@ const SearchTnvTree = (props) => {
             const result = customevent.detail.results;
             if (result.length > 0) {
                 const first = result[0];
-                tree.current.setInitId(first.ID);
+                tree.current.setInitId(parseInt(first.ID));
             } else {
                 // ToDo: сделать модульное окно с инфомацией об ошибке.
                 alert('Внимание! Информация по коду не найдена.');
             }
             if (onSearchResults) {
-                onSearchResults(result)
+                onSearchResults(result);
             }
         },
         []
@@ -37,7 +37,7 @@ const SearchTnvTree = (props) => {
 
     return (
         <TnvTree ref={tree} {...props}/>
-    )
+    );
 }
 
 export {

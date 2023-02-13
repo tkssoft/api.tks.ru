@@ -131,7 +131,7 @@ const insertRoot = (initid) => {
 const insertCode = (code) => {
     if (!isNullStr(code)) {
         return getCodeID(code).then((data) => {
-            return insertRoot(data.length > 0 ? data[0].ID : DEFAULTID);
+            return insertRoot(data.length > 0 ? parseInt(data[0].ID) : DEFAULTID);
         });
     };
     return insertRoot(DEFAULTID);
