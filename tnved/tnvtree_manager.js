@@ -71,15 +71,12 @@ const getCodeID = (code) => {
 */
 
 const insertData = (items, id, index, level, nextid, initid=DEFAULTID) => {
-    debug('insertData', id, index, level, nextid, initid);
     return loadData(format_id(id)).then((data) => {
 
         let prior = null;
         let next = null;
         let nextindex = 0;
         let found = false;
-
-        //debug('data', data);
 
         let newitems = data.reduce((obj, item) => {
             if (prior !== null) {
