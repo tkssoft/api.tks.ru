@@ -4,7 +4,7 @@
 
 const React  = require('react');
 const { debug } = require('../common/debug');
-const { scrollIntoView } = require('../common/elements');
+const { scrollIntoView } = require('../common/scrollview');
 const keys = require('../common/keys');
 import classNames from 'classnames';
 import { ccs_class, ccs_contract } from '../common/ccs';

@@ -5,7 +5,7 @@ const Loading = require('../common/loading');
 const { debug } = require('../common/debug');
 const keys = require('../common/keys');
 const { get_api_tks_ru } = require('../common/consts');
-const { scrollIntoView } = require('../common/elements');
+const { scrollIntoView } = require('../common/scrollview');
 
 
 const fetch_url = (url) => {
