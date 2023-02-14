@@ -7,6 +7,7 @@ import React from 'react';
 const {calctxt, is_pr, calc_get5, get5} = require('./tnved_utils');
 const tnv_const = require('./tnv_const');
 const keys = require('../common/keys');
+const { isNullStr } = require('../common/utils');
 
 const przdesc = (prz) => {
     switch (prz) {
@@ -45,7 +46,8 @@ const przdesc = (prz) => {
 const tr_note = (note) => {
     if (note) {
         var rexp = /((http|https|ftp):\/\/[\w?=&.\/-;#~%-]+(?![\w\s?&.\/;#~%"=-]*>))/g;
-        return note.replace('\n', '<br />').replace(rexp, "<a href='$1' target='_blank'>$1</a>");
+        var s = note.split('\n').reduce((a, v) => {if (v) {a.push(v);} return a}, []).join('<br />');
+        return s.replace(rexp, "<a href='$1' target='_blank'>$1</a>");
     }
     return null;
 }
@@ -134,7 +136,7 @@ class ShowPrim extends React.Component {
                 <div className="list-group ccs-contract-ShowPrimContent w-100" role="tablist">
                     {this.state.stavkas.map((item, i) => {
                         const {stavka, note} = item;
-                        const active = i === this.state.selected ? "active" : "";
+                        const active = this.props.selectable && (i === this.state.selected) ? "active" : "";
                         const linkclass = active ? 'text-white' : 'text-link'
                         let style = {};
                         return (
@@ -146,8 +148,8 @@ class ShowPrim extends React.Component {
                             >
                                 <div>
                                     <a href="#" className={'ccs-contract-strong ' + linkclass} onClick={this.buttonClick.bind(this, i)}>{stavka}</a>
-                                    {note !== undefined && (
-                                        <p className="pt-3" dangerouslySetInnerHTML={{__html: note}} />
+                                    {!isNullStr(note) && (
+                                        <p className="pt-2" dangerouslySetInnerHTML={{__html: note}} />
                                     )}
                                 </div>
                             </div>

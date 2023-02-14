@@ -27,8 +27,9 @@ const ShowStWindow = (props) => {
     useEffect(() => {
         if (isCode(code)) {
             setLoading(true);
-            debug('Загрузка данных для кода', code, '...');
+            const starttime = new Date().getTime();
             manager.getData(code).then((data) => {
+                debug('Загрузка данных для кода', code, 'заняла', new Date().getTime() - starttime, 'мс' );
                 setData(data);
                 setLoading(false);
             });
@@ -47,7 +48,6 @@ const ShowStWindow = (props) => {
             )}
             {!loading && isCode(code) && !isEmptyAll(data) && (
                 <ShowSt
-                    typ={typ}
                     data={data.TNVED}
                     tnved={data}
                     G33={code}
@@ -100,7 +100,7 @@ const TnvedApp = (props) => {
     const code = notvalid ? '' : current.CODE;
 
     const treecls = classNames({
-        'col-md': isclasses && show_stavkas,
+        'col-md-7': isclasses && show_stavkas,
         'col' : isclasses && !show_stavkas
     });
 
@@ -143,9 +143,9 @@ const TnvedApp = (props) => {
                     />
                 </div>
                 {show_stavkas && (
-                    <div className="col-md">
+                    <div className="col-md-5">
                         <ShowStWindow
-                            windowClassName="ccs-codeinfo-fixed d-none d-sm-none d-md-block position-sticky top-100 z-5"
+                            windowClassName="ccs-codeinfo-fixed d-none d-sm-none d-md-block position-sticky top-55 z-4 bottom-0"
                             {...showst_props}
                             {...props}
                         />

@@ -202,7 +202,10 @@ class TnvTree extends React.Component {
         if (snapshot !== null) {
             const container = document.body;
             container.scrollTop = snapshot;
-        }
+        };
+        if (prevState.selected !== this.state.selected) {
+            this.setSelected(this.state.selected);
+        };
         // все компоненты обновлены
         if (this.selected.current !== null) {
             let relative = false;

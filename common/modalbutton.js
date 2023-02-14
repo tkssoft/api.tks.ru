@@ -4,6 +4,7 @@ const React  = require('react');
 const { debug } = require('./debug');
 const classNames = require('classnames');
 const { IconX, IconThreeDots, IconThreeDotsVertical } = require('./icons');
+import { createPortal } from 'react-dom';
 
 class ModalWindow extends React.Component {
     constructor(props) {
@@ -69,7 +70,7 @@ class ModalWindow extends React.Component {
             onTitle,
             onAfterTitle
         } = this.props;
-        return (
+        return createPortal((
             <div className={"modalbutton-overlay " + this.get_className()}>
                 <div
                     className={"modalbutton-modal " + this.get_className()}
@@ -100,7 +101,7 @@ class ModalWindow extends React.Component {
                 </div>
 
             </div>
-        );
+        ), document.body);
     }
 }
 

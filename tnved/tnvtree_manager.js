@@ -26,8 +26,12 @@ const loadData = (() => {
         if (nodeid in cache) {
             return Promise.resolve(cache[nodeid]);
         };
+        const starttime = new Date().getTime();
         return fetch(url)
             .then(response => {
+                const endtime = new Date().getTime();
+                const duration = endtime - starttime;
+                debug(`tnved tree : ${duration} ms`);
                 if (response.ok) {
                     return response.json();
                 } else {

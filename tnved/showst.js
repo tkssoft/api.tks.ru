@@ -23,6 +23,23 @@ const S_SHOWSTTITLE = "Список ставок и признаков";
 const S_EMPTYTNVED = "Информация о ставках/признаках на товар отсутствует.";
 
 
+const get_item_cls = (is_name) => {
+    return classNames(
+        ccs_contract("ShowStItem"),
+        {
+            "list-group-item": true,
+            "no-border": !is_name,
+            "name-bottom-border": is_name
+        }
+    );
+};
+
+
+const ShowStName = ({ children, is_name }) => {
+    return (!is_name ? <div className={"ccs-contract-strong ccs-contract-ShowStItem-name"}>{children}</div> : null);
+};
+
+
 class ShowStItem extends React.Component {
     constructor (props) {
         super(props);
@@ -40,23 +57,16 @@ class ShowStItem extends React.Component {
     }
 
     render () {
-        const { value, prButtonLabel, windowclassName, is_name } = this.props
+        const { value, prButtonLabel, windowclassName, is_name } = this.props;
         if ([undefined, true].includes(this.props.skipIfEmpty) && !this.state.pr && [undefined, null, '', 'Нет', 'Беспошлинно', 'Отсутствует'].includes(value)) {
-            return (<></>)
+            return null;
         } else {
-            const cls = classNames(
-                ccs_contract("ShowStItem"),
-                {
-                    "list-group-item": true,
-                    "no-border": !is_name,
-                    "name-bottom-border": is_name
-                }
-            )
+            const cls = get_item_cls(is_name);
             return (
                 <li className={cls}>
-                    {!is_name && <div className={"ccs-contract-strong ccs-contract-ShowStItem-name"}>{this.state.name + ':'}</div>}
+                    <ShowStName is_name={is_name}>{this.state.name}:</ShowStName>
                     <div className={classNames("ccs-contract-ShowStItem-value", {"mr-0  w-100": is_name})}>{this.props.value}</div>
-                    {this.state.pr && (
+                    {this.state.pr ? (
                         <DotsModalButton buttonLabel={prButtonLabel || "Выбрать"} ref={this.modalref} data={this.props.data}
                                      className={"ccs-contract-ShowStItem-button"}
                                      title={`Примечания по ${przdesc(this.props.prz)}`}
@@ -70,10 +80,10 @@ class ShowStItem extends React.Component {
                                       onAfterSelect={()=>{this.modalref.current.handleToggleModal()}}
                             />
                         </DotsModalButton>
-                    )}
-                    {!this.state.pr && !is_name && (
+                    ) : null}
+                    {!this.state.pr && !is_name ? (
                         <div className={"ccs-contract-ShowStItem-button"}>{nbsp}</div>
-                    )}
+                    ) : null}
                 </li>
             )
         }
@@ -113,68 +123,76 @@ const ShowStTitle = ({children}) => {
 
 /* Наименование направления */
 const ShowStType = ({children}) => {
-    return (<li className={'ccs-contract-type ccs-contract-ShowSt-type'}><div>{children}</div></li>);
+    const cls = classNames(
+        get_item_cls(true),
+        ccs_contract("ShowSt-type")
+    );
+    return (
+        <li className={cls}>
+            <ShowStName is_name={false}>{children}</ShowStName>
+        </li>
+    );
 }
 
 /* Список ставок и признаков по коду по выбранному направлению */
 const ShowSt = (props) => {
 
-    const { className, isclasses, classNamePrefix, data, tnved, G34='643', onSelect } = this.props;
+    const { className, isclasses, classNamePrefix, data, tnved, G34='643', onSelect } = props;
     const cls = classNames({
         [className]: !!className,
         [classNamePrefix]: !!classNamePrefix,
         [ccs_contract('ShowSt')]: true,
         'list-group': isclasses,
-        ...getcold(this.props, true, 'group')
+        ...getcold(props, true, 'group')
     });
 
     // массив типов для отображения
-    const typarr = this.props.typ === undefined ? [TYPE_IM, TYPE_EK] : [this.props.typ];
+    const typarr = props.typ === undefined ? [TYPE_IM, TYPE_EK] : [props.typ];
     // данные по пошлинам других стран
-    const tnvedcc_rec = get_tnvedcc_rec(g34, tnved === undefined? {} : tnved.TNVEDCC);
+    const tnvedcc_rec = get_tnvedcc_rec(G34, tnved === undefined? {} : tnved.TNVEDCC);
     // строковое представление ставок
-    const stavkas = calctxt(this.props.data, tnvedcc_rec);
+    const stavkas = calctxt(props.data, tnvedcc_rec);
     // не отображать наименование товара
-    const skipName = [undefined, false].includes(this.props.skipName);
+    const skipName = [undefined, false].includes(props.skipName);
     // нет данных
     const emptyTnved = isEmptyAll(tnved.TNVED);
     // список для отображения
     const items = [];
     // Проверка дат
-    code_error = emptyTnved ? '' : check_dates(tnved.TNVED.DSTART, tnved.TNVED.DEND);
+    const code_error = emptyTnved ? '' : check_dates(tnved.TNVED.DSTART, tnved.TNVED.DEND);
 
     if (!emptyTnved) {
         for (let typ of typarr) {
-            let przarr = get_type_priznak(this.props.typ, this.props.expertmode);
-            items.push(<ShowStType key={JSON.stringify({typ})}>{calctype(typ)}</ShowStType>);
+            let przarr = get_type_priznak(typ, props.expertmode);
+            items.push(<ShowStType key={typ}>{calctype()[typ]}:</ShowStType>);
             for (let prz of przarr) {
                 items.push(
                     <ShowStItem
                         prz={prz}
                         key={JSON.stringify({typ, prz})}
                         value={stavkas[prz]}
-                        data={this.props.tnved}
+                        data={props.tnved}
                         tnvedcc={tnvedcc_rec}
                         onSelect={(prz, base, tnvedall) => {
                             return onSelect !== undefined ? onSelect(prz, base, tnvedall) : false;
                         }}
-                        skipIfEmpty={this.props.skipIfEmpty}
-                        isclasses={this.props.isclasses}
-                        prButtonLabel={this.props.prButtonLabel}
-                        windowclassName={this.props.windowclassName}
+                        skipIfEmpty={props.skipIfEmpty}
+                        isclasses={props.isclasses}
+                        prButtonLabel={props.prButtonLabel}
+                        windowclassName={props.windowclassName}
                     />
-                )
+                );
             }
         }
     }
 
-    if (!isEmptyAll(this.props.data) && !isEmptyAll(this.props.tnved)) {
+    if (!isEmptyAll(props.data) && !isEmptyAll(props.tnved)) {
         return (
             <ul className={cls}>
-                {this.props.showTitle ? ( <ShowStTitle>{S_SHOWSTTITLE}</ShowStTitle> ) : null}
-                {skipName ? ( <ShowStItem name={"Наименование"} value={this.props.G312} is_name={true}/> ) : null}
-                {code_error ? (<AlertDanger isclasses={isclasses}>{code_error}</AlertDanger>) : null}
-                {emptyTnved ? (<AlertDanger isclasses={isclasses}>{S_EMPTYTNVED}</AlertDanger>) : null}
+                {props.showTitle ? ( <ShowStTitle>{S_SHOWSTTITLE}</ShowStTitle> ) : null}
+                {skipName ? ( <ShowStItem key="name" name={"Наименование"} value={props.G312} is_name={true}/> ) : null}
+                {code_error ? (<AlertDanger key="alert 1" isclasses={isclasses}>{code_error}</AlertDanger>) : null}
+                {emptyTnved ? (<AlertDanger key="alert 1" isclasses={isclasses}>{S_EMPTYTNVED}</AlertDanger>) : null}
                 { items }
             </ul>
         )

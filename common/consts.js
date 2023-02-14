@@ -14,17 +14,17 @@ const g47name = (g471, letter) => {
     }
 };
 
-const calctype = () => {
-    return {
-        0: "Импорт",
-        1: "Экспорт",
-        2: "Депозит"
-    }
-};
-
 const TYPE_IM = 0;
 const TYPE_EK = 1;
 const TYPE_DEPOSIT = 2;
+
+const calctype = () => {
+    return {
+        [TYPE_IM]: "Импорт",
+        [TYPE_EK]: "Экспорт",
+        [TYPE_DEPOSIT]: "Депозит"
+    }
+};
 
 const QTYFIELDS = ["G38", "GEDI1", "GEDI2", "GEDI3", "VOLUME"];
 

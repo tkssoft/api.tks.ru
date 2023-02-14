@@ -56,7 +56,7 @@ const SearchForm = (props) => {
                 onKeyDown={ handleEnter }
             />
             <button
-                className="btn btn-sm btn-outline-success my-2"
+                className="btn btn-sm btn-primary my-2"
                 onClick={handleSearch}
             >
                 Поиск

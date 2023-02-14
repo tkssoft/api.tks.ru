@@ -1,7 +1,8 @@
 
 /* Поиск текста в дереве ТН ВЭД */
 
-import { isNumeric } from '../common/numbers'
+import { isNumeric } from '../common/numbers';
+import { debug } from '../common/debug';
 
 // https://api1.tks.ru/tree.json/json/<ключ клиента>/search/?code=<code>&text=<goods_description>
 
@@ -23,7 +24,13 @@ const getTreeData = (search) => {
         // nothing yet
     }
     const url = `https://api.tks.ru/tree.json/json/${clientid}/search/?${sp.toString()}`
-    return fetch(url).then((r) => {return r.json()})
+    const starttime = new Date().getTime();
+    return fetch(url).then((r) => {
+        const endtime = new Date().getTime();
+        const duration = endtime - starttime;
+        debug(`search ${search}: ${duration} ms`);
+        return r.json()}
+    );
 }
 
 export {
