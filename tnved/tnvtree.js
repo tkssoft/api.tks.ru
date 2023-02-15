@@ -39,7 +39,7 @@ const DateWarning = ({ DBEGIN, DEND, isclasses }) => {
 
 
 const TreeItem = (props) => {
-    let { CODE, TEXT, level, onCodeRender, onClick, activeRef } = props;
+    let { CODE, TEXT, level, onCodeRender, onClick, activeRef, opened } = props;
     const cls = classNames(
         ccs_contract('treeitem'),
         ccs_contract('level-' + level),
@@ -48,17 +48,22 @@ const TreeItem = (props) => {
         'no-border',
         'cursor-pointer',
         'display-flex align-start',
-        { 'active': props.active }
+        {
+            'active': props.active,
+            'opened': opened
+        }
     );
     // Разделение кода и текста
     const re = /^(РАЗДЕЛ.*)\.(.*)$/;
     const r = re.exec(TEXT);
     let clen = CODE.length;
+    let is_part = false;
     if (r) {
         CODE = CODE || r[1];
         TEXT = r[2];
         clen = 0;
-    }
+        is_part = true;
+    };
     let clsname = 'text-bold ccs-contract-code-' + clen;
     let p = {};
     if (activeRef) {
@@ -78,7 +83,17 @@ const TreeItem = (props) => {
                     {onCodeRender && onCodeRender(CODE, TEXT)}
                 </>
             ) : (
-                <div className={classNames(ccs_contract('treetext'), ccs_contract('text_only'))}>{TEXT}</div>
+                <div
+                    className={
+                        classNames(
+                            ccs_contract('treetext'),
+                            ccs_contract('text_only'),
+                            {[ccs_contract('treebook')] : !is_part}
+                        )
+                    }
+                >
+                    {TEXT}
+                </div>
             )}
         </a>
     );
@@ -100,7 +115,12 @@ class TnvTree extends React.Component {
     }
 
     setInitId (initid) {
-        return this.insertRoot(initid);
+        return this.insertRoot(initid).then(() => {
+            console.log('focus');
+            if (this.seleted.current) {
+                this.selected.current.focus();
+            }
+        });
     }
 
     setSelected (selected) {
@@ -282,6 +302,7 @@ class TnvTree extends React.Component {
                             active={active}
                             onClick={this.itemClick.bind(this, i)}
                             activeRef={active ? this.selected : null}
+                            opened={this.opened(item, i)}
                             {...this.props}
                             {...item}
                         />

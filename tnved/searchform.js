@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { debug } from "../common/debug";
 import { getTreeData } from './tnved_search';
 import classNames from "classnames";
@@ -21,11 +21,15 @@ const SearchForm = (props) => {
     const [ value, setValue ] = useState(code || '');
     const [ state, setState ] = useState({'count' : 0, 'search' : ''});
     const [count, setCount] = useState(0);
+    const input = useRef(null);
 
     useEffect(() => {
         if (state.search) {
             if (onSearch) {
-                onSearch(state.search, onSearchResults)
+                if (input && input.current) {
+                    input.current.blur();
+                };
+                onSearch(state.search, onSearchResults);
             }
         }
     }, [state]);
@@ -54,6 +58,7 @@ const SearchForm = (props) => {
                 value={state.value}
                 onChange={(e) => setValue(e.target.value)}
                 onKeyDown={ handleEnter }
+                ref={input}
             />
             <button
                 className="btn btn-sm btn-primary my-2"

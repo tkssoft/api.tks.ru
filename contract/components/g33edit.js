@@ -50,6 +50,7 @@ const G33EditButtons = (props) => {
                     }}
                     code={props.value}
                     container={contentref}
+                    topScrollMargin={60}
                 />
             </ModalButton>
         )}

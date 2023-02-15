@@ -125,7 +125,7 @@ const TnvedApp = (props) => {
                         onChange={(node) => {
                             setCurrent(node)
                         }}
-                        topScrollMargin={0}
+                        topScrollMargin={60}
                         bottomScrollMargin={0}
                         onCodeRender={(acode, text) => {
                             if (show_stavkas) {
