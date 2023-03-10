@@ -46,7 +46,16 @@ const przdesc = (prz) => {
 const tr_note = (note) => {
     if (note) {
         var rexp = /((http|https|ftp):\/\/[\w?=&.\/-;#~%-]+(?![\w\s?&.\/;#~%"=-]*>))/g;
-        var s = note.split('\n').reduce((a, v) => {if (v) {a.push(v);} return a}, []).join('<br />');
+        var s = note.split('\n').reduce((a, v) => {
+            if (!isNullStr(v)) {
+                const s = v.trim();
+                if (s.length > 0) {
+                    a.push(v);
+                }
+            }
+            return a
+        }, []).join('<br />');
+        console.log('note', note, s);
         return s.replace(rexp, "<a href='$1' target='_blank'>$1</a>");
     }
     return null;
@@ -136,6 +145,7 @@ class ShowPrim extends React.Component {
                 <div className="list-group ccs-contract-ShowPrimContent w-100" role="tablist">
                     {this.state.stavkas.map((item, i) => {
                         const {stavka, note} = item;
+                        console.log('stavka', stavka, note);
                         const active = this.props.selectable && (i === this.state.selected) ? "active" : "";
                         const linkclass = active ? 'text-white' : 'text-link'
                         let style = {};
