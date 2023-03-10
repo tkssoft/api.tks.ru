@@ -9,7 +9,7 @@ const React = require('react');
 const { calctxt, is_pr, get_type_priznak } = require('./tnved_utils');
 const tnv_const = require('./tnv_const');
 const { DotsModalButton } = require('../common/modalbutton');
-const { ShowPrim, przdesc } = require('./shprim');
+const { ShowPrim } = require('./shprim');
 const { get_stavka, get_tnvedcc_rec } = require('./stavka');
 const { TYPE_IM, TYPE_EK, TYPE_DEPOSIT, nbsp, calctype } = require('../common/consts');
 const { AlertDanger } = require('../common/alert');
@@ -69,7 +69,7 @@ class ShowStItem extends React.Component {
                     {this.state.pr ? (
                         <DotsModalButton buttonLabel={prButtonLabel || "Выбрать"} ref={this.modalref} data={this.props.data}
                                      className={"ccs-contract-ShowStItem-button"}
-                                     title={`Примечания по ${przdesc(this.props.prz)}`}
+                                     title={tnv_const.przname(this.props.prz, false)}
                                      btnClassName={'btn btn-sm btn-danger display-flex'}
                                      isclasses={this.props.isclasses}
                                      windowclassName={windowclassName}

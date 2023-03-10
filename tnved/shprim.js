@@ -66,7 +66,6 @@ class ShowPrim extends React.Component {
         super(props);
         const { TNVED, TNVEDALL, TNVEDCC } = this.props.data;
         this.state = {
-            desc: przdesc(this.props.prz),
             stavkas: TNVEDALL[this.props.prz].reduce(
                 (a, v) => {
 
@@ -172,6 +171,5 @@ class ShowPrim extends React.Component {
 }
 
 export {
-    ShowPrim,
-    przdesc
+    ShowPrim
 }
