@@ -78,6 +78,7 @@ class ShowStItem extends React.Component {
                                       data={this.props.data}
                                       onSelect={this.props.onSelect}
                                       onAfterSelect={()=>{this.modalref.current.handleToggleModal()}}
+                                      current={this.props.value}
                             />
                         </DotsModalButton>
                     ) : null}

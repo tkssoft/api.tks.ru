@@ -8,6 +8,7 @@ const {calctxt, is_pr, calc_get5, get5} = require('./tnved_utils');
 const tnv_const = require('./tnv_const');
 const keys = require('../common/keys');
 const { isNullStr } = require('../common/utils');
+const classNames = require('classnames');
 
 const przdesc = (prz) => {
     switch (prz) {
@@ -132,6 +133,7 @@ class ShowPrim extends React.Component {
     }
 
     render () {
+        const selectable = !!this.props.onSelect;
         return (
             <div className="ccs-contract-ShowPrimWindow">
                 <div className="ccs-contract-ShowPrimTitle">
@@ -143,18 +145,32 @@ class ShowPrim extends React.Component {
                 <div className="list-group ccs-contract-ShowPrimContent w-100" role="tablist">
                     {this.state.stavkas.map((item, i) => {
                         const {stavka, note} = item;
-                        const active = this.props.selectable && (i === this.state.selected) ? "active" : "";
-                        const linkclass = active ? 'text-white' : 'text-link'
-                        let style = {};
+                        const isactive = selectable && (i === this.state.selected);
+                        const iscurrent = selectable && (stavka === this.props.current);
+                        console.log('iscurrent', stavka, this.props.current, iscurrent);
+                        const listitemcls = classNames(
+                            'list-group-item',
+                            'list-group-item-action',
+                            {
+                                'active': isactive
+                            },
+                        );
+                        const linkclass = classNames(
+                            'ccs-contract-strong',
+                            {
+                                'text-white': isactive,
+                                'text-link': !isactive,
+                                'ccs-contract-ShowPrimCurrent': iscurrent
+                            },
+                        );
                         return (
-                            <div className={"list-group-item list-group-item-action " + active}
+                            <div className={listitemcls}
                                key={i}
-                               style={style}
                                onClick={this.itemClick.bind(this, i)}
                                onDoubleClick={this.buttonClick.bind(this, i)}
                             >
                                 <div>
-                                    <a href="#" className={'ccs-contract-strong ' + linkclass} onClick={this.buttonClick.bind(this, i)}>{stavka}</a>
+                                    <a href="#" className={linkclass} onClick={this.buttonClick.bind(this, i)}>{stavka}</a>
                                     {!isNullStr(note) && (
                                         <p className="pt-2" dangerouslySetInnerHTML={{__html: note}} />
                                     )}
