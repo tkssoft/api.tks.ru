@@ -116,8 +116,7 @@ class TnvTree extends React.Component {
 
     setInitId (initid) {
         return this.insertRoot(initid).then(() => {
-            console.log('focus');
-            if (this.seleted.current) {
+            if (this.seleted && this.seleted.current) {
                 this.selected.current.focus();
             }
         });

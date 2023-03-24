@@ -17,10 +17,9 @@ const fire_result_event = (eventname, data) => {
 
 const SearchForm = (props) => {
 
-    const { isclasses, onSearchResults, code, onSearch, placeholder="Введите код...", onClick } = props;
+    const { isclasses, onSearchResults, code, onSearch, placeholder="Введите код...", onClick, onresultbuttons } = props;
     const [ value, setValue ] = useState(code || '');
     const [ state, setState ] = useState({'count' : 0, 'search' : ''});
-    const [count, setCount] = useState(0);
     const input = useRef(null);
 
     useEffect(() => {
@@ -66,22 +65,80 @@ const SearchForm = (props) => {
             >
                 Поиск
             </button>
+            {onresultbuttons && onresultbuttons(props)}
         </form>
     )
 }
 
 const TnvSearchForm = (props) => {
-    const { eventname=event_searchresults } = props
+    const { eventname=event_searchresults } = props;
+    const [ searchResult, setSearchResult ] = useState({
+        'current' : null,
+        'data' : null,
+        'onSearchResults' : null,
+    });
+    useEffect(() => {
+        const { current, data, onSearchResults } = searchResult;
+        if (data && data.length > 0) {
+            const result = data[current || 0];
+            if (onSearchResults) {
+                onSearchResults([result, ]);
+            } else {
+                fire_result_event(eventname, [result, ]);
+            }
+        }
+    }, [searchResult]);
     return (
         <SearchForm
             onSearch={(search, onSearchResults) => {
                 getTreeData(search).then((data) => {
-                    if (onSearchResults) {
-                        onSearchResults(data)
-                    } else {
-                        fire_result_event(eventname, data)
-                    }
+                    setSearchResult({
+                        'current' : 0,
+                        'data' : data,
+                        'onSearchResults' : onSearchResults,
+                    });
                 })
+            }}
+            onresultbuttons={(props) => {
+                const { current, data } = searchResult;
+                if (data && data.length > 0) {
+                    return (
+                        <div className="btn-group btn-group-sm ml-2">
+                            <button
+                                className="btn btn-sm btn-primary"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    if (current > 0) {
+                                        setSearchResult({
+                                            ...searchResult,
+                                            'current' : current - 1,
+                                        });
+                                    }
+                                }}
+                            >
+                                &lt;
+                            </button>
+                            <div className="ccs-search-results-counter">{current + 1} из {data.length}</div>
+                            <button
+                                className="btn btn-sm btn-primary"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    if (current < data.length - 1) {
+                                        const sr = {
+                                            ...searchResult,
+                                            'current' : current + 1,
+                                        };
+                                        setSearchResult(sr);
+                                    }
+                                }}
+                            >
+                                &gt;
+                            </button>
+                        </div>
+                    )
+                }
             }}
             {...props}
         />
