@@ -110,6 +110,8 @@ class TnvTree extends React.Component {
         this.state = {
             items: [],
             selected: 0,
+            // Признак, что дерево открыто в центре
+            center: false,
         };
         this.bindedHandle = this.handleKeyPress.bind(this)
     }
@@ -182,7 +184,10 @@ class TnvTree extends React.Component {
             .then((items) => {
                 this.setState({
                     items,
-                    selected: this.get_index_by_id(items, initid)
+                    selected: this.get_index_by_id(items, initid),
+                    center: true
+                }, () => {
+                    this.state.center = false;
                 })
             });
     }
@@ -237,7 +242,8 @@ class TnvTree extends React.Component {
                 container,
                 this.getTopScrollMargin(),
                 this.getBottomScrollMargin(),
-                relative
+                relative,
+                this.state.center
             );
         }
     }
