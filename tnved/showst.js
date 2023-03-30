@@ -67,18 +67,27 @@ class ShowStItem extends React.Component {
                     <ShowStName is_name={is_name}>{this.state.name}:</ShowStName>
                     <div className={classNames("ccs-contract-ShowStItem-value", {"mr-0  w-100": is_name})}>{this.props.value}</div>
                     {this.state.pr ? (
-                        <DotsModalButton buttonLabel={prButtonLabel || "Выбрать"} ref={this.modalref} data={this.props.data}
-                                     className={"ccs-contract-ShowStItem-button"}
-                                     title={tnv_const.przname(this.props.prz, false)}
-                                     btnClassName={'btn btn-sm btn-danger display-flex'}
-                                     isclasses={this.props.isclasses}
-                                     windowclassName={windowclassName}
+                        <DotsModalButton
+                            buttonLabel={prButtonLabel || "Выбрать"}
+                            modalref={this.modalref}
+                            data={this.props.data}
+                            className={"ccs-contract-ShowStItem-button"}
+                            title={tnv_const.przname(this.props.prz, false)}
+                            btnClassName={'btn btn-sm btn-danger display-flex'}
+                            isclasses={this.props.isclasses}
+                            windowclassName={windowclassName}
                         >
-                            <ShowPrim prz={this.props.prz}
-                                      data={this.props.data}
-                                      onSelect={this.props.onSelect}
-                                      onAfterSelect={()=>{this.modalref.current.handleToggleModal()}}
-                                      current={this.props.value}
+                            <ShowPrim
+                                prz={this.props.prz}
+                                data={this.props.data}
+                                onSelect={this.props.onSelect}
+                                onAfterSelect={()=>{
+                                    if (this.props.selectable) {
+                                        this.modalref.current.handleToggleModal();
+                                    }
+                                }}
+                                current={this.props.value}
+                                selectable={this.props.selectable}
                             />
                         </DotsModalButton>
                     ) : null}
@@ -181,6 +190,7 @@ const ShowSt = (props) => {
                         isclasses={props.isclasses}
                         prButtonLabel={props.prButtonLabel}
                         windowclassName={props.windowclassName}
+                        selectable={onSelect !== undefined}
                     />
                 );
             }

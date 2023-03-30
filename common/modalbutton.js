@@ -80,7 +80,7 @@ class ModalWindow extends React.Component {
                         e.stopPropagation();
                     }}
                 >
-                    <div className={'modalbutton-caption'}>
+                    <div className={'modalbutton-caption title'}>
                         <div className={'modalbutton-title'}>{this.props.title}</div>
                         {onTitle && onTitle(this.props)}
                         <button
@@ -115,13 +115,12 @@ class ModalButton extends React.Component {
     }
 
     handleToggleModal() {
-        debug('handleToggleModal');
         let that = this;
-        setTimeout(
+        setTimeout(() => {
             that.setState({
                 showModal: !that.state.showModal
-            }), 100
-        );
+            });
+        }, 100);
     }
 
     render() {
@@ -162,22 +161,15 @@ class ModalButton extends React.Component {
 }
 
 
-class DotsModalButton extends ModalButton {
-    render() {
-        return (
-            <ModalButton {...this.props} onIcon={() => <IconThreeDots />} />
-        )
-    }
+const DotsModalButton = (props) => {
+    return <ModalButton {...props} ref={props.modalref} onIcon={() => <IconThreeDots />} />
 }
 
 
-class DotsModalButtonVertical extends ModalButton {
-    render() {
-        return (
-            <ModalButton {...this.props} onIcon={() => <IconThreeDotsVertical />} />
-        )
-    }
+const DotsModalButtonVertical = (props) => {
+    return <ModalButton {...props} ref={props.modalref} onIcon={() => <IconThreeDotsVertical />} />
 }
+
 
 
 module.exports = {

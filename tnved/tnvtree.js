@@ -50,6 +50,7 @@ const TreeItem = (props) => {
         'display-flex align-start',
         {
             'active': props.active,
+            'current': props.active,
             'opened': opened
         }
     );

@@ -133,7 +133,7 @@ class ShowPrim extends React.Component {
     }
 
     render () {
-        const selectable = !!this.props.onSelect;
+        const selectable = this.props.selectable;
         return (
             <div className="ccs-contract-ShowPrimWindow">
                 <div className="ccs-contract-ShowPrimTitle">
@@ -146,13 +146,13 @@ class ShowPrim extends React.Component {
                     {this.state.stavkas.map((item, i) => {
                         const {stavka, note} = item;
                         const isactive = selectable && (i === this.state.selected);
-                        const iscurrent = selectable && (stavka === this.props.current);
-                        console.log('iscurrent', stavka, this.props.current, iscurrent);
+                        const isselected = selectable && (stavka === this.props.current);
                         const listitemcls = classNames(
                             'list-group-item',
                             'list-group-item-action',
                             {
-                                'active': isactive
+                                'active': isactive,
+                                'current': isactive,
                             },
                         );
                         const linkclass = classNames(
@@ -160,7 +160,7 @@ class ShowPrim extends React.Component {
                             {
                                 'text-white': isactive,
                                 'text-link': !isactive,
-                                'ccs-contract-ShowPrimCurrent': iscurrent
+                                'selected': isselected,
                             },
                         );
                         return (

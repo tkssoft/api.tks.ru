@@ -54,7 +54,7 @@ const ShowStWindow = (props) => {
                     G312={data.KR_NAIM}
                     G34={'643'}
                     skipName={false}
-                    skipIfEmpty={false}
+                    skipIfEmpty={true}
                     prButtonLabel='Варианты'
                     isclasses={isclasses}
                     expertmode={true}
