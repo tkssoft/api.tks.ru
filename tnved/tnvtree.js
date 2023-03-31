@@ -134,6 +134,13 @@ class TnvTree extends React.Component {
         });
     }
 
+    scroll (delta) {
+        const container = this.get_container();
+        if (container) {
+            container.scrollTop += delta;
+        }
+    }
+
     handleKeyPress = (e) => {
         if (e.keyCode === keys.VK_BACK) {
             // Закрываем дерево на один уровень
@@ -143,14 +150,18 @@ class TnvTree extends React.Component {
         } else if (e.keyCode === keys.VK_DOWN) {
             // Стрелка вниз
             e.preventDefault();
-            if (this.state.selected !== this.state.items.length - 1) {
+            if (this.state.selected < this.state.items.length - 1) {
                 this.setSelected(this.state.selected + 1);
+            } else {
+                this.scroll(50);
             }
         } else if (e.keyCode === keys.VK_UP) {
             // Стрелка вверх
             e.preventDefault();
             if (this.state.selected > 0) {
                 this.setSelected(this.state.selected - 1);
+            } else {
+                this.scroll(-50);
             }
         }
     }
@@ -223,6 +234,10 @@ class TnvTree extends React.Component {
         return container.scrollTop;
     }
 
+    get_container() {
+        return this.props.container?.current || document.body;
+    }
+
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (snapshot !== null) {
             const container = document.body;
@@ -237,7 +252,7 @@ class TnvTree extends React.Component {
             if (this.props.container !== undefined) {
                 relative = true;
             }
-            const container = this.props.container?.current || document.body;
+            const container = this.get_container();
             scrollIntoView(
                 this.selected.current,
                 container,

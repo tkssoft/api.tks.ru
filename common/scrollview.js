@@ -44,7 +44,6 @@ const scrollIntoView = function (
     const dtop = center ? height / 2 : 0;
     const top = (margintop || 0) + dtop;
     const bottom = height - (marginbottom || 0) - dtop;
-    debug('center', center, 'top', top, 'bottom', bottom, 'dtop', dtop);
     let offset_y = offset.y;
     if (relative) {
         const delta = container.parentElement.getBoundingClientRect().y +
@@ -53,8 +52,8 @@ const scrollIntoView = function (
     }
     const down = offset_y + offset.height > bottom;
     const is_visible = (offset_y > top) && !down;
+    let scrolltop = container.scrollTop;
     if (!is_visible) {
-        let scrolltop = container.scrollTop;
         if (down) {
             scrolltop += offset_y + offset.height - bottom;
         } else {
