@@ -413,7 +413,7 @@ class GoodsResult extends React.Component {
                 <div className={"list-group ccs-contract-goodsrow ccs-contract-goodscontent w-100"} role="tablist" ref={this.list} onClick={() => {}}>
                     {this.state.data.map((item, i) => {
                         const {CODE, KR_NAIM, CNT, loading, groupitem, opened} = item;
-                        const active = i === this.state.itemindex ? "active" : "";
+                        const active = i === this.state.itemindex ? "active current" : "";
                         const classname = groupitem ? 'ccs-contract-goodsitem-groupitem' : 'ccs-contract-goodsitem-codeitem'
                         const linkclass = active ? 'text-white' : 'ccs-contract-text-link'
                         return (
