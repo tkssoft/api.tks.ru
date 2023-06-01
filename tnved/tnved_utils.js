@@ -431,7 +431,8 @@ const get_type_priznak = (typ) => {
                 tnv_const.PRIZNAK_IMPORTSPECDUTY, // 16 Временная специальная пошлина
                 tnv_const.PRIZNAK_IMPORTADDDUTY, // 17 доп.имп. пошлина
                 tnv_const.PRIZNAK_PREF, // 5 Преференциальные для развивающихся стран
-                tnv_const.PRIZNAK_PREF_92 // 32 Преференциальные для наименее развитых стран
+                tnv_const.PRIZNAK_PREF_92, // 32 Преференциальные для наименее развитых стран
+                tnv_const.PRIZNAK_MARK // 28 маркировка
             ]
     }
 }
