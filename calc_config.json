@@ -1,0 +1,327 @@
+{
+    "common": {
+        "isclasses": 1,
+        "storage_section": "DemoApp"
+    },
+    "fields" : [
+        {
+            "fieldname": "SPOINT",
+            "displayLabel": "Пункт отгрузки",
+            "mode": "from",
+            "edittype": "Город",
+            "defaultvalue": "Пекин",
+            "save": 0
+        },
+        {
+            "fieldname": "EPOINT",
+            "displayLabel": "Пункт назначения",
+            "mode": "to",
+            "edittype": "Город",
+            "defaultvalue": "Москва",
+            "save": 0
+        },
+        {
+            "fieldname": "TYPE",
+            "defaultvalue": "0",
+            "save": 0,
+            "visible": 0
+        },
+        {
+            "fieldname": "G34",
+            "defaultvalue": "156",
+            "save": 0,
+            "visible": 0
+        },
+        {
+            "fieldname": "G45",
+            "g32": 1,
+            "row": 65
+        },
+        {
+            "fieldname": "G221",
+            "row": 65
+        },
+        {
+            "edittype": "КоличествоНеПустое",
+            "displayLabel": "Вес (отображается всегда, для расчета пользовательского поля).",
+            "fieldname": "G38",
+            "edi": "166",
+            "ediname": "КГ",
+            "g32": 1,
+            "row": 75
+        },
+        {
+            "fieldkind": "Вычисляемое",
+            "edittype": "Количество",
+            "fieldname": "VOLUME",
+            "displayLabel": "Объем (вычисляемое поле)",
+            "expression": "G38 * 16.5",
+            "edi": "112",
+            "ediname": "Л",
+            "g32": 1,
+            "row": 75
+        }
+    ],
+    "totals": {
+        "0": {
+            "name": "Итоговый расчет:",
+            "type": "ж/д транспорт",
+            "values": [
+                {
+                    "name": "Расчет контракта - перевозка ж/д транспортом:"
+                },
+                {
+                    "name": "Итого таможенные платежи:",
+                    "edizm": "BUK",
+                    "items": [
+                        {
+                            "name": "Сборы:",
+                            "formula": "SBORI",
+                            "edizm": "BUK"
+                        },
+                        {
+                            "name": "Пошлина:",
+                            "formula": "POSHL",
+                            "edizm": "BUK"
+                        },
+                        {
+                            "name": "Акциз:",
+                            "formula": "AKCIZ",
+                            "edizm": "BUK"
+                        },
+                        {
+                            "name": "НДС:",
+                            "formula": "NDS",
+                            "edizm": "BUK"
+                        }
+                    ]
+                },
+                {
+                    "name": "Срок доставки:",
+                    "formula": "'14 дней'"
+                },
+                {
+                    "variable": "TARIF",
+                    "formula": "130.0"
+                },
+                {
+                    "name": "Логистика:",
+                    "variable": "LOGISTICS",
+                    "edizm": "BUK",
+                    "items": [
+                        {
+                            "ifthen": {
+                                "condition": "G38 < 100",
+                                "formula": "TARIF * 1.5 * G38"
+                            }
+                        },
+                        {
+                            "ifthen": {
+                                "condition": "G38 >= 100",
+                                "formula": "TARIF * 0.8 * G38"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Перевод денег:",
+                    "formula": "(G45 + 200) * 0.015 + 200",
+                    "variable": "TRANSFER",
+                    "edizm": "BUK"
+                },
+                {
+                    "name": "Страховка:",
+                    "formula": "G45 * 0.01",
+                    "variable": "INSURANCE",
+                    "edizm": "BUK"
+                },
+                {
+                    "name": "Итого стоимость контракта:",
+                    "formula": "round2(TAMPLAT + LOGISTICS + TRANSFER + INSURANCE)",
+                    "edizm": "BUK"
+                },
+                {
+                    "name": "Ставка:",
+                    "edizm": "`${BUK}/кг`",
+                    "ifthen": {
+                        "condition": "G38 > 0",
+                        "formula": "round2((TAMPLAT + LOGISTICS) / G38)",
+                        "ifelse": {
+                            "formula": "0"
+                        }
+                    }
+                }
+            ]
+        },
+        "1": {
+            "name": "Итоговый расчет:",
+            "type": "авиа перевозка",
+            "values": [
+                {
+                    "name": "Итого (авиа перевозка):"
+                },
+                {
+                    "name": "Итого таможенные платежи:",
+                    "variable": "TOTAL",
+                    "items": [
+                        {
+                            "name": "Сборы:",
+                            "formula": "SBORI"
+                        },
+                        {
+                            "name": "Пошлина:",
+                            "formula": "POSHL"
+                        },
+                        {
+                            "name": "Акциз:",
+                            "formula": "AKCIZ"
+                        },
+                        {
+                            "name": "НДС:",
+                            "formula": "NDS"
+                        }
+                    ]
+                },
+                {
+                    "name": "Срок доставки:",
+                    "formula": "'2 дня'"
+                },
+                {
+                    "variable": "TARIF",
+                    "formula": "280.0"
+                },
+                {
+                    "name": "Логистика:",
+                    "variable": "LOGISTICS",
+                    "items": [
+                        {
+                            "ifthen": {
+                                "condition": "G38 < 100",
+                                "formula": "TARIF * 1.5 * G38"
+                            }
+                        },
+                        {
+                            "ifthen": {
+                                "condition": "G38 >= 100",
+                                "formula": "TARIF * 0.8 * G38"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Перевод денег:",
+                    "formula": "(G45 + 200) * 0.015 + 200",
+                    "variable": "TRANSFER",
+                    "edizm": "BUK"
+                },
+                {
+                    "name": "Страховка:",
+                    "formula": "G45 * 0.01",
+                    "variable": "INSURANCE",
+                    "edizm": "BUK"
+                },
+                {
+                    "name": "Итого стоимость контракта:",
+                    "formula": "round2(TAMPLAT + LOGISTICS + TRANSFER + INSURANCE)",
+                    "edizm": "BUK"
+                },
+                {
+                    "name": "Ставка:",
+                    "edizm": "`${BUK}/кг`",
+                    "ifthen": {
+                        "condition": "G38 > 0",
+                        "formula": "round2((TAMPLAT + LOGISTICS) / G38)",
+                        "ifelse": {
+                            "formula": "0"
+                        }
+                    }
+                }
+            ]
+        },
+        "2": {
+            "name": "Итоговый расчет:",
+            "type": "контейнеры",
+            "values": [
+                {
+                    "name": "Итого (перевозка контейнером):"
+                },
+                {
+                    "name": "Итого таможенные платежи:",
+                    "variable": "TOTAL",
+                    "items": [
+                        {
+                            "name": "Сборы:",
+                            "formula": "SBORI"
+                        },
+                        {
+                            "name": "Пошлина:",
+                            "formula": "POSHL"
+                        },
+                        {
+                            "name": "Акциз:",
+                            "formula": "AKCIZ"
+                        },
+                        {
+                            "name": "НДС:",
+                            "formula": "NDS"
+                        }
+                    ]
+                },
+                {
+                    "name": "Срок доставки:",
+                    "formula": "'28 дней'"
+                },
+                {
+                    "variable": "TARIF",
+                    "formula": "130.0"
+                },
+                {
+                    "name": "Логистика:",
+                    "variable": "LOGISTICS",
+                    "items": [
+                        {
+                            "ifthen": {
+                                "condition": "G38 < 100",
+                                "formula": "TARIF * 1.5 * G38"
+                            }
+                        },
+                        {
+                            "ifthen": {
+                                "condition": "G38 >= 100",
+                                "formula": "TARIF * 0.8 * G38"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Перевод денег:",
+                    "formula": "(G45 + 200) * 0.015 + 200",
+                    "variable": "TRANSFER",
+                    "edizm": "BUK"
+                },
+                {
+                    "name": "Страховка:",
+                    "formula": "G45 * 0.01",
+                    "variable": "INSURANCE",
+                    "edizm": "BUK"
+                },
+                {
+                    "name": "Итого стоимость контракта:",
+                    "formula": "round2(TAMPLAT + LOGISTICS + TRANSFER + INSURANCE)",
+                    "edizm": "BUK"
+                },
+                {
+                    "name": "Ставка:",
+                    "edizm": "`${BUK}/кг`",
+                    "ifthen": {
+                        "condition": "G38 > 0",
+                        "formula": "round2((TAMPLAT + LOGISTICS) / G38)",
+                        "ifelse": {
+                            "formula": "0"
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}
