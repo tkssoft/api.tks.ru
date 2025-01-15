@@ -42,7 +42,7 @@
 
 API ТН ВЭД предоставляет доступ к информации по кодам ТН ВЭД, мерах тарифного и нетарифного регулирования. Имеется возможность построения дерева кодов с помощью специального сервиса. Пример реализации есть в библиотеке.
 
-+ [Документация по работе с АПИ ТН ВЭД]([https://api1.tks.ru/docs/tnved.json/](https://github.com/tkssoft/api.tks.ru-docs/blob/main/TNVED.JSON.md))
++ [Документация по работе с АПИ ТН ВЭД](https://github.com/tkssoft/api.tks.ru-docs/blob/main/TNVED.JSON.md)
 + [Документация по дереву ТН ВЭД](https://github.com/tkssoft/api.tks.ru-docs/blob/main/TREE.JSON.md)
 + [Документация для сервиса подбора кода по наименованию](https://github.com/tkssoft/api.tks.ru-docs/blob/main/GOODS.JSON.md)
 
